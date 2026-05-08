@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import { AuthPage } from "../../features/auth/pages/AuthPage.jsx";
 import { DashboardPage } from "../layouts/DashboardPage.jsx";
 import { DashboardHome } from "../../features/dashboard/components/DashbboardHome.jsx";
+import { UsersHome } from "../../features/users/components/UsersHome.jsx";
 
 export const AppRoutes = ()=> {
 
@@ -15,6 +16,7 @@ export const AppRoutes = ()=> {
             {/* PROTECTED + ROLE */}
             <Route path="/dashboard/" element={<DashboardPage />}>
                 <Route path="dashboard" element={<DashboardHome />} />
+                <Route path="usuarios" element={<UsersHome />} />
             </Route>
 
 
