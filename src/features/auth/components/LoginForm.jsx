@@ -24,7 +24,7 @@ export const LoginForm = ({ onForgot }) => {
       return;
     }
 
-    navigate("/dashboard");
+    navigate("/dashboard/dashboard");
     toast.success("!Bienvenido de nuevo!");
 
   };

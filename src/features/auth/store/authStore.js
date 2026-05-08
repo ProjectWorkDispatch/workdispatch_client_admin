@@ -62,6 +62,9 @@ export const useAuthStore = create(
                     // Sólo administradores pueden inciar sesión en cliente-admin
                     const role = data?.userDetails?.role;
 
+                    console.log("LOGIN RESPONSE:", data);
+                    console.log("USER:", data.userDetails);
+                    console.log("ROLE:", data.userDetails?.role);
                     console.log(data);
                     console.log(data.userDetails);
                     console.log(data.userDetails?.role);
@@ -103,7 +106,7 @@ export const useAuthStore = create(
                         errorMessage = "Credenciales inválidas";
                     }
 
-                    set({ loading: false, error: errorMessage });
+                    set({error: errorMessage });
                     toast.error(errorMessage);
                     return { success: false, error: errorMessage };
                 } finally {

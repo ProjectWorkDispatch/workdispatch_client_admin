@@ -1,26 +1,51 @@
-import imgLogo from "../../../assets/img/kinal_sports.png";
+import { useLocation } from "react-router-dom";
+import { AvatarUser } from "../ui/AvatarUser";
+import { Notifications } from "../ui/Notifications";
 
-export const Navbar = () => {
+export const Navbar = ({ setSidebarOpen }) => {
+
+    const location = useLocation();
+
+    let pageName = "Panel";
+
+    if (location.pathname === "/dashboard/dashboard") {
+        pageName = "Dashboard";
+    } else if (location.pathname === "/dashboard/usuarios") {
+        pageName = "Usuarios";
+    } else if (location.pathname === "/dashboard/trabajos") {
+        pageName = "Trabajos";
+    } else if (location.pathname === "/dashboard/verificaciones") {
+        pageName = "Verificaciones";
+    } else if (location.pathname === "/dashboard/reportes") {
+        pageName = "Reportes";
+    }
+
     return (
-        <nav className="bg-white shadow-md sticky top-0 z-50">
-            <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <header className="h-16 bg-white border-b border-gray-200 shadow-sm flex items-center justify-between px-4 md:px-6">
 
-                {/* Logo + título */}
-                <div className="flex items-center gap-2">
-                    <img
-                        src={imgLogo}
-                        alt="Kinal Sports Logo"
-                        className="h-8 md:h-10 w-auto object-contain"
-                    />
+            <div className="flex items-center gap-3">
 
-                    <h1 className="font-bold text-main-blue text-lg">
-                        Kinal Sports Admin
-                    </h1>
+                <button
+                    onClick={() => setSidebarOpen(true)}
+                    className="md:hidden text-2xl text-gray-700"
+                >
+                    ☰
+                </button>
+
+                <div className="flex items-center gap-2 text-sm">
+                    <span className="text-gray-400">Admin</span>
+                    <span className="text-gray-300">{">"}</span>
+                    <span className="font-semibold text-gray-700">
+                        {pageName}
+                    </span>
                 </div>
-
-                {/* Avatar placeholder */}
-                <div className="w-10 h-10 rounded-full bg-gray-200" />
             </div>
-        </nav>
+
+            <div className="flex items-center gap-5">
+                <Notifications />
+
+                <AvatarUser />
+            </div>
+        </header>
     );
 };
