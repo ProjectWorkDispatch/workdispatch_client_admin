@@ -4,6 +4,7 @@ import { DashboardPage } from "../layouts/DashboardPage.jsx";
 import { DashboardHome } from "../../features/dashboard/components/DashbboardHome.jsx";
 import { UsersHome } from "../../features/users/components/UsersHome.jsx";
 import { JobsHome } from "../../features/jobs/components/JobsHome.jsx";
+import { VerificationsHome } from "../../features/verifications/components/VerificationsHome.jsx";
 
 
 export const AppRoutes = () => {
@@ -20,6 +21,7 @@ export const AppRoutes = () => {
                 <Route path="dashboard" element={<DashboardHome />} />
                 <Route path="usuarios" element={<UsersHome />} />
                 <Route path="trabajos" element={<JobsHome />} />
+                <Route path="verificaciones" element={<VerificationsHome />} />
             </Route>
 
 
