@@ -5,7 +5,7 @@ import { DashboardHome } from "../../features/dashboard/components/DashbboardHom
 import { UsersHome } from "../../features/users/components/UsersHome.jsx";
 import { JobsHome } from "../../features/jobs/components/JobsHome.jsx";
 import { VerificationsHome } from "../../features/verifications/components/VerificationsHome.jsx";
-
+import { ReportsHome } from "../../features/reports/components/ReportsHome.jsx";
 
 export const AppRoutes = () => {
 
@@ -22,6 +22,7 @@ export const AppRoutes = () => {
                 <Route path="usuarios" element={<UsersHome />} />
                 <Route path="trabajos" element={<JobsHome />} />
                 <Route path="verificaciones" element={<VerificationsHome />} />
+                <Route path="reportes" element={<ReportsHome />} />
             </Route>
 
 
