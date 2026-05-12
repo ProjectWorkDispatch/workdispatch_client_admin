@@ -239,9 +239,9 @@ export const ReportsHome = () => {
                         className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm text-gray-600 placeholder:text-gray-400 focus:border-green-400 focus:ring-2 focus:ring-green-100"
                     />
 
-                    <div className="flex items-center justify-between mt-4">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mt-4">
                         <div className="flex flex-wrap items-center gap-2">
-                            <span className="text-xs text-gray-400">
+                            <span className="text-xs text-gray-400 self-end lg:self-auto">
                                 Estado:
                             </span>
 

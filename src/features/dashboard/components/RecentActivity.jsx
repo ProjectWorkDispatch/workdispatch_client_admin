@@ -11,7 +11,7 @@ const activities = [
 
 export const RecentActivity = () => {
     return (
-        <article className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-100 flex items-end gap-2">
                 <img src={Activity} alt="Activity" className="w-5 h-5" />
                 <h3 className="font-bold text-[#0F172A]">
@@ -19,13 +19,13 @@ export const RecentActivity = () => {
                 </h3>
             </div>
 
-            <div className="px-5 py-4 space-y-5">
+            <div className="px-4 sm:px-5 py-4 space-y-5">
                 {activities.map((activity) => (
                     <div key={activity.text} className="flex gap-3">
                         <span className={`w-2 h-2 rounded-full mt-2 ${activity.color}`} />
 
                         <div>
-                            <p className="text-sm text-slate-700">
+                            <p className="text-sm text-slate-700 leading-relaxed">
                                 {activity.text}
                             </p>
                             <p className="text-xs text-gray-400 mt-1">
@@ -35,6 +35,6 @@ export const RecentActivity = () => {
                     </div>
                 ))}
             </div>
-        </article>
+        </div>
     );
 };

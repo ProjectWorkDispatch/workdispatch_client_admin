@@ -11,7 +11,7 @@ const users = [
 
 export const RecentUsers = () => {
     return (
-        <article className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <img src={TotalUsers} alt="Total Users" className="w-5 h-5" />
@@ -31,8 +31,7 @@ export const RecentUsers = () => {
                 {users.map((user) => (
                     <div
                         key={user.name}
-                        className="px-5 py-4 flex items-center justify-between border-b border-gray-50 last:border-b-0"
-                    >
+                        className="px-4 sm:px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-50 last:border-b-0">
                         <div className="flex items-center gap-3">
                             <div className="w-9 h-9 rounded-full bg-slate-700 text-white flex items-center justify-center text-xs font-bold">
                                 {user.initials}
@@ -49,7 +48,7 @@ export const RecentUsers = () => {
                         </div>
 
                         <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${user.status === "activo"
+                            className={`self-end sm:self-auto px-3 py-1 rounded-full text-xs font-semibold ${user.status === "activo"
                                 ? "bg-green-100 text-green-600"
                                 : user.status === "pendiente"
                                     ? "bg-yellow-100 text-yellow-600"
@@ -61,6 +60,6 @@ export const RecentUsers = () => {
                     </div>
                 ))}
             </div>
-        </article>
+        </div>
     );
 };

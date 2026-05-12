@@ -259,7 +259,7 @@ export const UsersHome = () => {
 
     return (
         <section className="space-y-6">
-            <div className="flex items-start justify-between">
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-[#0F172A]">
                         Usuarios
@@ -269,7 +269,7 @@ export const UsersHome = () => {
                     </p>
                 </div>
 
-                <button className="px-4 py-2 rounded-2xl bg-white border border-gray-200 shadow-sm text-sm font-semibold text-slate-600 hover:bg-gray-50 transition flex items-center gap-2">
+                <button className="w-fit px-4 py-2 rounded-2xl bg-white border border-gray-200 shadow-sm text-sm font-semibold text-slate-600 hover:bg-gray-50 transition flex items-center gap-2">
                     <img src={Exp} alt="Exportar" className="w-4 h-4" />
                     Exportar CSV
                 </button>
@@ -311,7 +311,7 @@ export const UsersHome = () => {
                         className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm text-gray-600 placeholder:text-gray-400 focus:border-green-400 focus:ring-2 focus:ring-green-100"
                     />
 
-                    <div className="flex items-center justify-between mt-4">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mt-4">
                         <div className="flex flex-wrap gap-2">
                             <FilterButton text="Todos" filter={filter} setFilter={handleFilter} />
                             <FilterButton text="Clientes" filter={filter} setFilter={handleFilter} />
@@ -350,9 +350,9 @@ const FilterButton = ({ text, filter, setFilter }) => {
     return (
         <button
             onClick={() => setFilter(text)}
-            className={`px-3 py-1 rounded-full text-xs font-semibold transition ${active
-                    ? "bg-green-500 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            className={`px-3 sm:px-4 py-2 rounded-full text-xs font-semibold transition whitespace-nowrap ${active
+                ? "bg-green-500 text-white"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
         >
             {text}

@@ -16,7 +16,7 @@ export const ReportModal = ({
                 onClick={onClose}
             />
 
-            <div className="relative bg-white w-full max-w-xl rounded-2xl shadow-xl overflow-hidden">
+            <div className="relative bg-white w-[95%] sm:w-full max-w-xl rounded-2xl shadow-xl overflow-hidden max-h-[90vh] overflow-y-auto">
                 <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
                     <h2 className="flex items-center gap-2 text-lg font-bold text-[#0F172A]">
                         <img src={reports} alt="Reports" className="w-6 h-6" />
@@ -94,7 +94,7 @@ export const ReportModal = ({
                     )}
 
                     {report.status === "Pendiente" ? (
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <button
                                 onClick={() => onIgnore(report.id)}
                                 className="py-3 rounded-xl border border-gray-200 text-gray-600 font-semibold hover:bg-gray-50 transition flex items-center justify-center gap-2"
@@ -145,7 +145,7 @@ const UserCard = ({
                 {title}
             </p>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-start gap-3">
                 <div
                     className={`w-12 h-12 rounded-full ${color} text-white flex items-center justify-center font-bold`}
                 >
@@ -170,7 +170,7 @@ const UserCard = ({
 
 const DetailRow = ({ label, value }) => {
     return (
-        <div className="flex items-center justify-between gap-4 border-b border-gray-100 pb-2">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-gray-100 pb-2">
             <p className="text-sm text-gray-500">
                 {label}
             </p>

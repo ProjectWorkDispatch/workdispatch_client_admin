@@ -22,10 +22,10 @@ export const DashboardHome = () => {
     const formattedDate =
         currentDate.charAt(0).toUpperCase() + currentDate.slice(1);
 
-    
+
     return (
         <section className="space-y-6">
-            <div className="flex items-start justify-between">
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-[#0F172A]">
                         Panel de Control
@@ -35,7 +35,7 @@ export const DashboardHome = () => {
                     </p>
                 </div>
 
-                <div className="px-4 py-2 rounded-full bg-green-50 border border-green-200 text-green-600 text-sm font-medium">
+                <div className="w-fit px-4 py-2 rounded-full bg-green-50 border border-green-200 text-green-600 text-sm font-medium">
                     ● Sistema operativo
                 </div>
             </div>

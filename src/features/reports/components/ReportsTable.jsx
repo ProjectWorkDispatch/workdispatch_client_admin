@@ -11,8 +11,8 @@ export const ReportsTable = ({
     onIgnore
 }) => {
     return (
-        <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+        <div className="w-full overflow-x-auto">
+            <table className="min-w-225 w-full text-sm">
                 <thead className="bg-gray-50 text-gray-500">
                     <tr>
                         <th className="text-left font-medium px-5 py-4">
@@ -133,7 +133,7 @@ export const ReportsTable = ({
                 </tbody>
             </table>
 
-            <div className="flex items-center justify-between px-5 py-4 border-t border-gray-100">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-5 py-4 border-t border-gray-100">
                 <p className="text-xs text-gray-400">
                     Mostrando {reports.length} de {totalReports} reportes
                     <span className="text-yellow-600 font-semibold">

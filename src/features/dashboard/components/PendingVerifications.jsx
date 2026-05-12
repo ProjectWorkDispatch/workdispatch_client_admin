@@ -10,7 +10,7 @@ const verifications = [
 
 export const PendingVerifications = () => {
     return (
-        <article className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
                 <div className="flex items-center gap-2">
                     <img src={Verifications} alt="Verifications" className="w-5 h-5" />
@@ -29,24 +29,24 @@ export const PendingVerifications = () => {
                 {verifications.map((item) => (
                     <div
                         key={item.name}
-                        className="px-5 py-4 flex items-center justify-between border-b border-gray-50 last:border-b-0"
-                    >
-                        <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-yellow-100 text-yellow-500 flex items-center justify-center text-xs font-bold">
+                        className="px-4 sm:px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-50 last:border-b-0">
+                        <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-9 h-9 rounded-full bg-yellow-100 text-yellow-500 flex items-center justify-center text-xs font-bold shrink-0">
                                 ✓
                             </div>
 
-                            <div>
-                                <p className="font-semibold text-sm text-[#0F172A]">
+                            <div className="min-w-0">
+                                <p className="font-semibold text-sm text-[#0F172A] truncate">
                                     {item.name}
                                 </p>
-                                <p className="text-xs text-gray-400">
+
+                                <p className="text-xs text-gray-400 wrap-break-words">
                                     Cédula · {item.id} · {item.time}
                                 </p>
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 self-end sm:self-auto">
                             <span
                                 className={`px-3 py-1 rounded-full text-xs font-semibold ${item.priority === "alta"
                                         ? "bg-red-100 text-red-600"
@@ -57,13 +57,13 @@ export const PendingVerifications = () => {
                             >
                                 {item.priority}
                             </span>
+                            <button className="text-green-500 font-bold text-lg hover:scale-110 transition">✓</button>
 
-                            <button className="text-green-500 font-bold">✓</button>
-                            <button className="text-red-400 font-bold">×</button>
+                            <button className="text-red-400 font-bold text-lg hover:scale-110 transition">×</button>
                         </div>
                     </div>
                 ))}
             </div>
-        </article>
+        </div>
     );
 };

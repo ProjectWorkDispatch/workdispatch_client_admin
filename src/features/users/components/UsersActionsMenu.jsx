@@ -48,7 +48,7 @@ export const UsersActionsMenu = ({ user }) => {
             </button>
 
             {open && (
-                <div className="absolute right-0 top-8 w-40 bg-white border border-gray-100 rounded-lg shadow-lg z-50 py-1">
+                <div className="absolute right-0 top-10 w-44 bg-white border border-gray-100 rounded-xl shadow-lg z-50 py-1">
                     <button
                         onClick={handleViewProfile}
                         className="block w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-gray-50"

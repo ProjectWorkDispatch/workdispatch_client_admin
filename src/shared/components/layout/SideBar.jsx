@@ -2,6 +2,16 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import imgLogo from "../../../assets/img/logo_WorkDispatch.png";
 import { AvatarUser } from "../ui/AvatarUser";
 import { useAuthStore } from "../../../features/auth/store/authStore.js";
+import jobGr from "../../../assets/icons/jobGr.svg";
+import reportGr from "../../../assets/icons/reportGr.svg";
+import usersGr from "../../../assets/icons/usersGr.svg";
+import dashboardGr from "../../../assets/icons/dashboardGr.svg";
+import verificationsGr from "../../../assets/icons/verificationsGr.svg";
+import JobIconG from "../../../assets/icons/JobIconG.svg";
+import reportGre from "../../../assets/icons/reportGre.svg";
+import usersGre from "../../../assets/icons/usersGre.svg";
+import dashboardGre from "../../../assets/icons/dashboardGre.svg";
+import verificationsGre from "../../../assets/icons/verificationsGre.svg";
 
 export const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
@@ -16,11 +26,11 @@ export const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
     };
 
     const items = [
-        { label: "Dashboard", to: "/dashboard/dashboard" },
-        { label: "Usuarios", to: "/dashboard/usuarios" },
-        { label: "Trabajos", to: "/dashboard/trabajos" },
-        { label: "Verificaciones", to: "/dashboard/verificaciones" },
-        { label: "Reportes", to: "/dashboard/reportes" }
+        { label: "Dashboard", to: "/dashboard/dashboard", icon: dashboardGr, iconHover: dashboardGre },
+        { label: "Usuarios", to: "/dashboard/usuarios", icon: usersGr, iconHover: usersGre },
+        { label: "Trabajos", to: "/dashboard/trabajos", icon: jobGr, iconHover: JobIconG },
+        { label: "Verificaciones", to: "/dashboard/verificaciones", icon: verificationsGr, iconHover: verificationsGre },
+        { label: "Reportes", to: "/dashboard/reportes", icon: reportGr, iconHover: reportGre }
     ];
 
     console.log("SIDEBAR RENDERIZADO")
@@ -86,13 +96,31 @@ export const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                                         to={item.to}
                                         onClick={() => setSidebarOpen(false)}
                                         className={`
-                                            block w-full text-left px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-300
+                                            relative group flex items-center gap-3 w-full text-left px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-300
                                             ${active
                                                 ? "bg-green-400/5 text-green-400"
                                                 : "text-gray-400 hover:bg-white/5 hover:text-white"
                                             }
                                         `}
                                     >
+                                        {active && (
+                                            <span className="absolute right-4 text-green-400 text-md opacity-70 font-bold">
+                                                {">"}
+                                            </span>
+                                        )}
+
+                                        <img
+                                            src={active ? item.iconHover : item.icon}
+                                            alt={item.label}
+                                            className={`
+                                                w-4 h-4 transition-all duration-300
+                                                ${active
+                                                    ? ""
+                                                    : "opacity-70 group-hover:opacity-100 group-hover:brightness-0 group-hover:invert"
+                                                }
+                                          `}
+                                        />
+
                                         {item.label}
                                     </Link>
                                 </li>

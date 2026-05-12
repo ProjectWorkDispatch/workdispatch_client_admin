@@ -14,7 +14,7 @@ export const JobsTable = ({
 }) => {
     return (
         <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full min-w-300 text-sm">
                 <thead className="bg-gray-50 text-gray-400 uppercase text-xs">
                     <tr>
                         <th className="text-left font-semibold px-5 py-4">ID</th>
@@ -56,13 +56,13 @@ export const JobsTable = ({
                                             <img src={JobIconG} alt="Trabajo activo" className="w-4 h-4" />
                                         </div>
 
-                                        <div>
-                                            <p className="font-semibold text-[#0F172A] max-w-60 truncate">
+                                        <div className="min-w-0">
+                                            <p className="font-semibold text-[#0F172A] truncate">
                                                 {job.title}
                                             </p>
                                             <p className="text-xs text-gray-400 flex items-center gap-1 mt-1">
-                                                <img src={date} alt="Fecha" className="w-3 h-3" />  
-                                                 {job.date}
+                                                <img src={date} alt="Fecha" className="w-3 h-3" />
+                                                {job.date}
                                             </p>
                                         </div>
                                     </div>
@@ -117,7 +117,7 @@ export const JobsTable = ({
                                         <img
                                             src={view}
                                             alt="Ver detalles"
-                                            className="w-4 h-4"
+                                            className="w-4 h-4 object-contain"
                                         />
                                     </button>
                                 </td>
@@ -127,7 +127,7 @@ export const JobsTable = ({
                 </tbody>
             </table>
 
-            <div className="flex items-center justify-between px-5 py-4 border-t border-gray-100">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-5 py-4 border-t border-gray-100">
                 <p className="text-xs text-gray-400">
                     Mostrando{" "}
                     {totalJobs === 0 ? 0 : startIndex + 1}
@@ -172,14 +172,14 @@ export const JobsTable = ({
 
 const PersonCell = ({ initials, name, color }) => {
     return (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 min-w-0">
             <div
-                className={`w-8 h-8 rounded-full ${color} text-white flex items-center justify-center text-xs font-bold`}
+                className={`w-8 h-8 rounded-full flex items-center justify-center ${color} text-white flex items-center justify-center text-xs font-bold`}
             >
                 {initials}
             </div>
 
-            <span className="text-slate-700">{name}</span>
+            <span className="text-slate-700 truncate">{name}</span>
         </div>
     );
 };

@@ -12,7 +12,7 @@ export const VerificationsTable = ({
 }) => {
     return (
         <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="min-w-225 w-full text-sm">
                 <thead className="bg-gray-50 text-gray-500">
                     <tr>
                         <th className="text-left font-medium px-5 py-4">
@@ -77,7 +77,7 @@ export const VerificationsTable = ({
                                                 {verification.name}
                                             </p>
 
-                                            <p className="text-xs text-gray-400">
+                                            <p className="text-xs text-gray-400 wrap-break-words">
                                                 {verification.email}
                                             </p>
                                         </div>
@@ -111,7 +111,7 @@ export const VerificationsTable = ({
                                 </td>
 
                                 <td className="px-5 py-4">
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center justify-center gap-1">
                                         <button
                                             onClick={() => onView(verification)}
                                             className="w-8 h-8 rounded-full bg-blue-50 text-blue-500 hover:bg-blue-100 flex items-center justify-center"
@@ -144,7 +144,7 @@ export const VerificationsTable = ({
                 </tbody>
             </table>
 
-            <div className="flex items-center justify-between px-5 py-4 border-t border-gray-100">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-5 py-4 border-t border-gray-100">
                 <p className="text-xs text-gray-400">
                     Mostrando {verifications.length} de {totalVerifications} solicitudes
                     <span className="text-yellow-600 font-semibold">

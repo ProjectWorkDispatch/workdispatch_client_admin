@@ -1,4 +1,8 @@
 import { UsersActionsMenu } from "./UsersActionsMenu";
+import personC from "../../../assets/icons/personC.svg";
+import PersonD from "../../../assets/icons/PersonD.svg";
+import cancel from "../../../assets/icons/cancel.svg";
+import check from "../../../assets/icons/check.svg";
 
 export const UsersTable = ({
     users,
@@ -14,7 +18,7 @@ export const UsersTable = ({
 }) => {
     return (
         <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full min-w-225 text-sm">
                 <thead className="bg-gray-50 text-gray-500">
                     <tr>
                         <th className="text-left font-medium px-5 py-4">
@@ -64,19 +68,18 @@ export const UsersTable = ({
                                 className="border-t border-gray-100 hover:bg-gray-50 transition"
                             >
                                 <td className="px-5 py-4">
-                                    <div className="flex items-center gap-3">
+                                    <div className="flex items-center gap-3 min-w-0">
                                         <div
-                                            className={`w-9 h-9 rounded-full ${user.color} text-white flex items-center justify-center text-xs font-bold`}
-                                        >
+                                            className={`w-9 h-9 rounded-full ${user.color} text-white flex items-center justify-center text-xs font-bold`}>
                                             {user.initials}
                                         </div>
 
-                                        <div>
-                                            <p className="font-semibold text-[#0F172A]">
+                                        <div className="min-w-0">
+                                            <p className="font-semibold text-[#0F172A] truncate">
                                                 {user.name}
                                             </p>
 
-                                            <p className="text-xs text-gray-400">
+                                            <p className="text-xs text-gray-400 truncate">
                                                 {user.email}
                                             </p>
                                         </div>
@@ -104,37 +107,38 @@ export const UsersTable = ({
                                 </td>
 
                                 <td className="px-5 py-4">
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2 whitespace-nowrap">
                                         <button
                                             onClick={() => onVerifyUser(user.email)}
-                                            className="w-8 h-8 rounded-full bg-green-50 text-green-500 hover:bg-green-100"
+                                            className="w-8 h-8 rounded-full bg-green-50 text-green-500 hover:bg-green-100 flex items-center justify-center"
                                             title="Verificar usuario"
                                         >
-                                            ♙
+                                            <img src={personC} alt="Verificar" className="w-4.5 h-4.5" />
                                         </button>
 
                                         <button
                                             onClick={() => onRejectUser(user.email)}
-                                            className="w-8 h-8 rounded-full bg-orange-50 text-orange-500 hover:bg-orange-100"
+                                            className="w-8 h-8 rounded-full bg-orange-50 text-orange-500 hover:bg-orange-100 flex items-center justify-center"
                                             title="Rechazar usuario"
                                         >
-                                            ⊗
+                                            <img src={cancel} alt="Rechazar" className="w-4.5 h-4.5" />
                                         </button>
 
                                         <button
                                             onClick={() => onToggleStatus(user.email)}
-                                            className={`w-8 h-8 rounded-full ${
-                                                user.status === "Suspendido"
-                                                    ? "bg-green-50 text-green-500 hover:bg-green-100"
-                                                    : "bg-red-50 text-red-500 hover:bg-red-100"
-                                            }`}
+                                            className={`w-8 h-8 rounded-full ${user.status === "Suspendido"
+                                                ? "bg-green-50 text-green-500 hover:bg-green-100 flex items-center justify-center"
+                                                : "bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center"
+                                                }`}
                                             title={
                                                 user.status === "Suspendido"
                                                     ? "Activar usuario"
                                                     : "Suspender usuario"
                                             }
                                         >
-                                            {user.status === "Suspendido" ? "✓" : "♙"}
+                                            {user.status === "Suspendido" ?
+                                                <img src={check} alt="Activar" className="w-4.5 h-4.5" /> :
+                                                <img src={PersonD} alt="Activar" className="w-4.5 h-4.5" />}
                                         </button>
 
                                         <UsersActionsMenu user={user} />
@@ -146,7 +150,7 @@ export const UsersTable = ({
                 </tbody>
             </table>
 
-            <div className="flex items-center justify-between px-5 py-4 border-t border-gray-100">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-5 py-4 border-t border-gray-100">
                 <p className="text-xs text-gray-400">
                     Mostrando{" "}
                     {totalUsers === 0 ? 0 : startIndex + 1}
@@ -154,7 +158,7 @@ export const UsersTable = ({
                     {Math.min(endIndex, totalUsers)} de {totalUsers} usuarios
                 </p>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                     <button
                         onClick={() => setCurrentPage(currentPage - 1)}
                         disabled={currentPage === 1}
@@ -167,11 +171,10 @@ export const UsersTable = ({
                         <button
                             key={index + 1}
                             onClick={() => setCurrentPage(index + 1)}
-                            className={`w-8 h-8 rounded-lg text-sm font-semibold ${
-                                currentPage === index + 1
-                                    ? "bg-green-500 text-white"
-                                    : "text-gray-500 hover:bg-gray-100"
-                            }`}
+                            className={`w-8 h-8 rounded-lg text-sm font-semibold ${currentPage === index + 1
+                                ? "bg-green-500 text-white"
+                                : "text-gray-500 hover:bg-gray-100"
+                                }`}
                         >
                             {index + 1}
                         </button>

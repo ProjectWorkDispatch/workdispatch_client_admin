@@ -12,7 +12,7 @@ export const JobModal = ({ job, onClose }) => {
                 onClick={onClose}
             />
 
-            <div className="relative bg-white w-full max-w-xl rounded-2xl shadow-xl overflow-hidden">
+            <div className="relative bg-white w-[95%] sm:w-full max-w-xl rounded-2xl shadow-xl overflow-hidden max-h-[90vh] overflow-y-auto">
                 <div className="p-6 border-b border-gray-100 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <div className="w-11 h-11 rounded-xl bg-green-50 text-green-500 flex items-center justify-center font-bold">
@@ -66,7 +66,7 @@ export const JobModal = ({ job, onClose }) => {
                         />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <DetailItem
                             icon={<img src={money} alt="Presupuesto" className="w-4 h-4" />}
                             label="Presupuesto"
@@ -173,7 +173,7 @@ const DetailItem = ({ icon, label, value, color }) => {
 const StatusBadge = ({ value }) => {
     if (value === "Finalizado") {
         return (
-            <span className="px-3 py-1 rounded-full bg-green-100 border border-green-200 text-green-600 text-xs font-semibold">
+            <span className="px-2.5 py-1 rounded-full bg-green-100 border border-green-200 text-green-600 text-xs font-semibold">
                 ● Finalizado
             </span>
         );

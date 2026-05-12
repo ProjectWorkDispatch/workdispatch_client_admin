@@ -18,7 +18,7 @@ export const VerificationModal = ({
                 onClick={onClose}
             />
 
-            <div className="relative bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden">
+            <div className="relative bg-white w-[95%] sm:w-full max-w-md rounded-2xl shadow-xl overflow-hidden max-h-[90vh] overflow-y-auto">
                 <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
                     <h2 className="flex items-center gap-2 text-lg font-bold text-[#0F172A]">
                         <img src={detail} alt="Detalle" className="w-5 h-5" />
@@ -135,7 +135,7 @@ export const VerificationModal = ({
 
 const DetailRow = ({ label, value }) => {
     return (
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <p className="text-sm text-gray-500">
                 {label}
             </p>

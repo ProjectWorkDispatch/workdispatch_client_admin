@@ -209,7 +209,7 @@ export const VerificationsHome = () => {
 
     return (
         <section className="space-y-6">
-            <div className="flex items-start justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-[#0F172A]">
                         Verificaciones
@@ -219,13 +219,13 @@ export const VerificationsHome = () => {
                     </p>
                 </div>
 
-                <div className="px-4 py-2 rounded-full bg-yellow-50 border border-yellow-200 text-yellow-600 text-sm font-medium flex items-center gap-1">
+                <div className="w-fit px-4 py-2 rounded-full bg-yellow-50 border border-yellow-200 text-yellow-600 text-sm font-medium flex items-center gap-2">
                     <img src={pending} alt="Pendiente" className="w-4 h-4" />
-                    {pendingRequests} pendientes de revisión
+                    <span>{pendingRequests} pendientes de revisión</span>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
                 <VerificationStatsCard
                     value={totalRequests}
                     label="Total solicitudes"
@@ -261,7 +261,7 @@ export const VerificationsHome = () => {
                         className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm text-gray-600 placeholder:text-gray-400 focus:border-green-400 focus:ring-2 focus:ring-green-100"
                     />
 
-                    <div className="flex items-center justify-between mt-4">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mt-4">
                         <div className="flex flex-wrap items-center gap-2">
                             <span className="text-xs text-gray-400">
                                 Estado:
@@ -354,11 +354,10 @@ const FilterButton = ({ text, current, setFilter }) => {
     return (
         <button
             onClick={() => setFilter(text)}
-            className={`px-3 py-1 rounded-full text-xs font-semibold transition ${
-                active
+            className={`px-3 py-1 rounded-full text-xs font-semibold transition ${active
                     ? "bg-green-500 text-white"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
+                }`}
         >
             {text}
         </button>
