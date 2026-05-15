@@ -14,6 +14,8 @@ import dashboardGre from "../../../assets/icons/dashboardGre.svg";
 import verificationsGre from "../../../assets/icons/verificationsGre.svg";
 import reviewsGr from "../../../assets/icons/reviewsGr.svg";
 import reviewsGre from "../../../assets/icons/reviewsGre.svg";
+import categoryGr from "../../../assets/icons/categoryGr.svg";
+import categoryGre from "../../../assets/icons/categoryGre.svg";
 
 export const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
@@ -33,6 +35,7 @@ export const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         { label: "Trabajos", to: "/dashboard/trabajos", icon: jobGr, iconHover: JobIconG },
         { label: "Verificaciones", to: "/dashboard/verificaciones", icon: verificationsGr, iconHover: verificationsGre },
         { label: "Reviews", to: "/dashboard/reviews", icon: reviewsGr, iconHover: reviewsGre },
+        { label: "Categorías", to: "/dashboard/categories", icon: categoryGr, iconHover: categoryGre },
         { label: "Reportes", to: "/dashboard/reportes", icon: reportGr, iconHover: reportGre }
     ];
 

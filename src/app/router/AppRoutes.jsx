@@ -7,6 +7,7 @@ import { JobsHome } from "../../features/jobs/components/JobsHome.jsx";
 import { VerificationsHome } from "../../features/verifications/components/VerificationsHome.jsx";
 import { ReportsHome } from "../../features/reports/components/ReportsHome.jsx";
 import { ReviewsHome } from "../../features/reviews/components/ReviewsHomes.jsx";
+import { CategoriesHome } from "../../features/categories/components/CategoriesHome.jsx";
 
 export const AppRoutes = () => {
 
@@ -25,6 +26,7 @@ export const AppRoutes = () => {
                 <Route path="verificaciones" element={<VerificationsHome />} />
                 <Route path="reportes" element={<ReportsHome />} />
                 <Route path="reviews" element={<ReviewsHome />} />
+                <Route path="categories" element={<CategoriesHome />} />
             </Route>
 
 
