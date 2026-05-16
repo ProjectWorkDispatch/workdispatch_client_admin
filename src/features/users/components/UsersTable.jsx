@@ -38,7 +38,7 @@ export const UsersTable = ({
                         </th>
 
                         <th className="text-left font-medium px-5 py-4">
-                            Trabajos
+                            Rating
                         </th>
 
                         <th className="text-left font-medium px-5 py-4">
@@ -64,19 +64,27 @@ export const UsersTable = ({
                     ) : (
                         users.map((user) => (
                             <tr
-                                key={user.email}
+                                key={user._id || user.email}
                                 className="border-t border-gray-100 hover:bg-gray-50 transition"
                             >
                                 <td className="px-5 py-4">
                                     <div className="flex items-center gap-3 min-w-0">
-                                        <div
-                                            className={`w-9 h-9 rounded-full ${user.color} text-white flex items-center justify-center text-xs font-bold`}>
-                                            {user.initials}
-                                        </div>
+                                        {user.profilePhoto ? (
+                                            <img
+                                                src={user.profilePhoto}
+                                                alt={`${user.firstName} ${user.lastName}`}
+                                                className="w-10 h-10 rounded-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center text-xs font-bold">
+                                                {user.firstName?.[0]}
+                                                {user.lastName?.[0]}
+                                            </div>
+                                        )}
 
                                         <div className="min-w-0">
                                             <p className="font-semibold text-[#0F172A] truncate">
-                                                {user.name}
+                                                {user.firstName} {user.lastName}
                                             </p>
 
                                             <p className="text-xs text-gray-400 truncate">
@@ -91,54 +99,76 @@ export const UsersTable = ({
                                 </td>
 
                                 <td className="px-5 py-4">
-                                    <VerificationBadge value={user.verification} />
+                                    <VerificationBadge
+                                        value={user.verificationStatus}
+                                    />
                                 </td>
 
                                 <td className="px-5 py-4">
-                                    <StatusBadge value={user.status} />
+                                    <StatusBadge value={user.active} />
                                 </td>
 
                                 <td className="px-5 py-4 text-slate-700">
-                                    {user.jobs}
+                                    ⭐ {user.ratingAverage || 1}
                                 </td>
 
                                 <td className="px-5 py-4 text-gray-400">
-                                    {user.date}
+                                    {user.createdAt
+                                        ? new Date(user.createdAt).toLocaleDateString()
+                                        : "No disponible"}
                                 </td>
 
                                 <td className="px-5 py-4">
                                     <div className="flex items-center gap-2 whitespace-nowrap">
                                         <button
                                             onClick={() => onVerifyUser(user.email)}
-                                            className="w-8 h-8 rounded-full bg-green-50 text-green-500 hover:bg-green-100 flex items-center justify-center"
+                                            className="w-8 h-8 rounded-full bg-green-50 hover:bg-green-100 flex items-center justify-center"
                                             title="Verificar usuario"
                                         >
-                                            <img src={personC} alt="Verificar" className="w-4.5 h-4.5" />
+                                            <img
+                                                src={personC}
+                                                alt="Verificar"
+                                                className="w-4.5 h-4.5"
+                                            />
                                         </button>
 
                                         <button
                                             onClick={() => onRejectUser(user.email)}
-                                            className="w-8 h-8 rounded-full bg-orange-50 text-orange-500 hover:bg-orange-100 flex items-center justify-center"
+                                            className="w-8 h-8 rounded-full bg-orange-50 hover:bg-orange-100 flex items-center justify-center"
                                             title="Rechazar usuario"
                                         >
-                                            <img src={cancel} alt="Rechazar" className="w-4.5 h-4.5" />
+                                            <img
+                                                src={cancel}
+                                                alt="Rechazar"
+                                                className="w-4.5 h-4.5"
+                                            />
                                         </button>
 
                                         <button
                                             onClick={() => onToggleStatus(user.email)}
-                                            className={`w-8 h-8 rounded-full ${user.status === "Suspendido"
-                                                ? "bg-green-50 text-green-500 hover:bg-green-100 flex items-center justify-center"
-                                                : "bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center"
+                                            className={`w-8 h-8 rounded-full flex items-center justify-center ${user.active
+                                                    ? "bg-red-50 hover:bg-red-100"
+                                                    : "bg-green-50 hover:bg-green-100"
                                                 }`}
                                             title={
-                                                user.status === "Suspendido"
-                                                    ? "Activar usuario"
-                                                    : "Suspender usuario"
+                                                user.active
+                                                    ? "Suspender usuario"
+                                                    : "Activar usuario"
                                             }
                                         >
-                                            {user.status === "Suspendido" ?
-                                                <img src={check} alt="Activar" className="w-4.5 h-4.5" /> :
-                                                <img src={PersonD} alt="Activar" className="w-4.5 h-4.5" />}
+                                            {user.active ? (
+                                                <img
+                                                    src={PersonD}
+                                                    alt="Suspender"
+                                                    className="w-4.5 h-4.5"
+                                                />
+                                            ) : (
+                                                <img
+                                                    src={check}
+                                                    alt="Activar"
+                                                    className="w-4.5 h-4.5"
+                                                />
+                                            )}
                                         </button>
 
                                         <UsersActionsMenu user={user} />
@@ -172,8 +202,8 @@ export const UsersTable = ({
                             key={index + 1}
                             onClick={() => setCurrentPage(index + 1)}
                             className={`w-8 h-8 rounded-lg text-sm font-semibold ${currentPage === index + 1
-                                ? "bg-green-500 text-white"
-                                : "text-gray-500 hover:bg-gray-100"
+                                    ? "bg-green-500 text-white"
+                                    : "text-gray-500 hover:bg-gray-100"
                                 }`}
                         >
                             {index + 1}
@@ -182,7 +212,9 @@ export const UsersTable = ({
 
                     <button
                         onClick={() => setCurrentPage(currentPage + 1)}
-                        disabled={currentPage === totalPages || totalPages === 0}
+                        disabled={
+                            currentPage === totalPages || totalPages === 0
+                        }
                         className="w-8 h-8 rounded-lg text-gray-400 hover:bg-gray-100 disabled:opacity-30"
                     >
                         ›
@@ -194,10 +226,18 @@ export const UsersTable = ({
 };
 
 const RoleBadge = ({ value }) => {
-    if (value === "Cliente") {
+    if (value === "CLIENT") {
         return (
             <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-600 text-xs font-semibold">
                 Cliente
+            </span>
+        );
+    }
+
+    if (value === "ADMIN") {
+        return (
+            <span className="px-3 py-1 rounded-full bg-red-100 text-red-600 text-xs font-semibold">
+                Admin
             </span>
         );
     }
@@ -210,26 +250,10 @@ const RoleBadge = ({ value }) => {
 };
 
 const VerificationBadge = ({ value }) => {
-    if (value === "Verificado") {
+    if (value === true) {
         return (
             <span className="px-3 py-1 rounded-full bg-green-100 text-green-600 text-xs font-semibold">
                 Verificado
-            </span>
-        );
-    }
-
-    if (value === "Rechazado") {
-        return (
-            <span className="px-3 py-1 rounded-full bg-red-100 text-red-600 text-xs font-semibold">
-                Rechazado
-            </span>
-        );
-    }
-
-    if (value === "Sin solicitud") {
-        return (
-            <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-500 text-xs font-semibold">
-                Sin solicitud
             </span>
         );
     }
@@ -242,18 +266,10 @@ const VerificationBadge = ({ value }) => {
 };
 
 const StatusBadge = ({ value }) => {
-    if (value === "Suspendido") {
+    if (value === false) {
         return (
             <span className="px-3 py-1 rounded-full bg-red-100 text-red-600 text-xs font-semibold">
                 ● Suspendido
-            </span>
-        );
-    }
-
-    if (value === "Inactivo") {
-        return (
-            <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-500 text-xs font-semibold">
-                ● Inactivo
             </span>
         );
     }

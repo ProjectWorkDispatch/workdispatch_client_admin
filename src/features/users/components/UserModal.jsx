@@ -1,0 +1,317 @@
+import { useEffect } from "react";
+
+export const UserModal = ({
+    open,
+    onClose,
+    user
+}) => {
+    useEffect(() => {
+        const handleEscape = (e) => {
+            if (e.key === "Escape") {
+                onClose();
+            }
+        };
+
+        window.addEventListener("keydown", handleEscape);
+
+        return () => {
+            window.removeEventListener("keydown", handleEscape);
+        };
+    }, [onClose]);
+
+    if (!open || !user) return null;
+
+    const fullName = `${user.firstName || ""} ${user.lastName || ""}`;
+
+    const roleMap = {
+        CLIENT: "Cliente",
+        WORKER: "Trabajador",
+        ADMIN: "Administrador"
+    };
+
+    return (
+        <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm p-2 sm:p-4 overflow-y-auto">
+            <div className="min-h-full flex items-center justify-center">
+                <div className="w-full max-w-5xl bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+                    {/* HEADER */}
+                    <div className="relative bg-gradient-to-r from-[#0F172A] to-[#1E293B] px-4 sm:px-6 py-6 sm:py-8">
+                        <button
+                            onClick={onClose}
+                            className="absolute top-3 right-3 sm:top-4 sm:right-4 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 hover:bg-white/20 text-white text-sm sm:text-lg transition"
+                        >
+                            ✕
+                        </button>
+
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-5">
+                            {/* FOTO */}
+                            <div className="shrink-0 mx-auto sm:mx-0">
+                                {user.profilePhoto ? (
+                                    <img
+                                        src={user.profilePhoto}
+                                        alt={fullName}
+                                        className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border-4 border-white/20"
+                                    />
+                                ) : (
+                                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-green-500 text-white flex items-center justify-center text-2xl sm:text-3xl font-bold border-4 border-white/20">
+                                        {`${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}`}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* INFO */}
+                            <div className="flex-1 text-white text-center sm:text-left">
+                                <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-3">
+                                    <h2 className="text-xl sm:text-2xl font-bold break-words">
+                                        {fullName}
+                                    </h2>
+
+                                    <span
+                                        className={`w-fit mx-auto sm:mx-0 px-3 py-1 rounded-full text-xs font-semibold ${
+                                            user.active
+                                                ? "bg-green-500/20 text-green-200 border border-green-400/30"
+                                                : "bg-red-500/20 text-red-200 border border-red-400/30"
+                                        }`}
+                                    >
+                                        ● {user.active ? "Activo" : "Suspendido"}
+                                    </span>
+                                </div>
+
+                                <p className="text-sm text-slate-300 mt-2 break-all">
+                                    {user.email}
+                                </p>
+
+                                <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-4">
+                                    <span className="px-3 py-1 rounded-full bg-white/10 text-xs font-semibold">
+                                        {roleMap[user.role]}
+                                    </span>
+
+                                    <span
+                                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                            user.verificationStatus
+                                                ? "bg-green-500/20 text-green-200"
+                                                : "bg-yellow-500/20 text-yellow-200"
+                                        }`}
+                                    >
+                                        {user.verificationStatus
+                                            ? "Verificado"
+                                            : "Pendiente"}
+                                    </span>
+
+                                    <span className="px-3 py-1 rounded-full bg-white/10 text-xs font-semibold">
+                                        ⭐ {user.ratingAverage || 1}/5
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* BODY */}
+                    <div className="p-4 sm:p-6 space-y-5 sm:space-y-6 max-h-[80vh] overflow-y-auto">
+                        {/* GRID */}
+                        <div className="grid grid-cols-1 xl:grid-cols-3 gap-5 sm:gap-6">
+                            {/* INFO PERSONAL */}
+                            <div className="xl:col-span-2 bg-gray-50 rounded-2xl border border-gray-100 p-4 sm:p-5">
+                                <h3 className="text-base sm:text-lg font-bold text-[#0F172A] mb-5">
+                                    Información personal
+                                </h3>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                                    <InfoItem
+                                        label="Nombre"
+                                        value={user.firstName || "No disponible"}
+                                    />
+
+                                    <InfoItem
+                                        label="Apellido"
+                                        value={user.lastName || "No disponible"}
+                                    />
+
+                                    <InfoItem
+                                        label="Correo"
+                                        value={user.email || "No disponible"}
+                                    />
+
+                                    <InfoItem
+                                        label="Teléfono"
+                                        value={user.phone || "No disponible"}
+                                    />
+
+                                    <InfoItem
+                                        label="Rol"
+                                        value={roleMap[user.role]}
+                                    />
+
+                                    <InfoItem
+                                        label="Fecha de registro"
+                                        value={
+                                            user.createdAt
+                                                ? new Date(user.createdAt).toLocaleDateString()
+                                                : "No disponible"
+                                        }
+                                    />
+                                </div>
+                            </div>
+
+                            {/* STATS */}
+                            <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-1 gap-4">
+                                <StatsCard
+                                    title="Calificación"
+                                    value={`${user.ratingAverage || 1}/5`}
+                                    color="text-yellow-500"
+                                />
+
+                                <StatsCard
+                                    title="Estado"
+                                    value={user.active ? "Activo" : "Suspendido"}
+                                    color={
+                                        user.active
+                                            ? "text-green-500"
+                                            : "text-red-500"
+                                    }
+                                />
+
+                                <StatsCard
+                                    title="Verificación"
+                                    value={
+                                        user.verificationStatus
+                                            ? "Verificado"
+                                            : "Pendiente"
+                                    }
+                                    color={
+                                        user.verificationStatus
+                                            ? "text-green-500"
+                                            : "text-yellow-500"
+                                    }
+                                />
+                            </div>
+                        </div>
+
+                        {/* DESCRIPCIÓN */}
+                        <div className="bg-gray-50 rounded-2xl border border-gray-100 p-4 sm:p-5">
+                            <h3 className="text-base sm:text-lg font-bold text-[#0F172A] mb-4">
+                                Descripción
+                            </h3>
+
+                            <p className="text-sm text-gray-600 leading-relaxed break-words">
+                                {user.description?.trim()
+                                    ? user.description
+                                    : "Este usuario aún no ha agregado una descripción."}
+                            </p>
+                        </div>
+
+                        {/* UBICACIÓN */}
+                        <div className="bg-gray-50 rounded-2xl border border-gray-100 p-4 sm:p-5">
+                            <h3 className="text-base sm:text-lg font-bold text-[#0F172A] mb-4">
+                                Ubicación
+                            </h3>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                                <InfoItem
+                                    label="Dirección"
+                                    value={user.address || "No disponible"}
+                                />
+
+                                <InfoItem
+                                    label="Latitud"
+                                    value={
+                                        user.latitude !== null
+                                            ? user.latitude
+                                            : "No disponible"
+                                    }
+                                />
+
+                                <InfoItem
+                                    label="Longitud"
+                                    value={
+                                        user.longitude !== null
+                                            ? user.longitude
+                                            : "No disponible"
+                                    }
+                                />
+                            </div>
+                        </div>
+
+                        {/* SKILLS */}
+                        {user.skills && (
+                            <div className="bg-gray-50 rounded-2xl border border-gray-100 p-4 sm:p-5">
+                                <h3 className="text-base sm:text-lg font-bold text-[#0F172A] mb-4">
+                                    Habilidades
+                                </h3>
+
+                                {user.skills.length === 0 ? (
+                                    <p className="text-sm text-gray-500">
+                                        Este usuario no tiene habilidades registradas.
+                                    </p>
+                                ) : (
+                                    <div className="flex flex-wrap gap-3">
+                                        {user.skills.map((skill, index) => (
+                                            <div
+                                                key={index}
+                                                className="w-full sm:w-auto px-4 py-3 rounded-xl bg-white border border-gray-200"
+                                            >
+                                                <p className="text-sm font-semibold text-slate-700 break-words">
+                                                    {skill.name}
+                                                </p>
+
+                                                <p className="text-xs text-gray-400 mt-1">
+                                                    {skill.experienceYears} años de experiencia
+                                                </p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* FOOTER */}
+                    <div className="px-4 sm:px-6 py-4 border-t border-gray-100 bg-gray-50 flex flex-col sm:flex-row sm:justify-end gap-3">
+                        <button className="w-full sm:w-auto px-5 py-2 rounded-xl bg-gray-200 hover:bg-gray-300 text-slate-700 text-sm font-semibold transition">
+                            Editar usuario
+                        </button>
+
+                        <button
+                            className={`w-full sm:w-auto px-5 py-2 rounded-xl text-sm font-semibold text-white transition ${
+                                user.active
+                                    ? "bg-red-500 hover:bg-red-600"
+                                    : "bg-green-500 hover:bg-green-600"
+                            }`}
+                        >
+                            {user.active
+                                ? "Suspender usuario"
+                                : "Activar usuario"}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const InfoItem = ({ label, value }) => {
+    return (
+        <div className="min-w-0">
+            <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-wide text-gray-400">
+                {label}
+            </p>
+
+            <p className="text-sm text-slate-700 mt-1 break-words">
+                {value}
+            </p>
+        </div>
+    );
+};
+
+const StatsCard = ({ title, value, color }) => {
+    return (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5">
+            <p className="text-[11px] sm:text-xs uppercase tracking-wide text-gray-400 font-semibold">
+                {title}
+            </p>
+
+            <h4 className={`text-xl sm:text-2xl font-bold mt-2 break-words ${color}`}>
+                {value}
+            </h4>
+        </div>
+    );
+};
