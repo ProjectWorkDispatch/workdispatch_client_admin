@@ -7,8 +7,8 @@ export const updateNotification = async (id, data) => await axiosAdmin.put(`/not
  
 // ================= PROPOSALS (PROPUESTAS) =================
 // Admin: solo puede listar y desactivar
-export const getProposals = async (params) => await axiosAdmin.get("/proposal", { params });
-export const deactivateProposal = async (id) => await axiosAdmin.patch(`/proposal/${id}`);
+export const getProposals = async (params) => await axiosAdmin.get("/Proposal", { params });
+export const deactivateProposal = async (id) => await axiosAdmin.patch(`/Proposal/${id}`);
  
 // ================= REPORTS (REPORTES) =================
 // Admin: solo puede listar y marcar como resuelto
