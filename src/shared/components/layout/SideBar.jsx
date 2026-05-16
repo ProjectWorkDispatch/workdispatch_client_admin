@@ -18,6 +18,8 @@ import categoryGr from "../../../assets/icons/categoryGr.svg";
 import categoryGre from "../../../assets/icons/categoryGre.svg";
 import serviceRequestGr from "../../../assets/icons/serviceRequestGr.svg";
 import serviceRequestGre from "../../../assets/icons/serviceRequestGre.svg";
+import proposalGr from "../../../assets/icons/proposalGr.svg";
+import proposalGre from "../../../assets/icons/proposalGre.svg";
 
 export const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
@@ -36,9 +38,10 @@ export const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         { label: "Usuarios", to: "/dashboard/usuarios", icon: usersGr, iconHover: usersGre },
         { label: "Trabajos", to: "/dashboard/trabajos", icon: jobGr, iconHover: JobIconG },
         { label: "Solicitudes", to: "/dashboard/solicitudes", icon: serviceRequestGr, iconHover: serviceRequestGre },
+        { label: "Propuestas", to: "/dashboard/propuestas", icon: proposalGr, iconHover: proposalGre },
+        { label: "Categorías", to: "/dashboard/categories", icon: categoryGr, iconHover: categoryGre },
         { label: "Verificaciones", to: "/dashboard/verificaciones", icon: verificationsGr, iconHover: verificationsGre },
         { label: "Reviews", to: "/dashboard/reviews", icon: reviewsGr, iconHover: reviewsGre },
-        { label: "Categorías", to: "/dashboard/categories", icon: categoryGr, iconHover: categoryGre },
         { label: "Reportes", to: "/dashboard/reportes", icon: reportGr, iconHover: reportGre },
     ];
 

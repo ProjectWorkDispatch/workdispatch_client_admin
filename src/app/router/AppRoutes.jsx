@@ -9,6 +9,7 @@ import { ReportsHome } from "../../features/reports/components/ReportsHome.jsx";
 import { ReviewsHome } from "../../features/reviews/components/ReviewsHomes.jsx";
 import { CategoriesHome } from "../../features/categories/components/CategoriesHome.jsx";
 import { ServiceRequestsHome } from "../../features/serviceRequests/components/ServiceRequestsHome.jsx";
+import { ProposalsHome } from "../../features/proposals/components/ProposalsHome.jsx";
 
 export const AppRoutes = () => {
 
@@ -29,6 +30,7 @@ export const AppRoutes = () => {
                 <Route path="reviews" element={<ReviewsHome />} />
                 <Route path="categories" element={<CategoriesHome />} />
                 <Route path="solicitudes" element={<ServiceRequestsHome />} />
+                <Route path="propuestas" element={<ProposalsHome />} />
             </Route>
 
 
