@@ -1,232 +1,129 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { ReportStatsCard } from "./ReportStatsCard";
 import { ReportsTable } from "./ReportsTable";
 import { ReportModal } from "./ReportModal";
+import { useReportStore } from "../../users/Store/adminStore.js";
 
-const initialReports = [
-    {
-        id: "R-001",
-        reportedInitials: "JP",
-        reportedName: "Juan Pérez",
-        reportedEmail: "juan.p@email.com",
-        reportedRole: "Trabajador",
-        reporterInitials: "CR",
-        reporterName: "Carlos Ruiz",
-        reporterEmail: "carlos.r@email.com",
-        reason: "Trabajo incompleto",
-        sentAt: "Hace 2h",
-        severity: "Alta",
-        status: "Pendiente",
-        description:
-            "El trabajador cobró el anticipo y no terminó la instalación de la tubería como habíamos acordado.",
-        resolution: "",
-        color: "bg-pink-500",
-        reporterColor: "bg-pink-500"
-    },
-    {
-        id: "R-002",
-        reportedInitials: "LT",
-        reportedName: "Luis Torres",
-        reportedEmail: "luis.t@email.com",
-        reportedRole: "Cliente",
-        reporterInitials: "AG",
-        reporterName: "Ana Gómez",
-        reporterEmail: "ana.g@email.com",
-        reason: "Lenguaje ofensivo",
-        sentAt: "Hace 5h",
-        severity: "Media",
-        status: "Pendiente",
-        description:
-            "El cliente me insultó por el chat interno cuando le dije que llegaría 10 minutos tarde por el tráfico.",
-        resolution: "",
-        color: "bg-blue-500",
-        reporterColor: "bg-purple-500"
-    },
-    {
-        id: "R-003",
-        reportedInitials: "SC",
-        reportedName: "Sofía Castro",
-        reportedEmail: "sofia.c@email.com",
-        reportedRole: "Cliente",
-        reporterInitials: "DL",
-        reporterName: "Diego López",
-        reporterEmail: "diego.l@email.com",
-        reason: "No se presentó",
-        sentAt: "Hace 4h",
-        severity: "Media",
-        status: "Pendiente",
-        description:
-            "La cliente confirmó el trabajo, pero no se presentó en la dirección acordada.",
-        resolution: "",
-        color: "bg-blue-500",
-        reporterColor: "bg-green-500"
-    },
-    {
-        id: "R-004",
-        reportedInitials: "MD",
-        reportedName: "Marcos Díaz",
-        reportedEmail: "marcos.d@email.com",
-        reportedRole: "Trabajador",
-        reporterInitials: "LM",
-        reporterName: "Lucía Méndez",
-        reporterEmail: "lucia.m@email.com",
-        reason: "Intento de estafa",
-        sentAt: "Hace 2d",
-        severity: "Alta",
-        status: "Sancionado",
-        description:
-            "El trabajador solicitó pagos fuera de la plataforma y prometió descuentos no autorizados.",
-        resolution:
-            "El usuario ha recibido una sanción y suspensión temporal.",
-        color: "bg-blue-500",
-        reporterColor: "bg-orange-500"
-    },
-    {
-        id: "R-005",
-        reportedInitials: "PP",
-        reportedName: "Pedro Pineda",
-        reportedEmail: "pedro.p@email.com",
-        reportedRole: "Cliente",
-        reporterInitials: "MS",
-        reporterName: "Miguel Soto",
-        reporterEmail: "miguel.s@email.com",
-        reason: "Reseña falsa",
-        sentAt: "Hace 1d",
-        severity: "Baja",
-        status: "Ignorado",
-        description:
-            "El usuario dejó una reseña falsa después de cancelar el trabajo.",
-        resolution:
-            "El reporte fue ignorado por falta de evidencia suficiente.",
-        color: "bg-blue-500",
-        reporterColor: "bg-purple-500"
-    }
+const AVATAR_COLORS = [
+    "bg-pink-500", "bg-blue-500", "bg-purple-500",
+    "bg-green-500", "bg-orange-500", "bg-teal-500", "bg-red-500"
 ];
 
+const getAvatarColor = (name = "") => {
+    const index = name.charCodeAt(0) % AVATAR_COLORS.length;
+    return AVATAR_COLORS[index];
+};
+
+const getInitials = (firstName = "", lastName = "") =>
+    `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() || "??";
+
 export const ReportsHome = () => {
-    const [reports, setReports] = useState(initialReports);
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("Todos");
     const [severityFilter, setSeverityFilter] = useState("Todas");
     const [selectedReport, setSelectedReport] = useState(null);
 
-    const handleSanction = (id) => {
-        setReports((prevReports) =>
-            prevReports.map((report) =>
-                report.id === id
-                    ? {
-                        ...report,
-                        status: "Sancionado",
-                        resolution:
-                            "El usuario ha recibido una sanción y suspensión temporal."
-                    }
-                    : report
-            )
-        );
+    const { reports, loading, getReports, resolveReport } = useReportStore();
 
-        setSelectedReport((prevReport) =>
-            prevReport?.id === id
-                ? {
-                    ...prevReport,
-                    status: "Sancionado",
-                    resolution:
-                        "El usuario ha recibido una sanción y suspensión temporal."
-                }
-                : prevReport
+    useEffect(() => {
+        getReports();
+    }, [getReports]);
+
+    const normalizedReports = useMemo(() => {
+        return reports.map((report) => {
+            const reporterFirst = report.reporterId?.firstName ?? "";
+            const reporterLast = report.reporterId?.lastName ?? "";
+            const reportedFirst = report.reporteredId?.firstName ?? "";
+            const reportedLast = report.reporteredId?.lastName ?? "";
+
+            const status = report.Status ? "Pendiente" : "Resuelto";
+
+            const reason = report.Reason?.toLowerCase() ?? "";
+            let severity = "Baja";
+            if (reason.includes("estafa") || reason.includes("fraude") || reason.includes("agresión")) {
+                severity = "Alta";
+            } else if (reason.includes("lenguaje") || reason.includes("retraso") || reason.includes("incompleto")) {
+                severity = "Media";
+            }
+
+            const diff = Math.floor((Date.now() - new Date(report.createdAt)) / 1000);
+            let sentAt = "Hace un momento";
+            if (diff >= 86400) sentAt = `Hace ${Math.floor(diff / 86400)}d`;
+            else if (diff >= 3600) sentAt = `Hace ${Math.floor(diff / 3600)}h`;
+            else if (diff >= 60) sentAt = `Hace ${Math.floor(diff / 60)} min`;
+
+            return {
+                ...report,
+                id: report._id,
+                reportedName: `${reportedFirst} ${reportedLast}`.trim() || "Usuario eliminado",
+                reportedEmail: report.reporteredId?.email ?? "",
+                reportedInitials: getInitials(reportedFirst, reportedLast),
+                reportedRole: report.reporteredId?.role ?? "",
+                color: getAvatarColor(reportedFirst),
+                reporterName: `${reporterFirst} ${reporterLast}`.trim() || "Usuario eliminado",
+                reporterEmail: report.reporterId?.email ?? "",
+                reporterInitials: getInitials(reporterFirst, reporterLast),
+                reporterColor: getAvatarColor(reporterFirst),
+                reason: report.Reason ?? "Sin motivo",
+                description: report.Description ?? "Sin descripción",
+                status,
+                severity,
+                sentAt,
+                resolution: report.Status ? "" : "El reporte fue marcado como resuelto por el administrador.",
+            };
+        });
+    }, [reports]);
+
+    // Sincroniza el modal con el nuevo estado tras la acción
+    const syncModal = (id) => {
+        setSelectedReport((prev) =>
+            prev?.id === id
+                ? { ...prev, status: "Resuelto", resolution: "El reporte fue marcado como resuelto por el administrador." }
+                : prev
         );
     };
 
-    const handleIgnore = (id) => {
-        setReports((prevReports) =>
-            prevReports.map((report) =>
-                report.id === id
-                    ? {
-                        ...report,
-                        status: "Ignorado",
-                        resolution:
-                            "El reporte fue ignorado por falta de evidencia suficiente."
-                    }
-                    : report
-            )
-        );
-
-        setSelectedReport((prevReport) =>
-            prevReport?.id === id
-                ? {
-                    ...prevReport,
-                    status: "Ignorado",
-                    resolution:
-                        "El reporte fue ignorado por falta de evidencia suficiente."
-                }
-                : prevReport
-        );
+    // Ambas acciones (sancionar e ignorar) resuelven el reporte en el backend
+    const onSanction = async (id) => {
+        await resolveReport(id);  // ← actualiza el store
+        syncModal(id);
     };
 
-    const filteredReports = reports.filter((report) => {
+    const onIgnore = async (id) => {
+        await resolveReport(id);  // ← actualiza el store
+        syncModal(id);
+    };
+
+    const filteredReports = normalizedReports.filter((report) => {
         const searchText = search.toLowerCase();
-
         const matchSearch =
             report.reportedName.toLowerCase().includes(searchText) ||
             report.reporterName.toLowerCase().includes(searchText) ||
-            report.reportedRole.toLowerCase().includes(searchText) ||
             report.reason.toLowerCase().includes(searchText);
-
-        let matchStatus = true;
-
-        if (statusFilter !== "Todos") {
-            matchStatus = report.status === statusFilter;
-        }
-
-        let matchSeverity = true;
-
-        if (severityFilter !== "Todas") {
-            matchSeverity = report.severity === severityFilter;
-        }
-
+        const matchStatus = statusFilter === "Todos" ? true : report.status === statusFilter;
+        const matchSeverity = severityFilter === "Todas" ? true : report.severity === severityFilter;
         return matchSearch && matchStatus && matchSeverity;
     });
 
-    const totalReports = reports.length;
-    const pendingReports = reports.filter((report) => report.status === "Pendiente").length;
-    const sanctionedReports = reports.filter((report) => report.status === "Sancionado").length;
-    const ignoredReports = reports.filter((report) => report.status === "Ignorado").length;
+    const totalReports = normalizedReports.length;
+    const pendingReports = normalizedReports.filter((r) => r.status === "Pendiente").length;
+    const resolvedReports = normalizedReports.filter((r) => r.status === "Resuelto").length;
+    const highPriority = normalizedReports.filter((r) => r.severity === "Alta" && r.status === "Pendiente").length;
 
     return (
         <section className="space-y-6">
             <div>
-                <h1 className="text-2xl font-bold text-[#0F172A]">
-                    Reportes de Usuarios
-                </h1>
-
+                <h1 className="text-2xl font-bold text-[#0F172A]">Reportes de Usuarios</h1>
                 <p className="text-sm text-gray-500">
                     Gestión de conflictos, moderación y sanciones en la plataforma
                 </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                <ReportStatsCard
-                    value={totalReports}
-                    label="Total reportes"
-                    color="text-[#0F172A]"
-                />
-
-                <ReportStatsCard
-                    value={pendingReports}
-                    label="Pendientes"
-                    color="text-yellow-500"
-                />
-
-                <ReportStatsCard
-                    value={sanctionedReports}
-                    label="Sancionados"
-                    color="text-red-500"
-                />
-
-                <ReportStatsCard
-                    value={ignoredReports}
-                    label="Ignorados"
-                    color="text-gray-500"
-                />
+                <ReportStatsCard value={totalReports} label="Total reportes" color="text-[#0F172A]" />
+                <ReportStatsCard value={pendingReports} label="Pendientes" color="text-yellow-500" />
+                <ReportStatsCard value={resolvedReports} label="Resueltos" color="text-green-500" />
+                <ReportStatsCard value={highPriority} label="Alta prioridad" color="text-red-500" />
             </div>
 
             <article className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -241,85 +138,44 @@ export const ReportsHome = () => {
 
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mt-4">
                         <div className="flex flex-wrap items-center gap-2">
-                            <span className="text-xs text-gray-400 self-end lg:self-auto">
-                                Estado:
-                            </span>
+                            <span className="text-xs text-gray-400 self-end lg:self-auto">Estado:</span>
+                            <FilterButton text="Todos" current={statusFilter} setFilter={setStatusFilter} />
+                            <FilterButton text="Pendiente" current={statusFilter} setFilter={setStatusFilter} />
+                            <FilterButton text="Resuelto" current={statusFilter} setFilter={setStatusFilter} />
 
-                            <FilterButton
-                                text="Todos"
-                                current={statusFilter}
-                                setFilter={setStatusFilter}
-                            />
-
-                            <FilterButton
-                                text="Pendiente"
-                                current={statusFilter}
-                                setFilter={setStatusFilter}
-                            />
-
-                            <FilterButton
-                                text="Sancionado"
-                                current={statusFilter}
-                                setFilter={setStatusFilter}
-                            />
-
-                            <FilterButton
-                                text="Ignorado"
-                                current={statusFilter}
-                                setFilter={setStatusFilter}
-                            />
-
-                            <span className="text-xs text-gray-400 ml-2">
-                                Gravedad:
-                            </span>
-
-                            <FilterButton
-                                text="Todas"
-                                current={severityFilter}
-                                setFilter={setSeverityFilter}
-                            />
-
-                            <FilterButton
-                                text="Alta"
-                                current={severityFilter}
-                                setFilter={setSeverityFilter}
-                            />
-
-                            <FilterButton
-                                text="Media"
-                                current={severityFilter}
-                                setFilter={setSeverityFilter}
-                            />
-
-                            <FilterButton
-                                text="Baja"
-                                current={severityFilter}
-                                setFilter={setSeverityFilter}
-                            />
+                            <span className="text-xs text-gray-400 ml-2">Gravedad:</span>
+                            <FilterButton text="Todas" current={severityFilter} setFilter={setSeverityFilter} />
+                            <FilterButton text="Alta" current={severityFilter} setFilter={setSeverityFilter} />
+                            <FilterButton text="Media" current={severityFilter} setFilter={setSeverityFilter} />
+                            <FilterButton text="Baja" current={severityFilter} setFilter={setSeverityFilter} />
                         </div>
 
-                        <p className="text-xs text-gray-400">
-                            {filteredReports.length} reportes
-                        </p>
+                        <p className="text-xs text-gray-400">{filteredReports.length} reportes</p>
                     </div>
                 </div>
 
-                <ReportsTable
-                    reports={filteredReports}
-                    totalReports={reports.length}
-                    pendingReports={pendingReports}
-                    onView={setSelectedReport}
-                    onSanction={handleSanction}
-                    onIgnore={handleIgnore}
-                />
+                {loading && reports.length === 0 ? (
+                    <div className="flex justify-center py-12">
+                        <div className="w-6 h-6 border-2 border-green-500 border-t-transparent rounded-full animate-spin" />
+                    </div>
+                ) : (
+                    <ReportsTable
+                        reports={filteredReports}
+                        totalReports={totalReports}
+                        pendingReports={pendingReports}
+                        onView={setSelectedReport}
+                        onSanction={onSanction}
+                        onIgnore={onIgnore}
+                    />
+                )}
             </article>
 
             {selectedReport && (
                 <ReportModal
                     report={selectedReport}
                     onClose={() => setSelectedReport(null)}
-                    onSanction={handleSanction}
-                    onIgnore={handleIgnore}
+                    onSanction={onSanction}
+                    onIgnore={onIgnore}
                 />
             )}
         </section>
@@ -328,15 +184,11 @@ export const ReportsHome = () => {
 
 const FilterButton = ({ text, current, setFilter }) => {
     const active = current === text;
-
     return (
         <button
             onClick={() => setFilter(text)}
-            className={`px-3 py-1 rounded-full text-xs font-semibold transition ${
-                active
-                    ? "bg-green-500 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
+            className={`px-3 py-1 rounded-full text-xs font-semibold transition ${active ? "bg-green-500 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
         >
             {text}
         </button>

@@ -1,4 +1,4 @@
-import { useProposalStore } from "../../../users/Store/adminStore.js";
+import { useProposalStore } from "../../users/Store/adminStore.js";
  
 export const useProposalActions = () => {
     const deactivateProposal = useProposalStore((state) => state.deactivateProposal);

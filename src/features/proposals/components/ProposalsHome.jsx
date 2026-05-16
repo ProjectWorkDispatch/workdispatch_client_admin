@@ -24,7 +24,7 @@ export const ProposalsHome = () => {
 
             // serviceRequestId puede ser null si el documento fue eliminado
             requestTitle: proposal.serviceRequestId?.title || "Solicitud eliminada",
-            requestId:    proposal.serviceRequestId?._id  || "N/A",
+            requestId: proposal.serviceRequestId?._id || "N/A",
 
             // workerId puede ser null si el usuario fue eliminado
             workerName: proposal.workerId
@@ -57,10 +57,10 @@ export const ProposalsHome = () => {
     });
 
     // ── Contadores ─────────────────────────────────────────────────────────
-    const totalProposals     = normalizedProposals.length;
-    const pendingProposals   = normalizedProposals.filter((p) => p.status === "PENDING").length;
-    const acceptedProposals  = normalizedProposals.filter((p) => p.status === "ACCEPTED").length;
-    const rejectedProposals  = normalizedProposals.filter((p) => p.status === "REJECTED").length;
+    const totalProposals = normalizedProposals.length;
+    const pendingProposals = normalizedProposals.filter((p) => p.status === "PENDING").length;
+    const acceptedProposals = normalizedProposals.filter((p) => p.status === "ACCEPTED").length;
+    const rejectedProposals = normalizedProposals.filter((p) => p.status === "REJECTED").length;
     const cancelledProposals = normalizedProposals.filter((p) => p.status === "CANCELLED").length;
 
     // Sincroniza el modal si la propuesta seleccionada fue modificada en el store
@@ -72,6 +72,7 @@ export const ProposalsHome = () => {
 
     return (
         <section className="space-y-6">
+
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                     <h1 className="text-2xl font-bold text-[#0F172A]">Propuestas</h1>
@@ -84,6 +85,14 @@ export const ProposalsHome = () => {
                     <span className="text-yellow-500">●</span>
                     <span>{pendingProposals} pendientes</span>
                 </div>
+            </div>
+            
+            {/* Tarjetas de estadísticas */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                <ProposalStatsCard value={totalProposals} label="Total propuestas" color="text-[#0F172A]" />
+                <ProposalStatsCard value={pendingProposals} label="Pendientes" color="text-yellow-500" bg="bg-yellow-50" />
+                <ProposalStatsCard value={acceptedProposals} label="Aceptadas" color="text-green-500" bg="bg-green-50" />
+                <ProposalStatsCard value={rejectedProposals} label="Rechazadas" color="text-red-500" bg="bg-red-50" />
             </div>
 
             <article className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -101,10 +110,10 @@ export const ProposalsHome = () => {
                 {/* Filtros de estado */}
                 <div className="px-5 py-4 border-b border-gray-100">
                     <div className="flex flex-wrap gap-4">
-                        <StatusButton text="Todos"      value="ALL"       count={totalProposals}     current={statusFilter} onClick={setStatusFilter} />
-                        <StatusButton text="Pendientes" value="PENDING"   count={pendingProposals}   current={statusFilter} onClick={setStatusFilter} />
-                        <StatusButton text="Aceptadas"  value="ACCEPTED"  count={acceptedProposals}  current={statusFilter} onClick={setStatusFilter} />
-                        <StatusButton text="Rechazadas" value="REJECTED"  count={rejectedProposals}  current={statusFilter} onClick={setStatusFilter} />
+                        <StatusButton text="Todos" value="ALL" count={totalProposals} current={statusFilter} onClick={setStatusFilter} />
+                        <StatusButton text="Pendientes" value="PENDING" count={pendingProposals} current={statusFilter} onClick={setStatusFilter} />
+                        <StatusButton text="Aceptadas" value="ACCEPTED" count={acceptedProposals} current={statusFilter} onClick={setStatusFilter} />
+                        <StatusButton text="Rechazadas" value="REJECTED" count={rejectedProposals} current={statusFilter} onClick={setStatusFilter} />
                         <StatusButton text="Canceladas" value="CANCELLED" count={cancelledProposals} current={statusFilter} onClick={setStatusFilter} />
                     </div>
                 </div>
@@ -121,13 +130,7 @@ export const ProposalsHome = () => {
                 )}
             </article>
 
-            {/* Tarjetas de estadísticas */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                <ProposalStatsCard value={totalProposals}     label="Total propuestas" color="text-[#0F172A]" />
-                <ProposalStatsCard value={pendingProposals}   label="Pendientes"       color="text-yellow-500" bg="bg-yellow-50" />
-                <ProposalStatsCard value={acceptedProposals}  label="Aceptadas"        color="text-green-500"  bg="bg-green-50" />
-                <ProposalStatsCard value={rejectedProposals}  label="Rechazadas"       color="text-red-500"    bg="bg-red-50" />
-            </div>
+
 
             {/* Modal de detalle */}
             {selectedProposal && (
@@ -145,9 +148,8 @@ const StatusButton = ({ text, value, count, current, onClick }) => {
     return (
         <button
             onClick={() => onClick(value)}
-            className={`px-4 py-2 rounded-2xl text-sm font-semibold transition flex items-center gap-2 ${
-                active ? "bg-[#0F172A] text-white" : "text-gray-500 hover:bg-gray-100"
-            }`}
+            className={`px-4 py-2 rounded-2xl text-sm font-semibold transition flex items-center gap-2 ${active ? "bg-[#0F172A] text-white" : "text-gray-500 hover:bg-gray-100"
+                }`}
         >
             <span>{text}</span>
             <span className={`px-2 py-0.5 rounded-full text-xs ${active ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"}`}>

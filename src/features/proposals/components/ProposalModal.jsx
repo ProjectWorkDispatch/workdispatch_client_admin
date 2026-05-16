@@ -1,26 +1,17 @@
 import JobIconG from "../../../assets/icons/JobIconG.svg";
 import money from "../../../assets/icons/money.svg";
 import date from "../../../assets/icons/date.svg";
-import { useProposalStore } from "../../users/store/adminStore.js";
-import { useProposalActions } from "./hook/useSaveProposalActions.js";
+import { useProposalActions } from "../hook/useSaveProposalActions.js";
 
 export const ProposalModal = ({ proposal, onClose }) => {
-    const { loading } = useProposalStore();
-
     const { handleDeactivate } = useProposalActions();
+    const { loading } = useProposalStore_loading();
 
-    const handleDeactivateClick = async () => {
-        try {
-            // 3. Llamamos a la función del hook pasándole el ID
-            await handleDeactivate(proposal.id);
-            onClose();
-        } catch (error) {
-            console.error("Error al desactivar la propuesta:", error);
-        }
-    };
-
-    // Solo se puede desactivar si aún no está cancelada
     const canDeactivate = proposal.status !== "CANCELLED";
+
+    const onDeactivate = () => {
+        handleDeactivate(proposal.id, () => onClose());
+    };
 
     return (
         <div className="fixed inset-0 z-100 flex items-center justify-center">
@@ -36,16 +27,12 @@ export const ProposalModal = ({ proposal, onClose }) => {
                         <div className="w-11 h-11 rounded-xl bg-green-50 flex items-center justify-center">
                             <img src={JobIconG} alt="Propuesta" className="w-5 h-5" />
                         </div>
-
                         <div>
                             <p className="text-xs text-gray-400">#{proposal.id}</p>
                             <h2 className="font-bold text-[#0F172A]">{proposal.requestTitle}</h2>
                         </div>
                     </div>
-
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl">
-                        ×
-                    </button>
+                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl">×</button>
                 </div>
 
                 {/* Contenido */}
@@ -56,7 +43,7 @@ export const ProposalModal = ({ proposal, onClose }) => {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <InfoBox label="Trabajador" value={proposal.workerName} />
-                        <InfoBox label="Solicitud" value={proposal.requestId} />
+                        <InfoBox label="Solicitud"  value={proposal.requestId} />
                     </div>
 
                     <div className="bg-gray-50 rounded-2xl p-4">
@@ -80,15 +67,14 @@ export const ProposalModal = ({ proposal, onClose }) => {
                     </div>
                 </div>
 
-                {/* Footer con acción de admin */}
+                {/* Acción de admin */}
                 {canDeactivate && (
                     <div className="px-6 pb-6">
                         <button
-                            onClick={handleDeactivateClick}
-                            disabled={loading}
-                            className="w-full py-3 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm font-semibold hover:bg-red-100 transition disabled:opacity-50"
+                            onClick={onDeactivate}
+                            className="w-full py-3 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm font-semibold hover:bg-red-100 transition"
                         >
-                            {loading ? "Procesando..." : "Desactivar propuesta"}
+                            Desactivar propuesta
                         </button>
                     </div>
                 )}
@@ -97,7 +83,7 @@ export const ProposalModal = ({ proposal, onClose }) => {
     );
 };
 
-// ── Sub-componentes (sin cambios) ──────────────────────────────────────────
+// ── Sub-componentes ────────────────────────────────────────────────────────
 
 const InfoBox = ({ label, value }) => (
     <div className="bg-gray-50 rounded-2xl p-4">
@@ -108,9 +94,7 @@ const InfoBox = ({ label, value }) => (
 
 const DetailItem = ({ icon, label, value, color }) => (
     <div className="flex items-center gap-3">
-        <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${color}`}>
-            {icon}
-        </div>
+        <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${color}`}>{icon}</div>
         <div>
             <p className="text-xs text-gray-400">{label}</p>
             <p className="font-semibold text-slate-700">{value}</p>
@@ -119,11 +103,8 @@ const DetailItem = ({ icon, label, value, color }) => (
 );
 
 const StatusBadge = ({ value }) => {
-    if (value === "PENDING")
-        return <span className="px-3 py-1 rounded-full bg-yellow-100 border border-yellow-200 text-yellow-600 text-xs font-semibold">● Pendiente</span>;
-    if (value === "ACCEPTED")
-        return <span className="px-3 py-1 rounded-full bg-green-100 border border-green-200 text-green-600 text-xs font-semibold">● Aceptada</span>;
-    if (value === "REJECTED")
-        return <span className="px-3 py-1 rounded-full bg-red-100 border border-red-200 text-red-600 text-xs font-semibold">● Rechazada</span>;
+    if (value === "PENDING")   return <span className="px-3 py-1 rounded-full bg-yellow-100 border border-yellow-200 text-yellow-600 text-xs font-semibold">● Pendiente</span>;
+    if (value === "ACCEPTED")  return <span className="px-3 py-1 rounded-full bg-green-100 border border-green-200 text-green-600 text-xs font-semibold">● Aceptada</span>;
+    if (value === "REJECTED")  return <span className="px-3 py-1 rounded-full bg-red-100 border border-red-200 text-red-600 text-xs font-semibold">● Rechazada</span>;
     return <span className="px-3 py-1 rounded-full bg-gray-100 border border-gray-200 text-gray-600 text-xs font-semibold">● Cancelada</span>;
 };

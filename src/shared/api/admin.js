@@ -12,6 +12,6 @@ export const deactivateProposal = async (id) => await axiosAdmin.patch(`/Proposa
  
 // ================= REPORTS (REPORTES) =================
 // Admin: solo puede listar y marcar como resuelto
-export const getReports = async (params) => await axiosAdmin.get("/report", { params });
-export const resolveReport = async (id) => await axiosAdmin.patch(`/report/resolve/${id}`);
+export const getReports = async (params) => await axiosAdmin.get("/reports", { params });
+export const resolveReport = async (id) => await axiosAdmin.patch(`/reports/resolve/${id}`);
  
