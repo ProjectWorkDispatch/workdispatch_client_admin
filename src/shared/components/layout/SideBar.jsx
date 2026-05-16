@@ -16,6 +16,8 @@ import reviewsGr from "../../../assets/icons/reviewsGr.svg";
 import reviewsGre from "../../../assets/icons/reviewsGre.svg";
 import categoryGr from "../../../assets/icons/categoryGr.svg";
 import categoryGre from "../../../assets/icons/categoryGre.svg";
+import serviceRequestGr from "../../../assets/icons/serviceRequestGr.svg";
+import serviceRequestGre from "../../../assets/icons/serviceRequestGre.svg";
 
 export const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
@@ -33,10 +35,11 @@ export const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         { label: "Dashboard", to: "/dashboard/dashboard", icon: dashboardGr, iconHover: dashboardGre },
         { label: "Usuarios", to: "/dashboard/usuarios", icon: usersGr, iconHover: usersGre },
         { label: "Trabajos", to: "/dashboard/trabajos", icon: jobGr, iconHover: JobIconG },
+        { label: "Solicitudes", to: "/dashboard/solicitudes", icon: serviceRequestGr, iconHover: serviceRequestGre },
         { label: "Verificaciones", to: "/dashboard/verificaciones", icon: verificationsGr, iconHover: verificationsGre },
         { label: "Reviews", to: "/dashboard/reviews", icon: reviewsGr, iconHover: reviewsGre },
         { label: "Categorías", to: "/dashboard/categories", icon: categoryGr, iconHover: categoryGre },
-        { label: "Reportes", to: "/dashboard/reportes", icon: reportGr, iconHover: reportGre }
+        { label: "Reportes", to: "/dashboard/reportes", icon: reportGr, iconHover: reportGre },
     ];
 
     console.log("SIDEBAR RENDERIZADO")
