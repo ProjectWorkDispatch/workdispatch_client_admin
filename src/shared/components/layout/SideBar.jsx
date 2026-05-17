@@ -36,6 +36,7 @@ export const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
     const items = [
         { label: "Dashboard", to: "/dashboard/dashboard", icon: dashboardGr, iconHover: dashboardGre },
         { label: "Usuarios", to: "/dashboard/usuarios", icon: usersGr, iconHover: usersGre },
+        { label: "Habilidades", to: "/dashboard/skills", icon: categoryGr, iconHover: categoryGre },
         { label: "Portafolios", to: "/dashboard/portafolios", icon: dashboardGr, iconHover: dashboardGre },
         { label: "Trabajos", to: "/dashboard/trabajos", icon: jobGr, iconHover: JobIconG },
         { label: "Solicitudes", to: "/dashboard/solicitudes", icon: serviceRequestGr, iconHover: serviceRequestGre },

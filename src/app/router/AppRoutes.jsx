@@ -11,7 +11,7 @@ import { CategoriesHome } from "../../features/categories/components/CategoriesH
 import { ServiceRequestsHome } from "../../features/serviceRequests/components/ServiceRequestsHome.jsx";
 import { ProposalsHome } from "../../features/proposals/components/ProposalsHome.jsx";
 import { WorkerPortfolioHome } from "../../features/workerPortafolio/components/WorkerPortfolioHome.jsx";
-
+import { SkillsHome } from "../../features/skills/components/SkillsHome.jsx";
 export const AppRoutes = () => {
 
     return (
@@ -33,6 +33,7 @@ export const AppRoutes = () => {
                 <Route path="solicitudes" element={<ServiceRequestsHome />} />
                 <Route path="propuestas" element={<ProposalsHome />} />
                 <Route path="portafolios" element={<WorkerPortfolioHome />} />
+                <Route path="skills" element={<SkillsHome />} />
             </Route>
 
 

@@ -14,7 +14,8 @@ export const UsersTable = ({
     setCurrentPage,
     onVerifyUser,
     onRejectUser,
-    onToggleStatus
+    onToggleStatus,
+    onViewSkills
 }) => {
     return (
         <div className="overflow-x-auto">
@@ -120,54 +121,28 @@ export const UsersTable = ({
 
                                 <td className="px-5 py-4">
                                     <div className="flex items-center gap-2 whitespace-nowrap">
+                                        {/* Botón Skills - Entidad 3 */}
                                         <button
-                                            onClick={() => onVerifyUser(user.email)}
-                                            className="w-8 h-8 rounded-full bg-green-50 hover:bg-green-100 flex items-center justify-center"
-                                            title="Verificar usuario"
+                                            onClick={() => onViewSkills(user)}
+                                            className="w-8 h-8 rounded-full bg-blue-50 hover:bg-blue-100 flex items-center justify-center transition-colors"
+                                            title="Ver Habilidades"
                                         >
-                                            <img
-                                                src={personC}
-                                                alt="Verificar"
-                                                className="w-4.5 h-4.5"
-                                            />
+                                            <span className="text-sm">🛠️</span>
                                         </button>
 
+                                        {/* Botón Estado (Activar/Suspender) */}
                                         <button
-                                            onClick={() => onRejectUser(user.email)}
-                                            className="w-8 h-8 rounded-full bg-orange-50 hover:bg-orange-100 flex items-center justify-center"
-                                            title="Rechazar usuario"
-                                        >
-                                            <img
-                                                src={cancel}
-                                                alt="Rechazar"
-                                                className="w-4.5 h-4.5"
-                                            />
-                                        </button>
-
-                                        <button
-                                            onClick={() => onToggleStatus(user.email)}
+                                            onClick={() => onToggleStatus(user._id, user.active)}
                                             className={`w-8 h-8 rounded-full flex items-center justify-center ${user.active
-                                                    ? "bg-red-50 hover:bg-red-100"
-                                                    : "bg-green-50 hover:bg-green-100"
+                                                ? "bg-red-50 hover:bg-red-100"
+                                                : "bg-green-50 hover:bg-green-100"
                                                 }`}
-                                            title={
-                                                user.active
-                                                    ? "Suspender usuario"
-                                                    : "Activar usuario"
-                                            }
+                                            title={user.active ? "Suspender usuario" : "Activar usuario"}
                                         >
                                             {user.active ? (
-                                                <img
-                                                    src={PersonD}
-                                                    alt="Suspender"
-                                                    className="w-4.5 h-4.5"
-                                                />
+                                                <img src={PersonD} alt="Suspender" className="w-4.5 h-4.5" />
                                             ) : (
-                                                <img
-                                                    src={check}
-                                                    alt="Activar"
-                                                    className="w-4.5 h-4.5"
-                                                />
+                                                <img src={check} alt="Activar" className="w-4.5 h-4.5" />
                                             )}
                                         </button>
 
@@ -202,8 +177,8 @@ export const UsersTable = ({
                             key={index + 1}
                             onClick={() => setCurrentPage(index + 1)}
                             className={`w-8 h-8 rounded-lg text-sm font-semibold ${currentPage === index + 1
-                                    ? "bg-green-500 text-white"
-                                    : "text-gray-500 hover:bg-gray-100"
+                                ? "bg-green-500 text-white"
+                                : "text-gray-500 hover:bg-gray-100"
                                 }`}
                         >
                             {index + 1}
