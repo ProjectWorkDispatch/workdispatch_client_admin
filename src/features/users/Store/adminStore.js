@@ -103,7 +103,7 @@ export const useProposalStore = create((set, get) => ({
         try {
             set({ loading: true, error: null });
             const res = await api.deactivateProposal(id);
-            
+
             set({
                 proposals: get().proposals.map((p) =>
                     p._id === id ? res.data.proposal : p
@@ -137,7 +137,7 @@ export const useReportStore = create((set, get) => ({
         try {
             set({ loading: true, error: null });
             await api.resolveReport(id);
-            const res = await api.getReports();          
+            const res = await api.getReports();
             set({ reports: res.data.reports, loading: false });
         } catch (error) {
             set({ error: error.response?.data?.message || "Error al resolver reporte", loading: false });
@@ -157,30 +157,30 @@ export const useUserStore = create((set, get) => ({
             const res = await api.getUsers();
             const data = res.data?.users || res.data?.data || (Array.isArray(res.data) ? res.data : []);
             set({ users: data, loading: false });
-        } catch (error) { 
+        } catch (error) {
             // Si falla API, usa mock data
-            set({ users: MOCK_USERS, loading: false, error: null }); 
+            set({ users: MOCK_USERS, loading: false, error: null });
             console.warn("Usando usuarios mock (API no disponible)");
         }
     },
-   
+
     addUser: async (formData) => {
         try {
             set({ loading: true });
             await api.createUser(formData);
-            await get().getUsers(); 
+            await get().getUsers();
         } catch (error) {
             set({ loading: false });
             throw error;
         }
     },
-   
+
     toggleUserStatus: async (id, currentStatus) => {
         try {
             const newStatus = !currentStatus;
             await api.changeUserStatus(id, newStatus);
             set((state) => ({
-                users: state.users.map((u) => 
+                users: state.users.map((u) =>
                     u._id === id ? { ...u, active: newStatus } : u
                 )
             }));
@@ -201,9 +201,9 @@ export const useSkillStore = create((set, get) => ({
             const res = await api.getSkills();
             const skillsArray = res.data?.skills || res.data?.data || (Array.isArray(res.data) ? res.data : []);
             set({ skills: skillsArray, loading: false });
-        } catch (error) { 
+        } catch (error) {
             // Si falla API, usa mock data
-            set({ skills: MOCK_SKILLS, loading: false }); 
+            set({ skills: MOCK_SKILLS, loading: false });
             console.warn("Usando habilidades mock (API no disponible)");
         }
     },
@@ -215,10 +215,10 @@ export const useSkillStore = create((set, get) => ({
         } catch (error) {
             // Si falla API, agrega localmente con ID válido tipo MongoDB
             const idSuffix = Date.now().toString(16).slice(-12).padStart(12, "0");
-            const newSkill = { 
-                _id: `646f83a7e527e4d9f8a4b${idSuffix}`, 
-                ...data, 
-                createdAt: new Date().toISOString() 
+            const newSkill = {
+                _id: `646f83a7e527e4d9f8a4b${idSuffix}`,
+                ...data,
+                createdAt: new Date().toISOString()
             };
             set({ skills: [...get().skills, newSkill] });
             console.warn("Habilidad agregada localmente (API no disponible)");
@@ -288,5 +288,28 @@ export const useCategoryStore = create((set, get) => ({
             console.warn("Categoría agregada localmente (API no disponible)");
             return { category: newCategory };
         }
-    }
+    },
+
+    updateCategory: async (id, data) => {
+        try {
+            set({ loading: true, error: null });
+            const res = await api.updateCategory(id, data);
+            const updatedCategory = res.data?.category || res.data?.data || res.data;
+            set({ categories: get().categories.map((category) => category._id === id ? updatedCategory : category), loading: false });
+            return updatedCategory;
+        } catch (error) {
+            set({ error: error.response?.data?.message || "Error al actualizar categoría", loading: false });
+            throw error;
+        }
+    },
+    toggleCategoryStatus: async (id, currentStatus) => {
+        try {
+            const newStatus = currentStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+            const res = await api.changeCategoryStatus(id, newStatus);
+            const updatedCategory = res.data?.category || res.data?.data || res.data;
+            set({ categories: get().categories.map((category) => category._id === id ? updatedCategory : category) });
+        } catch (error) {
+            console.error("Error al cambiar estado:", error);
+        }
+    },
 }));

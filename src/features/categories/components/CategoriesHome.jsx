@@ -1,66 +1,51 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { CategoriesTable } from "./CategoriesTable";
 import { CategoryModal } from "./CategoryModal";
 import { CategoryStatsCard } from "./CategoryStatsCard";
+import { CreateCategoryModal } from "./CreateCategoryModal";
 
-const initialCategories = [
-    {
-        _id: "1",
-        name: "Electricidad",
-        description: "Servicios eléctricos residenciales.",
-        status: "ACTIVE",
-        createdAt: "23 mar, 03:00 a. m."
-    },
-    {
-        _id: "2",
-        name: "Diseño gráfico",
-        description: "Diseño de logos y branding.",
-        status: "ACTIVE",
-        createdAt: "22 mar, 09:00 p. m."
-    },
-    {
-        _id: "3",
-        name: "Programación",
-        description: "Desarrollo web y móvil.",
-        status: "INACTIVE",
-        createdAt: "21 mar, 11:00 a. m."
-    }
-];
+import { useCategoryStore } from "../../../features/users/Store/adminStore";
+
+import Exp from "../../../assets/icons/export.svg";
 
 export const CategoriesHome = () => {
-    const [categories, setCategories] = useState(initialCategories);
+    const {
+        categories,
+        loading,
+        getCategories,
+        toggleCategoryStatus
+    } = useCategoryStore();
 
     const [search, setSearch] = useState("");
-
     const [statusFilter, setStatusFilter] = useState("Todas");
-
     const [selectedCategory, setSelectedCategory] = useState(null);
-
     const [currentPage, setCurrentPage] = useState(1);
+    const [openCreateModal, setOpenCreateModal] = useState(false);
 
     const itemsPerPage = 8;
 
-    const handleStatusChange = (id) => {
-        setCategories((prev) =>
-            prev.map((category) =>
-                category._id === id
-                    ? {
-                        ...category,
-                        status:
-                            category.status === "ACTIVE"
-                                ? "INACTIVE"
-                                : "ACTIVE"
-                    }
-                    : category
-            )
+    useEffect(() => {
+        getCategories();
+    }, []);
+
+    const handleStatusChange = async (
+        id,
+        currentStatus
+    ) => {
+        await toggleCategoryStatus(
+            id,
+            currentStatus
         );
 
-        if (selectedCategory?._id === id) {
+        if (
+            selectedCategory &&
+            selectedCategory._id === id
+        ) {
             setSelectedCategory((prev) => ({
                 ...prev,
                 status:
-                    prev.status === "ACTIVE"
+                    currentStatus === "ACTIVE"
                         ? "INACTIVE"
                         : "ACTIVE"
             }));
@@ -77,25 +62,27 @@ export const CategoriesHome = () => {
         setCurrentPage(1);
     };
 
-    const filteredCategories = categories.filter((category) => {
-        const text = search.toLowerCase();
+    const filteredCategories = useMemo(() => {
+        return categories.filter((category) => {
+            const text = search.toLowerCase();
 
-        const matchSearch =
-            category.name.toLowerCase().includes(text) ||
-            category.description.toLowerCase().includes(text);
+            const matchSearch =
+                category.name?.toLowerCase().includes(text) ||
+                category.description?.toLowerCase().includes(text);
 
-        let matchStatus = true;
+            let matchStatus = true;
 
-        if (statusFilter === "Activas") {
-            matchStatus = category.status === "ACTIVE";
-        }
+            if (statusFilter === "Activas") {
+                matchStatus = category.status === "ACTIVE";
+            }
 
-        if (statusFilter === "Inactivas") {
-            matchStatus = category.status === "INACTIVE";
-        }
+            if (statusFilter === "Inactivas") {
+                matchStatus = category.status === "INACTIVE";
+            }
 
-        return matchSearch && matchStatus;
-    });
+            return matchSearch && matchStatus;
+        });
+    }, [categories, search, statusFilter]);
 
     const totalCategories = categories.length;
 
@@ -119,7 +106,7 @@ export const CategoriesHome = () => {
     );
 
     return (
-        <section className="space-y-6">
+        <div className="space-y-6">
             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                 <div>
                     <h1 className="text-2xl font-bold text-[#0F172A]">
@@ -130,6 +117,17 @@ export const CategoriesHome = () => {
                         Gestión de categorías del sistema
                     </p>
                 </div>
+                <button
+                    onClick={() => setOpenCreateModal(true)}
+                    className="w-fit px-4 py-2 rounded-2xl bg-white border border-gray-200 shadow-sm text-sm font-semibold text-slate-600 hover:bg-gray-50 transition flex items-center gap-2">
+                    <img
+                        src={Exp}
+                        alt="Exportar"
+                        className="w-4 h-4"
+                    />
+
+                    Nueva categoría
+                </button>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -189,17 +187,23 @@ export const CategoriesHome = () => {
                     </div>
                 </div>
 
-                <CategoriesTable
-                    categories={currentCategories}
-                    totalCategories={filteredCategories.length}
-                    startIndex={startIndex}
-                    endIndex={endIndex}
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    setCurrentPage={setCurrentPage}
-                    onView={setSelectedCategory}
-                    onStatusChange={handleStatusChange}
-                />
+                {loading ? (
+                    <div className="p-10 text-center text-gray-400">
+                        Cargando categorías...
+                    </div>
+                ) : (
+                    <CategoriesTable
+                        categories={currentCategories}
+                        totalCategories={filteredCategories.length}
+                        startIndex={startIndex}
+                        endIndex={endIndex}
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        setCurrentPage={setCurrentPage}
+                        onView={setSelectedCategory}
+                        onStatusChange={handleStatusChange}
+                    />
+                )}
             </div>
 
             {selectedCategory && (
@@ -209,7 +213,12 @@ export const CategoriesHome = () => {
                     onStatusChange={handleStatusChange}
                 />
             )}
-        </section>
+
+            <CreateCategoryModal
+                open={openCreateModal}
+                onClose={() => setOpenCreateModal(false)}
+            />
+        </div>
     );
 };
 
