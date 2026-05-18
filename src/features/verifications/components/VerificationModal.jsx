@@ -1,9 +1,55 @@
-import check from "../../../assets/icons/check.svg";
-import deny from "../../../assets/icons/deny.svg";
-import warning from "../../../assets/icons/warning.svg";
-import detail from "../../../assets/icons/detail.svg";
-import pending from "../../../assets/icons/pending.svg";
-import noAvailable from "../../../assets/icons/noAvailable.svg";
+// src/features/verifications/components/VerificationModal.jsx
+import { useState } from 'react';
+import check      from '../../../assets/icons/check.svg';
+import deny       from '../../../assets/icons/deny.svg';
+import detail     from '../../../assets/icons/detail.svg';
+import noAvailable from '../../../assets/icons/noAvailable.svg';
+import { RoleBadge, StatusBadge, UrgencyBadge } from './VerificationBadges.jsx';
+
+const getUrgency = (createdAt) => {
+    const hours = (Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60);
+    if (hours >= 48) return 'Alta';
+    if (hours >= 24) return 'Media';
+    return 'Baja';
+};
+
+const getAvatar = (firstName = '', lastName = '') => {
+    const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+    const colors = [
+        'bg-orange-500', 'bg-teal-500', 'bg-pink-500',
+        'bg-blue-500',   'bg-purple-500', 'bg-green-600'
+    ];
+    const index = (firstName.charCodeAt(0) + lastName.charCodeAt(0)) % colors.length;
+    return { initials, color: colors[index] };
+};
+
+const DetailRow = ({ label, value }) => (
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <p className="text-sm text-gray-500">{label}</p>
+        <div className="text-sm font-semibold text-[#0F172A]">{value}</div>
+    </div>
+);
+
+const DocumentImage = ({ src, label }) => {
+    if (!src) {
+        return (
+            <div className="border border-dashed border-gray-200 rounded-2xl py-8 text-center flex flex-col items-center justify-center gap-3">
+                <img src={noAvailable} alt="No disponible" className="w-12 h-12" />
+                <p className="text-sm text-gray-300">{label} — Vista previa no disponible</p>
+            </div>
+        );
+    }
+    return (
+        <div className="space-y-2">
+            <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide">{label}</p>
+            <img
+                src={src}
+                alt={label}
+                className="w-full rounded-2xl object-cover max-h-48 border border-gray-100"
+            />
+        </div>
+    );
+};
 
 export const VerificationModal = ({
     verification,
@@ -11,115 +57,170 @@ export const VerificationModal = ({
     onApprove,
     onReject
 }) => {
+    // ── Estado local del flujo de rechazo dentro del modal ───────
+    const [showRejectInput, setShowRejectInput] = useState(false);
+    const [rejectReason, setRejectReason]       = useState('');
+
+    const firstName = verification.userId?.firstName || '';
+    const lastName  = verification.userId?.lastName  || '';
+    const { initials, color } = getAvatar(firstName, lastName);
+    const urgency   = getUrgency(verification.createdAt);
+    const isPending = verification.status === 'PENDING';
+
+    const handleRejectClick = () => {
+        setRejectReason('');
+        setShowRejectInput(true);
+    };
+
+    const handleRejectConfirm = () => {
+        // Delega al handler del Home que ya sabe hablar con el store
+        onReject(verification._id, rejectReason, () => {
+            setShowRejectInput(false);
+            setRejectReason('');
+            onClose();
+        });
+    };
+
+    const handleRejectCancel = () => {
+        setShowRejectInput(false);
+        setRejectReason('');
+    };
+
+    const handleApproveClick = () => {
+        onApprove(verification._id, () => onClose());
+    };
+
     return (
-        <div className="fixed inset-0 z-100 flex items-center justify-center">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center">
             <div
                 className="absolute inset-0 bg-black/40 backdrop-blur-sm"
                 onClick={onClose}
             />
 
             <div className="relative bg-white w-[95%] sm:w-full max-w-md rounded-2xl shadow-xl overflow-hidden max-h-[90vh] overflow-y-auto">
+                {/* Header */}
                 <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
                     <h2 className="flex items-center gap-2 text-lg font-bold text-[#0F172A]">
                         <img src={detail} alt="Detalle" className="w-5 h-5" />
                         Detalle de Verificación
                     </h2>
-
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600 text-xl"
+                        className="text-gray-400 hover:text-gray-600 text-xl leading-none"
                     >
                         ×
                     </button>
                 </div>
 
                 <div className="p-6 space-y-5">
+                    {/* Avatar + datos del usuario */}
                     <div className="flex items-center gap-4">
-                        <div
-                            className={`w-14 h-14 rounded-full ${verification.color} text-white flex items-center justify-center font-bold text-lg`}
-                        >
-                            {verification.initials}
+                        <div className={`w-14 h-14 rounded-full ${color} text-white flex items-center justify-center font-bold text-lg shrink-0`}>
+                            {initials}
                         </div>
-
                         <div>
                             <p className="font-bold text-[#0F172A]">
-                                {verification.name}
+                                {firstName} {lastName}
                             </p>
-
                             <p className="text-sm text-gray-400">
-                                {verification.email}
+                                {verification.userId?.email}
                             </p>
-
-                            <RoleBadge value={verification.role} />
+                            <div className="mt-1">
+                                <RoleBadge value={verification.userId?.role} />
+                            </div>
                         </div>
                     </div>
 
+                    {/* Datos del documento */}
                     <div className="bg-gray-50 rounded-2xl p-4 space-y-3">
-                        <DetailRow
-                            label="Tipo de documento"
-                            value={verification.documentType}
-                        />
-
-                        <DetailRow
-                            label="Número"
-                            value={verification.documentNumber}
-                        />
-
+                        <DetailRow label="Tipo de documento" value={verification.documentType} />
+                        <DetailRow label="Número"            value={verification.documentNumber} />
                         <DetailRow
                             label="Enviado"
-                            value={verification.sentAt}
+                            value={verification.createdAt
+                                ? new Date(verification.createdAt).toLocaleString('es-GT', {
+                                    day: '2-digit', month: 'short',
+                                    hour: '2-digit', minute: '2-digit'
+                                })
+                                : '—'}
                         />
-
-                        <DetailRow
-                            label="Urgencia"
-                            value={<UrgencyBadge value={verification.urgency} />}
-                        />
-
-                        <DetailRow
-                            label="Estado actual"
-                            value={<StatusBadge value={verification.status} />}
-                        />
+                        <DetailRow label="Urgencia"      value={<UrgencyBadge value={urgency} />} />
+                        <DetailRow label="Estado actual" value={<StatusBadge value={verification.status} />} />
+                        {verification.reviewedBy && (
+                            <DetailRow
+                                label="Revisado por"
+                                value={verification.reviewedBy}
+                            />
+                        )}
                     </div>
 
-                    <div className="border border-dashed border-gray-200 rounded-2xl py-8 text-center flex flex-col items-center justify-center gap-3">
-                        <img src={noAvailable} alt="noAvailable" className="w-15 h-15 "/>
-
-                        <p className="text-sm text-gray-300 mt-2">
-                            Vista previa no disponible
-                        </p>
+                    {/* Imágenes del documento */}
+                    <div className="space-y-3">
+                        <DocumentImage src={verification.documentImageFront} label="Frente del documento" />
+                        <DocumentImage src={verification.documentImageBack}  label="Reverso del documento" />
                     </div>
 
-                    {verification.status !== "Pendiente" && verification.reviewNote && (
+                    {/* Nota de rechazo existente */}
+                    {verification.status === 'REJECTED' && verification.rejectionReason && (
                         <div className="rounded-2xl border border-yellow-300 bg-yellow-50 px-4 py-3">
-                            <p className="text-sm font-semibold text-yellow-700">
-                                Nota del revisor
-                            </p>
-
+                            <p className="text-sm font-semibold text-yellow-700">Nota del revisor</p>
                             <p className="text-sm text-yellow-600 mt-1">
-                                {verification.reviewNote}
+                                {verification.rejectionReason}
                             </p>
                         </div>
                     )}
 
-                    {verification.status === "Pendiente" ? (
+                    {/* Input de razón de rechazo — aparece dentro del modal */}
+                    {showRejectInput && (
+                        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 space-y-3">
+                            <p className="text-sm font-semibold text-red-700">
+                                Razón del rechazo
+                            </p>
+                            <textarea
+                                value={rejectReason}
+                                onChange={(e) => setRejectReason(e.target.value)}
+                                placeholder="Describe el motivo (ej. imagen borrosa, datos incorrectos)..."
+                                rows={3}
+                                className="w-full px-4 py-3 rounded-xl border border-red-200 bg-white outline-none text-sm text-gray-600 placeholder:text-gray-400 focus:border-red-400 focus:ring-2 focus:ring-red-100 resize-none"
+                            />
+                            <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
+                                <button
+                                    onClick={handleRejectCancel}
+                                    className="w-full sm:w-auto px-5 py-2 rounded-xl border border-gray-200 bg-white text-sm text-gray-600 hover:bg-gray-50 transition"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={handleRejectConfirm}
+                                    className="w-full sm:w-auto px-5 py-2 rounded-xl bg-red-500 text-white text-sm font-semibold hover:bg-red-600 transition"
+                                >
+                                    Confirmar rechazo
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Acciones principales */}
+                    {isPending && !showRejectInput && (
                         <div className="grid grid-cols-2 gap-3">
                             <button
-                                onClick={() => onReject(verification.documentNumber)}
+                                onClick={handleRejectClick}
                                 className="py-3 rounded-xl border border-red-300 text-red-500 font-semibold hover:bg-red-50 transition flex items-center justify-center gap-2"
                             >
                                 <img src={deny} alt="Rechazar" className="w-4 h-4" />
                                 Rechazar
                             </button>
-
                             <button
-                                onClick={() => onApprove(verification.documentNumber)}
+                                onClick={handleApproveClick}
                                 className="py-3 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition flex items-center justify-center gap-2"
                             >
                                 <img src={check} alt="Aprobar" className="w-4 h-4" />
                                 Aprobar
                             </button>
                         </div>
-                    ) : (
+                    )}
+
+                    {!isPending && !showRejectInput && (
                         <button
                             onClick={onClose}
                             className="w-full py-3 rounded-xl bg-[#0F172A] text-white font-semibold hover:bg-slate-800 transition"
@@ -130,85 +231,5 @@ export const VerificationModal = ({
                 </div>
             </div>
         </div>
-    );
-};
-
-const DetailRow = ({ label, value }) => {
-    return (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <p className="text-sm text-gray-500">
-                {label}
-            </p>
-
-            <div className="text-sm font-semibold text-[#0F172A]">
-                {value}
-            </div>
-        </div>
-    );
-};
-
-const RoleBadge = ({ value }) => {
-    if (value === "Cliente") {
-        return (
-            <span className="inline-block mt-1 px-3 py-1 rounded-full bg-blue-100 text-blue-600 text-xs font-semibold">
-                Cliente
-            </span>
-        );
-    }
-
-    return (
-        <span className="inline-block mt-1 px-3 py-1 rounded-full bg-purple-100 text-purple-600 text-xs font-semibold">
-            Trabajador
-        </span>
-    );
-};
-
-const UrgencyBadge = ({ value }) => {
-    if (value === "Alta") {
-        return (
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-100 text-red-600 text-xs font-semibold">
-                Alta
-            </span>
-        );
-    }
-
-    if (value === "Media") {
-        return (
-            <span className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-600 text-xs font-semibold">
-                Media
-            </span>
-        );
-    }
-
-    return (
-        <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-500 text-xs font-semibold">
-            Baja
-        </span>
-    );
-};
-
-const StatusBadge = ({ value }) => {
-    if (value === "Aprobado") {
-        return (
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-100 text-green-600 text-xs font-semibold">                <img src={check} alt="Aprobado" className="w-4 h-4" />
-                Aprobado
-            </span>
-        );
-    }
-
-    if (value === "Rechazado") {
-        return (
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-100 text-red-600 text-xs font-semibold">
-                <img src={deny} alt="Rechazado" className="w-4 h-4" />
-                Rechazado
-            </span>
-        );
-    }
-
-    return (
-        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-yellow-100 text-yellow-600 text-xs font-semibold">
-            <img src={pending} alt="Pendiente" className="w-4 h-4" />
-            Pendiente
-        </span>
     );
 };

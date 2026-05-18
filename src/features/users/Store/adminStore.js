@@ -290,3 +290,150 @@ export const useCategoryStore = create((set, get) => ({
         }
     }
 }));
+
+export const useVerificationStore = create((set, get) => ({
+    verifications: [],
+    loading: false,
+    error: null,
+
+    // ── GET /verifications ───────────────────────────────────────
+    // El controlador responde { success: true, data: [...] }
+    getVerifications: async () => {
+        try {
+            set({ loading: true, error: null });
+            const res = await api.getVerifications();
+            set({ verifications: res.data.data, loading: false });
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || 'Error al obtener verificaciones',
+                loading: false
+            });
+        }
+    },
+
+    // ── PUT /verifications/:id ───────────────────────────────────
+    // Acepta FormData (con imágenes) o un objeto plano (solo texto).
+    // El controlador responde { success: true, data: {...} }
+    updateVerification: async (id, data) => {
+        try {
+            set({ loading: true, error: null });
+            const res = await api.updateVerification(id, data);
+            const updated = res.data.data;
+            set({
+                verifications: get().verifications.map((v) =>
+                    v._id === id ? updated : v
+                ),
+                loading: false
+            });
+            return { success: true, data: updated };
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || 'Error al actualizar verificación',
+                loading: false
+            });
+            throw error;
+        }
+    },
+
+    // ── PATCH /verifications/:id/status ─────────────────────────
+    // statusData: { status, reviewedBy, rejectionReason? }
+    // El controlador responde { success: true, message: '...' }
+    // y NO devuelve el documento actualizado, así que recargamos
+    // la lista completa para reflejar el cambio en la UI.
+    updateVerificationStatus: async (id, statusData) => {
+        try {
+            set({ loading: true, error: null });
+            await api.updateVerificationStatus(id, statusData);
+            // Recarga la lista completa para sincronizar el estado real de la BD
+            await get().getVerifications();
+            return { success: true };
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || 'Error al actualizar estado de verificación',
+                loading: false
+            });
+            throw error;
+        }
+    },
+
+    // ── Limpiar error manualmente desde la UI ────────────────────
+    clearError: () => set({ error: null })
+}));
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// WORKER PORTFOLIO STORE
+// Acciones del Admin: listar, moderar (toggle ACTIVE/INACTIVE),
+// actualizar imagen de un registro.
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+export const useWorkerPortfolioStore = create((set, get) => ({
+    portfolios: [],
+    loading: false,
+    error: null,
+
+    // ── GET /PortFolio ───────────────────────────────────────────
+    // El controlador responde { success: true, portfolios: [...] }
+    getAllPortfolios: async () => {
+        try {
+            set({ loading: true, error: null });
+            const res = await api.getAllPortfolios();
+            set({ portfolios: res.data.portfolios, loading: false });
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || 'Error al obtener portafolios',
+                loading: false
+            });
+        }
+    },
+
+    // ── PATCH /PortFolio/moderate/:id ────────────────────────────
+    // Toggle ACTIVE ↔ INACTIVE. El controlador responde { success: true, record: {...} }
+    // Actualizamos solo el registro afectado en el array local (sin recargar todo).
+    moderatePortfolio: async (id) => {
+        try {
+            set({ loading: true, error: null });
+            const res = await api.moderatePortfolio(id);
+            const moderated = res.data.record;
+            set({
+                portfolios: get().portfolios.map((p) =>
+                    p._id === id ? moderated : p
+                ),
+                loading: false
+            });
+            return { success: true, data: moderated };
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || 'Error al moderar el portafolio',
+                loading: false
+            });
+            throw error;
+        }
+    },
+
+    // ── PATCH /PortFolio/:id/image ───────────────────────────────
+    // formData debe contener el campo portfolioImage (File).
+    // El controlador responde { success: true, imageUrl: '...' }
+    // Actualizamos solo el imageUrl del registro afectado.
+    updatePortfolioImage: async (id, formData) => {
+        try {
+            set({ loading: true, error: null });
+            const res = await api.updatePortfolioImage(id, formData);
+            const newImageUrl = res.data.imageUrl;
+            set({
+                portfolios: get().portfolios.map((p) =>
+                    p._id === id ? { ...p, imageUrl: newImageUrl } : p
+                ),
+                loading: false
+            });
+            return { success: true, imageUrl: newImageUrl };
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || 'Error al actualizar imagen del portafolio',
+                loading: false
+            });
+            throw error;
+        }
+    },
+
+    // ── Limpiar error manualmente desde la UI ────────────────────
+    clearError: () => set({ error: null })
+}));
