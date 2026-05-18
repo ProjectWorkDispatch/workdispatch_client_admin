@@ -57,17 +57,12 @@ export const useAuthStore = create(
 
                     set({ loading: true, error: null });
 
-                    const { data } = await loginRequest({ email, password })
-
-                    // Sólo administradores pueden inciar sesión en cliente-admin
-                    const role = data?.userDetails?.role;
-
-                    console.log("LOGIN RESPONSE:", data);
-                    console.log("USER:", data.userDetails);
-                    console.log("ROLE:", data.userDetails?.role);
-                    console.log(data);
-                    console.log(data.userDetails);
-                    console.log(data.userDetails?.role);
+                    const { data } = await loginRequest({ email, password });
+                    const user = data?.user || data?.userDetails || data;
+                    const role = (user?.role || user?.roleName || "").toString().toUpperCase();
+                    const accessToken = data?.accessToken || data?.token;
+                    const refreshToken = data?.refreshToken || data?.refresh_token;
+                    const expiresAt = data?.expiresIn || data?.expiresAt || data?.expiration;
 
                     if (role !== "ADMIN") {
                         const message = "No tienes permisos para acceder como administrador";
@@ -86,18 +81,16 @@ export const useAuthStore = create(
                         return { success: false, error: message };
                     }
 
-                    set(
-                        {
-                            user: data.userDetails,
-                            token: data.accessToken || data.token,
-                            refreshToken: data.refreshToken,
-                            expiresAt: data.expiresIn || data.expiresAt,
-                            isAuthenticated: true,
-                            loading: false,
-                        }
-                    );
+                    set({
+                        user,
+                        token: accessToken,
+                        refreshToken,
+                        expiresAt,
+                        isAuthenticated: !!accessToken,
+                        loading: false,
+                    });
 
-                    return { success: true }
+                    return { success: true };
 
                 } catch (error) {
                     let errorMessage = "Credenciales inválidas o error de conexión";
@@ -106,11 +99,9 @@ export const useAuthStore = create(
                         errorMessage = "Credenciales inválidas";
                     }
 
-                    set({error: errorMessage });
+                    set({ error: errorMessage, loading: false });
                     toast.error(errorMessage);
                     return { success: false, error: errorMessage };
-                } finally {
-                    set({ loading: false });
                 }
 
             },
