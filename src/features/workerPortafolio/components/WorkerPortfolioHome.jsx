@@ -1,246 +1,143 @@
-import { useState } from "react";
-import { WorkerPortfolioTable } from "./WorkerPortfolioTable";
-import { PortfolioStatsCard } from "./PortfolioStatsCard";
-import Exp from "../../../assets/icons/export.svg";
-
-const initialPortfolios = [
-    {
-        _id: "1",
-        workerId: {
-            _id: "w1",
-            firstName: "Carlos",
-            lastName: "Mendoza",
-            email: "carlos@email.com",
-            profilePhoto: null
-        },
-        imageUrl:
-            "https://images.unsplash.com/photo-1504307651254-35680f356dfd",
-        description:
-            "Instalación eléctrica residencial y mantenimiento general.",
-        status: "ACTIVE",
-        createdAt: "2025-01-10T10:00:00Z"
-    },
-    {
-        _id: "2",
-        workerId: {
-            _id: "w2",
-            firstName: "Laura",
-            lastName: "Rincón",
-            email: "laura@email.com",
-            profilePhoto: null
-        },
-        imageUrl:
-            "https://images.unsplash.com/photo-1581578731548-c64695cc6952",
-        description:
-            "Remodelación y pintura de interiores para apartamentos.",
-        status: "INACTIVE",
-        createdAt: "2025-02-12T10:00:00Z"
-    }
-];
+// src/features/workerPortafolio/components/WorkerPortfolioHome.jsx
+import { useState, useEffect } from 'react';
+import { useWorkerPortfolioStore }    from '../../users/Store/adminStore.js';
+import { useWorkerPortfolioActions }  from '../hooks/useWorkerPortfolioActions.js';
+import { WorkerPortfolioHeader }      from './WorkerPortfolioHeader.jsx';
+import { WorkerPortfolioStatsCard }   from './WorkerPortfolioStatsCard.jsx';
+import { WorkerPortfolioFilters }     from './WorkerPortfolioFilters.jsx';
+import { WorkerPortfolioGrid }        from './WorkerPortfolioGrid.jsx';
+import { WorkerPortfolioModal }       from './WorkerPortfolioModal.jsx';
 
 export const WorkerPortfolioHome = () => {
-    const [portfolios, setPortfolios] = useState(initialPortfolios);
+    // ── Store ────────────────────────────────────────────────────
+    const portfolios = useWorkerPortfolioStore((state) => state.portfolios);
+    const loading    = useWorkerPortfolioStore((state) => state.loading);
+    const error      = useWorkerPortfolioStore((state) => state.error);
 
-    const [search, setSearch] = useState("");
+    // ── Acciones ─────────────────────────────────────────────────
+    const { handleFetch, handleModerate, handleUpdateImage, handleClearError } =
+        useWorkerPortfolioActions();
 
-    const [filter, setFilter] = useState("Todos");
+    // ── Estado local de UI ───────────────────────────────────────
+    const [search, setSearch]             = useState('');
+    const [statusFilter, setStatusFilter] = useState('Todos');
+    const [selectedPortfolio, setSelectedPortfolio] = useState(null);
 
-    const [currentPage, setCurrentPage] = useState(1);
+    // ── Carga inicial ─────────────────────────────────────────────
+    useEffect(() => {
+        handleFetch();
+    }, []);
 
-    const itemsPerPage = 6;
-
-    const handleSearch = (e) => {
-        setSearch(e.target.value);
-        setCurrentPage(1);
-    };
-
-    const handleFilter = (value) => {
-        setFilter(value);
-        setCurrentPage(1);
-    };
-
-    const handleToggleStatus = (id) => {
-        setPortfolios((prev) =>
-            prev.map((portfolio) =>
-                portfolio._id === id
-                    ? {
-                        ...portfolio,
-                        status:
-                            portfolio.status === "ACTIVE"
-                                ? "INACTIVE"
-                                : "ACTIVE"
-                    }
-                    : portfolio
-            )
-        );
-    };
-
-    const filteredPortfolios = portfolios.filter((portfolio) => {
-        const searchText = search.toLowerCase();
-
-        const workerName =
-            `${portfolio.workerId?.firstName || ""} ${
-                portfolio.workerId?.lastName || ""
-            }`.toLowerCase();
+    // ── Filtrado cliente ──────────────────────────────────────────
+    const filteredPortfolios = portfolios.filter((p) => {
+        const text     = search.toLowerCase();
+        const fullName = `${p.workerId?.firstName || ''} ${p.workerId?.lastName || ''}`.toLowerCase();
 
         const matchSearch =
-            workerName.includes(searchText) ||
-            portfolio.workerId?.email
-                ?.toLowerCase()
-                .includes(searchText) ||
-            portfolio.description
-                ?.toLowerCase()
-                .includes(searchText);
+            fullName.includes(text) ||
+            p.description?.toLowerCase().includes(text) ||
+            p.workerId?.email?.toLowerCase().includes(text);
 
-        let matchFilter = true;
+        const matchStatus = statusFilter === 'Todos' || p.status === statusFilter;
 
-        if (filter === "Activos") {
-            matchFilter = portfolio.status === "ACTIVE";
-        }
-
-        if (filter === "Inactivos") {
-            matchFilter = portfolio.status === "INACTIVE";
-        }
-
-        return matchSearch && matchFilter;
+        return matchSearch && matchStatus;
     });
 
-    const totalPages = Math.ceil(
-        filteredPortfolios.length / itemsPerPage
-    );
+    // ── Estadísticas ──────────────────────────────────────────────
+    const totalPortfolios    = portfolios.length;
+    const activePortfolios   = portfolios.filter((p) => p.status === 'ACTIVE').length;
+    const inactivePortfolios = portfolios.filter((p) => p.status === 'INACTIVE').length;
 
-    const startIndex = (currentPage - 1) * itemsPerPage;
+    // ── Handlers ──────────────────────────────────────────────────
+    const onModerate = (portfolio) => {
+        handleModerate(portfolio, (updated) => {
+            // Si el modal estaba abierto con este registro, sincroniza su estado
+            if (selectedPortfolio?._id === portfolio._id) {
+                setSelectedPortfolio((prev) => ({ ...prev, ...updated }));
+            }
+        });
+    };
 
-    const endIndex = startIndex + itemsPerPage;
-
-    const currentPortfolios = filteredPortfolios.slice(
-        startIndex,
-        endIndex
-    );
-
-    const totalPortfolios = portfolios.length;
-
-    const activePortfolios = portfolios.filter(
-        (portfolio) => portfolio.status === "ACTIVE"
-    ).length;
-
-    const inactivePortfolios = portfolios.filter(
-        (portfolio) => portfolio.status === "INACTIVE"
-    ).length;
+    const onUpdateImage = (portfolioId, imageFile) => {
+        handleUpdateImage(portfolioId, imageFile, (newImageUrl) => {
+            if (selectedPortfolio?._id === portfolioId) {
+                setSelectedPortfolio((prev) => ({ ...prev, imageUrl: newImageUrl }));
+            }
+        });
+    };
 
     return (
         <section className="space-y-6">
-            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-[#0F172A]">
-                        Portafolios
-                    </h1>
+            <WorkerPortfolioHeader
+                totalCount={totalPortfolios}
+                inactiveCount={inactivePortfolios}
+            />
 
-                    <p className="text-sm text-gray-500">
-                        Gestión de trabajos publicados por trabajadores
-                    </p>
-                </div>
-
-                <button className="w-fit px-4 py-2 rounded-2xl bg-white border border-gray-200 shadow-sm text-sm font-semibold text-slate-600 hover:bg-gray-50 transition flex items-center gap-2">
-                    <img
-                        src={Exp}
-                        alt="Exportar"
-                        className="w-4 h-4"
-                    />
-
-                    Exportar CSV
-                </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <PortfolioStatsCard
+            {/* Estadísticas */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <WorkerPortfolioStatsCard
                     value={totalPortfolios}
-                    label="Total portafolios"
+                    label="Total registros"
                     color="text-[#0F172A]"
                 />
-
-                <PortfolioStatsCard
+                <WorkerPortfolioStatsCard
                     value={activePortfolios}
                     label="Activos"
                     color="text-green-500"
                 />
-
-                <PortfolioStatsCard
+                <WorkerPortfolioStatsCard
                     value={inactivePortfolios}
-                    label="Inactivos"
+                    label="Desactivados"
                     color="text-red-500"
                 />
             </div>
 
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <div className="p-5 border-b border-gray-100">
-                    <input
-                        type="text"
-                        value={search}
-                        onChange={handleSearch}
-                        placeholder="Buscar por trabajador o descripción..."
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm text-gray-600 placeholder:text-gray-400 focus:border-green-400 focus:ring-2 focus:ring-green-100"
-                    />
-
-                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mt-4">
-                        <div className="flex flex-wrap gap-2">
-                            <FilterButton
-                                text="Todos"
-                                filter={filter}
-                                setFilter={handleFilter}
-                            />
-
-                            <FilterButton
-                                text="Activos"
-                                filter={filter}
-                                setFilter={handleFilter}
-                            />
-
-                            <FilterButton
-                                text="Inactivos"
-                                filter={filter}
-                                setFilter={handleFilter}
-                            />
-                        </div>
-
-                        <p className="text-xs text-gray-400">
-                            {filteredPortfolios.length} portafolios
-                        </p>
-                    </div>
+            {/* Error global */}
+            {error && (
+                <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl flex items-center justify-between">
+                    <span>{error}</span>
+                    <button
+                        onClick={handleClearError}
+                        className="ml-4 text-red-400 hover:text-red-600 font-bold"
+                    >
+                        ×
+                    </button>
                 </div>
+            )}
 
-                <WorkerPortfolioTable
-                    portfolios={currentPortfolios}
-                    totalPortfolios={filteredPortfolios.length}
-                    startIndex={startIndex}
-                    endIndex={endIndex}
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    setCurrentPage={setCurrentPage}
-                    onToggleStatus={handleToggleStatus}
+            {/* Grid con filtros */}
+            <article className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                <WorkerPortfolioFilters
+                    search={search}
+                    onSearchChange={setSearch}
+                    statusFilter={statusFilter}
+                    onStatusFilterChange={setStatusFilter}
+                    filteredCount={filteredPortfolios.length}
                 />
-            </div>
+
+                {loading ? (
+                    <div className="px-5 py-16 text-center text-gray-400 text-sm">
+                        Cargando portafolios...
+                    </div>
+                ) : (
+                    <WorkerPortfolioGrid
+                        portfolios={filteredPortfolios}
+                        totalPortfolios={totalPortfolios}
+                        onView={setSelectedPortfolio}
+                        onModerate={onModerate}
+                    />
+                )}
+            </article>
+
+            {/* Modal de detalle */}
+            {selectedPortfolio && (
+                <WorkerPortfolioModal
+                    portfolio={selectedPortfolio}
+                    onClose={() => setSelectedPortfolio(null)}
+                    onModerate={onModerate}
+                    onUpdateImage={onUpdateImage}
+                />
+            )}
         </section>
-    );
-};
-
-const FilterButton = ({
-    text,
-    filter,
-    setFilter
-}) => {
-    const active = filter === text;
-
-    return (
-        <button
-            onClick={() => setFilter(text)}
-            className={`px-3 sm:px-4 py-2 rounded-full text-xs font-semibold transition whitespace-nowrap ${
-                active
-                    ? "bg-green-500 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
-        >
-            {text}
-        </button>
     );
 };
