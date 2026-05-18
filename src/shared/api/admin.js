@@ -132,3 +132,49 @@ export const assignSkillToUser = async (data) => {
     throw err;
   }
 };
+
+// ================= CONVERSATIONS =================
+
+export const getConversations = async () => {
+  try {
+    return await axiosAdmin.get("/conversations");
+  } catch (err) {
+    if (err.response?.status === 404) {
+      return await axiosAdmin.get("/conversation");
+    }
+    throw err;
+  }
+};
+
+export const createConversation = async (data) => {
+  try {
+    return await axiosAdmin.post(
+      "/conversations",
+      data
+    );
+  } catch (err) {
+    if (err.response?.status === 404) {
+      return await axiosAdmin.post(
+        "/conversation",
+        data
+      );
+    }
+    throw err;
+  }
+};
+
+export const changeConversationStatus =
+  async (id) => {
+    try {
+      return await axiosAdmin.patch(
+        `/conversations/${id}/status`
+      );
+    } catch (err) {
+      if (err.response?.status === 404) {
+        return await axiosAdmin.patch(
+          `/conversation/${id}/status`
+        );
+      }
+      throw err;
+    }
+  };

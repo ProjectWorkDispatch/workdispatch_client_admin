@@ -1,6 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { AvatarUser } from "../ui/AvatarUser";
 import { Notifications } from "../ui/Notifications";
+import { ConversationsButton } from "../ui/ConversationsButton";
 
 export const Navbar = ({ setSidebarOpen }) => {
 
@@ -42,6 +43,8 @@ export const Navbar = ({ setSidebarOpen }) => {
             </div>
 
             <div className="flex items-center gap-5">
+                <ConversationsButton />
+                
                 <Notifications />
 
                 <AvatarUser />

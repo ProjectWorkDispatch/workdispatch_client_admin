@@ -12,6 +12,7 @@ import { ServiceRequestsHome } from "../../features/serviceRequests/components/S
 import { ProposalsHome } from "../../features/proposals/components/ProposalsHome.jsx";
 import { WorkerPortfolioHome } from "../../features/workerPortafolio/components/WorkerPortfolioHome.jsx";
 import { SkillsHome } from "../../features/skills/components/SkillsHome.jsx";
+import { ConversationsHome } from "../../features/convesations/components/ConversationsHome.jsx";
 export const AppRoutes = () => {
 
     return (
@@ -34,6 +35,7 @@ export const AppRoutes = () => {
                 <Route path="propuestas" element={<ProposalsHome />} />
                 <Route path="portafolios" element={<WorkerPortfolioHome />} />
                 <Route path="skills" element={<SkillsHome />} />
+                <Route path="conversaciones" element={<ConversationsHome />} />
             </Route>
 
 

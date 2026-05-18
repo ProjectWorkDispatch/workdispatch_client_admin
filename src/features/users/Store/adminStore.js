@@ -313,3 +313,39 @@ export const useCategoryStore = create((set, get) => ({
         }
     },
 }));
+
+// ================= CONVERSATIONS STORE =================
+
+export const useConversationStore = create(
+    (set, get) => ({
+        conversations: [],
+        selectedConversation: null,
+        loading: false,
+        error: null,
+
+        getConversations: async () => {
+            try {
+                set({ loading: true, error: null });
+                const res = await api.getConversations();
+                const data = res.data?.data || res.data?.conversations || [];
+                set({ conversations: data, loading: false });
+            } catch (error) {
+                set({ error: error.response?.data?.message || "Error obteniendo conversaciones", loading: false });
+            }
+        },
+        createConversation: async (user1Id, user2Id) => {
+            try {
+                set({ loading: true, error: null });
+                const res = await api.createConversation({ user1Id, user2Id });
+                const conversation = res.data?.data;
+                const exists = get().conversations.some((c) => c._id === conversation._id);
+                set({ conversations: exists ? get().conversations : [conversation, ...get().conversations], selectedConversation: conversation, loading: false });
+                return conversation;
+            } catch (error) {
+                set({ error: error.response?.data?.message || "Error creando conversación", loading: false });
+                throw error;
+            }
+        },
+        setSelectedConversation: (conversation) =>
+            set({ selectedConversation: conversation })
+    }));
