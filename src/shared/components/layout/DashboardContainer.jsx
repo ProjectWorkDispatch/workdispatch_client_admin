@@ -15,7 +15,7 @@ export const DashboardContainer = () => {
         setSidebarOpen={setSidebarOpen}
       />
 
-      <div className="md:ml-72 min-h-screen flex flex-col">
+      <div className="md:ml-64 min-h-screen flex flex-col">
         <Navbar setSidebarOpen={setSidebarOpen} />
 
         <main className="p-4 md:p-6">
