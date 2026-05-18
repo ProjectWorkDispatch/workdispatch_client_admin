@@ -160,3 +160,32 @@ export const updatePortfolioImage = async (id, formData) =>
     await axiosAdmin.patch(`/PortFolio/${id}/image`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
     });
+
+
+// ================= SERVICE REQUESTS (Solicitudes / Trabajos - vista admin) =================
+// GET /service-requests  — lista todas las solicitudes
+export const getServiceRequests = async (params) =>
+    await axiosAdmin.get('/service-requests', { params });
+
+// GET /service-requests/:id — detalle de una solicitud
+export const getServiceRequestById = async (id) =>
+    await axiosAdmin.get(`/service-requests/${id}`);
+
+// PATCH /service-requests/:id/status — cambiar estado de la solicitud
+// Body esperado: { status }  (ej. "CANCELLED", "CLOSED")
+export const updateServiceRequestStatus = async (id, status) =>
+    await axiosAdmin.patch(`/service-requests/${id}/status`, { status });
+
+// ================= SERVICES (Trabajos en ejecución) =================
+// GET /services  — lista todos los trabajos en ejecución
+export const getServices = async (params) =>
+    await axiosAdmin.get('/services', { params });
+
+// GET /services/:id — detalle de un trabajo en ejecución
+export const getServiceById = async (id) =>
+    await axiosAdmin.get(`/services/${id}`);
+
+// PATCH /services/:id/status — cambiar estado del trabajo
+// Body esperado: { status }  (ej. "COMPLETED", "CANCELLED")
+export const updateServiceStatus = async (id, status) =>
+    await axiosAdmin.patch(`/services/${id}/status`, { status });

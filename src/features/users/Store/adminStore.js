@@ -437,3 +437,152 @@ export const useWorkerPortfolioStore = create((set, get) => ({
     // ── Limpiar error manualmente desde la UI ────────────────────
     clearError: () => set({ error: null })
 }));
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// SERVICE REQUEST STORE
+//
+// Orquestación frontend:
+//   1. Llama a GET /service-requests  → array de solicitudes
+//   2. Llama a GET /services          → array de trabajos en ejecución
+//   3. Cruza ambos arrays por serviceRequest._id === service.serviceRequestId
+//      y construye `enrichedRequests`: cada solicitud lleva opcionalmente
+//      un campo `service` con el trabajo activo vinculado.
+//
+// El admin solo puede cambiar status en ambas entidades (no crear ni editar).
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+export const useServiceRequestStore = create((set, get) => ({
+    // ── Estado ───────────────────────────────────────────────────
+    serviceRequests:  [],   // raw de /service-requests
+    services:         [],   // raw de /services
+    enrichedRequests: [],   // resultado del cruce (fuente de la tabla)
+    loading:          false,
+    error:            null,
+
+    // ── Helpers privados (no expuestos como acciones) ─────────────
+
+    /** Cruza serviceRequests con services y devuelve el array enriquecido. */
+    _buildEnriched: (serviceRequests, services) => {
+        // Construimos un mapa serviceRequestId → service para O(1) lookup
+        const serviceMap = services.reduce((acc, svc) => {
+            const key = svc.serviceRequestId?._id ?? svc.serviceRequestId;
+            if (key) acc[key] = svc;
+            return acc;
+        }, {});
+
+        return serviceRequests.map((req) => ({
+            ...req,
+            // Si existe un Service vinculado a esta solicitud, lo adjuntamos
+            service: serviceMap[req._id] ?? null,
+        }));
+    },
+
+    // ── Acciones públicas ─────────────────────────────────────────
+
+    /**
+     * Carga AMBAS entidades en paralelo y construye enrichedRequests.
+     * Llamar desde el componente en el useEffect inicial.
+     */
+    fetchAll: async () => {
+        try {
+            set({ loading: true, error: null });
+
+            // Peticiones en paralelo → menor latencia
+            const [srRes, svcRes] = await Promise.all([
+                api.getServiceRequests(),
+                api.getServices(),
+            ]);
+
+            // Normalización defensiva — el backend puede devolver distintas shapes
+            const serviceRequests =
+                srRes.data?.serviceRequests ??
+                srRes.data?.data ??
+                (Array.isArray(srRes.data) ? srRes.data : []);
+
+            const services =
+                svcRes.data?.services ??
+                svcRes.data?.data ??
+                (Array.isArray(svcRes.data) ? svcRes.data : []);
+
+            const enrichedRequests = get()._buildEnriched(serviceRequests, services);
+
+            set({ serviceRequests, services, enrichedRequests, loading: false });
+        } catch (error) {
+            set({
+                error: error.response?.data?.message ?? 'Error al obtener los trabajos',
+                loading: false,
+            });
+        }
+    },
+
+    /**
+     * Cambia el status de una ServiceRequest.
+     * Actualiza la lista local sin recargar todo.
+     * @param {string} id      - _id de la ServiceRequest
+     * @param {string} status  - nuevo estado (ej. "CANCELLED", "CLOSED")
+     */
+    changeServiceRequestStatus: async (id, status) => {
+        try {
+            set({ loading: true, error: null });
+            const res = await api.updateServiceRequestStatus(id, status);
+
+            // El backend puede devolver el doc actualizado o solo { success: true }
+            const updated = res.data?.serviceRequest ?? res.data?.data ?? null;
+
+            set((state) => {
+                const serviceRequests = updated
+                    ? state.serviceRequests.map((r) => (r._id === id ? updated : r))
+                    : state.serviceRequests.map((r) =>
+                          r._id === id ? { ...r, status } : r
+                      );
+
+                const enrichedRequests = state._buildEnriched(serviceRequests, state.services);
+                return { serviceRequests, enrichedRequests, loading: false };
+            });
+
+            return { success: true };
+        } catch (error) {
+            set({
+                error: error.response?.data?.message ?? 'Error al cambiar estado de la solicitud',
+                loading: false,
+            });
+            throw error;
+        }
+    },
+
+    /**
+     * Cambia el status de un Service (trabajo en ejecución).
+     * Actualiza la lista local sin recargar todo.
+     * @param {string} id      - _id del Service
+     * @param {string} status  - nuevo estado (ej. "COMPLETED", "CANCELLED")
+     */
+    changeServiceStatus: async (id, status) => {
+        try {
+            set({ loading: true, error: null });
+            const res = await api.updateServiceStatus(id, status);
+
+            const updated = res.data?.service ?? res.data?.data ?? null;
+
+            set((state) => {
+                const services = updated
+                    ? state.services.map((s) => (s._id === id ? updated : s))
+                    : state.services.map((s) =>
+                          s._id === id ? { ...s, status } : s
+                      );
+
+                const enrichedRequests = state._buildEnriched(state.serviceRequests, services);
+                return { services, enrichedRequests, loading: false };
+            });
+
+            return { success: true };
+        } catch (error) {
+            set({
+                error: error.response?.data?.message ?? 'Error al cambiar estado del trabajo',
+                loading: false,
+            });
+            throw error;
+        }
+    },
+
+    // ── Utilidades ────────────────────────────────────────────────
+    clearError: () => set({ error: null }),
+}));

@@ -28,7 +28,7 @@ axiosAdmin.interceptors.response.use(
         if (status === 401 && (code === 'TOKEN_EXPIRED' || code === 'MISSING_TOKEN' || code === 'INVALID_TOKEN')) {
             // Limpia el store y redirige al login sin recargar la app
             useAuthStore.getState().logout();
-            window.location.href = '/LoginForm';
+            window.location.href = '/';
         }
 
         return Promise.reject(error);
