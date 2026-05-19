@@ -178,24 +178,24 @@ export const updatePortfolioImage = async (id, formData) =>
 // ================= SERVICE REQUESTS =================
 
 export const getServiceRequests = async (params) =>
-    await axiosAdmin.get('/service-requests', { params });
+    await axiosAdmin.get('/serviceRequest', { params });
 
 export const getServiceRequestById = async (id) =>
-    await axiosAdmin.get(`/service-requests/${id}`);
+    await axiosAdmin.get(`/serviceRequest/${id}`);
 
 export const updateServiceRequestStatus = async (id, status) =>
-    await axiosAdmin.patch(`/service-requests/${id}/status`, { status });
+    await axiosAdmin.patch(`/serviceRequest/${id}/status`, { status });
 
 // ================= SERVICES =================
 
 export const getServices = async (params) =>
-    await axiosAdmin.get('/services', { params });
+    await axiosAdmin.get('/Service', { params });
 
 export const getServiceById = async (id) =>
-    await axiosAdmin.get(`/services/${id}`);
+    await axiosAdmin.get(`/Service/${id}`);
 
 export const updateServiceStatus = async (id, status) =>
-    await axiosAdmin.patch(`/services/${id}/status`, { status });
+    await axiosAdmin.patch(`/Service/${id}/status`, { status });
 
 // ================= CONVERSATIONS =================
 
