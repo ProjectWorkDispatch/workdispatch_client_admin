@@ -100,13 +100,15 @@ export const CategoriesTable = ({
 
                                         <button
                                             onClick={() =>
-                                                onStatusChange(category._id)
+                                                onStatusChange(
+                                                    category._id,
+                                                    category.status
+                                                )
                                             }
-                                            className={`w-8 h-8 rounded-full flex items-center justify-center transition ${
-                                                category.status === "ACTIVE"
+                                            className={`w-8 h-8 rounded-full flex items-center justify-center transition ${category.status === "ACTIVE"
                                                     ? "hover:bg-red-50"
                                                     : "hover:bg-green-50"
-                                            }`}
+                                                }`}
                                             title={
                                                 category.status === "ACTIVE"
                                                     ? "Desactivar"
@@ -152,11 +154,10 @@ export const CategoriesTable = ({
                         <button
                             key={index + 1}
                             onClick={() => setCurrentPage(index + 1)}
-                            className={`w-8 h-8 rounded-lg text-sm font-semibold ${
-                                currentPage === index + 1
+                            className={`w-8 h-8 rounded-lg text-sm font-semibold ${currentPage === index + 1
                                     ? "bg-[#0F172A] text-white"
                                     : "text-gray-500 hover:bg-gray-100"
-                            }`}
+                                }`}
                         >
                             {index + 1}
                         </button>

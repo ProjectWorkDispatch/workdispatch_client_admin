@@ -103,7 +103,7 @@ export const useProposalStore = create((set, get) => ({
         try {
             set({ loading: true, error: null });
             const res = await api.deactivateProposal(id);
-            
+
             set({
                 proposals: get().proposals.map((p) =>
                     p._id === id ? res.data.proposal : p
@@ -137,7 +137,7 @@ export const useReportStore = create((set, get) => ({
         try {
             set({ loading: true, error: null });
             await api.resolveReport(id);
-            const res = await api.getReports();          
+            const res = await api.getReports();
             set({ reports: res.data.reports, loading: false });
         } catch (error) {
             set({ error: error.response?.data?.message || "Error al resolver reporte", loading: false });
@@ -157,30 +157,30 @@ export const useUserStore = create((set, get) => ({
             const res = await api.getUsers();
             const data = res.data?.users || res.data?.data || (Array.isArray(res.data) ? res.data : []);
             set({ users: data, loading: false });
-        } catch (error) { 
+        } catch (error) {
             // Si falla API, usa mock data
-            set({ users: MOCK_USERS, loading: false, error: null }); 
+            set({ users: MOCK_USERS, loading: false, error: null });
             console.warn("Usando usuarios mock (API no disponible)");
         }
     },
-   
+
     addUser: async (formData) => {
         try {
             set({ loading: true });
             await api.createUser(formData);
-            await get().getUsers(); 
+            await get().getUsers();
         } catch (error) {
             set({ loading: false });
             throw error;
         }
     },
-   
+
     toggleUserStatus: async (id, currentStatus) => {
         try {
             const newStatus = !currentStatus;
             await api.changeUserStatus(id, newStatus);
             set((state) => ({
-                users: state.users.map((u) => 
+                users: state.users.map((u) =>
                     u._id === id ? { ...u, active: newStatus } : u
                 )
             }));
@@ -201,9 +201,9 @@ export const useSkillStore = create((set, get) => ({
             const res = await api.getSkills();
             const skillsArray = res.data?.skills || res.data?.data || (Array.isArray(res.data) ? res.data : []);
             set({ skills: skillsArray, loading: false });
-        } catch (error) { 
+        } catch (error) {
             // Si falla API, usa mock data
-            set({ skills: MOCK_SKILLS, loading: false }); 
+            set({ skills: MOCK_SKILLS, loading: false });
             console.warn("Usando habilidades mock (API no disponible)");
         }
     },
@@ -215,10 +215,10 @@ export const useSkillStore = create((set, get) => ({
         } catch (error) {
             // Si falla API, agrega localmente con ID válido tipo MongoDB
             const idSuffix = Date.now().toString(16).slice(-12).padStart(12, "0");
-            const newSkill = { 
-                _id: `646f83a7e527e4d9f8a4b${idSuffix}`, 
-                ...data, 
-                createdAt: new Date().toISOString() 
+            const newSkill = {
+                _id: `646f83a7e527e4d9f8a4b${idSuffix}`,
+                ...data,
+                createdAt: new Date().toISOString()
             };
             set({ skills: [...get().skills, newSkill] });
             console.warn("Habilidad agregada localmente (API no disponible)");
@@ -288,7 +288,7 @@ export const useCategoryStore = create((set, get) => ({
             console.warn("Categoría agregada localmente (API no disponible)");
             return { category: newCategory };
         }
-    }
+}
 }));
 
 export const useVerificationStore = create((set, get) => ({
@@ -296,8 +296,6 @@ export const useVerificationStore = create((set, get) => ({
     loading: false,
     error: null,
 
-    // ── GET /verifications ───────────────────────────────────────
-    // El controlador responde { success: true, data: [...] }
     getVerifications: async () => {
         try {
             set({ loading: true, error: null });
@@ -311,9 +309,6 @@ export const useVerificationStore = create((set, get) => ({
         }
     },
 
-    // ── PUT /verifications/:id ───────────────────────────────────
-    // Acepta FormData (con imágenes) o un objeto plano (solo texto).
-    // El controlador responde { success: true, data: {...} }
     updateVerification: async (id, data) => {
         try {
             set({ loading: true, error: null });
@@ -335,16 +330,10 @@ export const useVerificationStore = create((set, get) => ({
         }
     },
 
-    // ── PATCH /verifications/:id/status ─────────────────────────
-    // statusData: { status, reviewedBy, rejectionReason? }
-    // El controlador responde { success: true, message: '...' }
-    // y NO devuelve el documento actualizado, así que recargamos
-    // la lista completa para reflejar el cambio en la UI.
     updateVerificationStatus: async (id, statusData) => {
         try {
             set({ loading: true, error: null });
             await api.updateVerificationStatus(id, statusData);
-            // Recarga la lista completa para sincronizar el estado real de la BD
             await get().getVerifications();
             return { success: true };
         } catch (error) {
@@ -356,22 +345,17 @@ export const useVerificationStore = create((set, get) => ({
         }
     },
 
-    // ── Limpiar error manualmente desde la UI ────────────────────
     clearError: () => set({ error: null })
 }));
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // WORKER PORTFOLIO STORE
-// Acciones del Admin: listar, moderar (toggle ACTIVE/INACTIVE),
-// actualizar imagen de un registro.
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 export const useWorkerPortfolioStore = create((set, get) => ({
     portfolios: [],
     loading: false,
     error: null,
 
-    // ── GET /PortFolio ───────────────────────────────────────────
-    // El controlador responde { success: true, portfolios: [...] }
     getAllPortfolios: async () => {
         try {
             set({ loading: true, error: null });
@@ -385,9 +369,6 @@ export const useWorkerPortfolioStore = create((set, get) => ({
         }
     },
 
-    // ── PATCH /PortFolio/moderate/:id ────────────────────────────
-    // Toggle ACTIVE ↔ INACTIVE. El controlador responde { success: true, record: {...} }
-    // Actualizamos solo el registro afectado en el array local (sin recargar todo).
     moderatePortfolio: async (id) => {
         try {
             set({ loading: true, error: null });
@@ -409,10 +390,6 @@ export const useWorkerPortfolioStore = create((set, get) => ({
         }
     },
 
-    // ── PATCH /PortFolio/:id/image ───────────────────────────────
-    // formData debe contener el campo portfolioImage (File).
-    // El controlador responde { success: true, imageUrl: '...' }
-    // Actualizamos solo el imageUrl del registro afectado.
     updatePortfolioImage: async (id, formData) => {
         try {
             set({ loading: true, error: null });
@@ -434,77 +411,45 @@ export const useWorkerPortfolioStore = create((set, get) => ({
         }
     },
 
-    // ── Limpiar error manualmente desde la UI ────────────────────
     clearError: () => set({ error: null })
 }));
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // SERVICE REQUEST STORE
-//
-// Orquestación frontend:
-//   1. Llama a GET /service-requests  → array de solicitudes
-//   2. Llama a GET /services          → array de trabajos en ejecución
-//   3. Cruza ambos arrays por serviceRequest._id === service.serviceRequestId
-//      y construye `enrichedRequests`: cada solicitud lleva opcionalmente
-//      un campo `service` con el trabajo activo vinculado.
-//
-// El admin solo puede cambiar status en ambas entidades (no crear ni editar).
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 export const useServiceRequestStore = create((set, get) => ({
-    // ── Estado ───────────────────────────────────────────────────
-    serviceRequests:  [],   // raw de /service-requests
-    services:         [],   // raw de /services
-    enrichedRequests: [],   // resultado del cruce (fuente de la tabla)
+    serviceRequests:  [],
+    services:         [],
+    enrichedRequests: [],
     loading:          false,
     error:            null,
 
-    // ── Helpers privados (no expuestos como acciones) ─────────────
-
-    /** Cruza serviceRequests con services y devuelve el array enriquecido. */
     _buildEnriched: (serviceRequests, services) => {
-        // Construimos un mapa serviceRequestId → service para O(1) lookup
         const serviceMap = services.reduce((acc, svc) => {
             const key = svc.serviceRequestId?._id ?? svc.serviceRequestId;
             if (key) acc[key] = svc;
             return acc;
         }, {});
-
         return serviceRequests.map((req) => ({
             ...req,
-            // Si existe un Service vinculado a esta solicitud, lo adjuntamos
             service: serviceMap[req._id] ?? null,
         }));
     },
 
-    // ── Acciones públicas ─────────────────────────────────────────
-
-    /**
-     * Carga AMBAS entidades en paralelo y construye enrichedRequests.
-     * Llamar desde el componente en el useEffect inicial.
-     */
     fetchAll: async () => {
         try {
             set({ loading: true, error: null });
-
-            // Peticiones en paralelo → menor latencia
             const [srRes, svcRes] = await Promise.all([
                 api.getServiceRequests(),
                 api.getServices(),
             ]);
-
-            // Normalización defensiva — el backend puede devolver distintas shapes
             const serviceRequests =
-                srRes.data?.serviceRequests ??
-                srRes.data?.data ??
+                srRes.data?.serviceRequests ?? srRes.data?.data ??
                 (Array.isArray(srRes.data) ? srRes.data : []);
-
             const services =
-                svcRes.data?.services ??
-                svcRes.data?.data ??
+                svcRes.data?.services ?? svcRes.data?.data ??
                 (Array.isArray(svcRes.data) ? svcRes.data : []);
-
             const enrichedRequests = get()._buildEnriched(serviceRequests, services);
-
             set({ serviceRequests, services, enrichedRequests, loading: false });
         } catch (error) {
             set({
@@ -514,31 +459,18 @@ export const useServiceRequestStore = create((set, get) => ({
         }
     },
 
-    /**
-     * Cambia el status de una ServiceRequest.
-     * Actualiza la lista local sin recargar todo.
-     * @param {string} id      - _id de la ServiceRequest
-     * @param {string} status  - nuevo estado (ej. "CANCELLED", "CLOSED")
-     */
     changeServiceRequestStatus: async (id, status) => {
         try {
             set({ loading: true, error: null });
             const res = await api.updateServiceRequestStatus(id, status);
-
-            // El backend puede devolver el doc actualizado o solo { success: true }
             const updated = res.data?.serviceRequest ?? res.data?.data ?? null;
-
             set((state) => {
                 const serviceRequests = updated
                     ? state.serviceRequests.map((r) => (r._id === id ? updated : r))
-                    : state.serviceRequests.map((r) =>
-                          r._id === id ? { ...r, status } : r
-                      );
-
+                    : state.serviceRequests.map((r) => r._id === id ? { ...r, status } : r);
                 const enrichedRequests = state._buildEnriched(serviceRequests, state.services);
                 return { serviceRequests, enrichedRequests, loading: false };
             });
-
             return { success: true };
         } catch (error) {
             set({
@@ -549,30 +481,18 @@ export const useServiceRequestStore = create((set, get) => ({
         }
     },
 
-    /**
-     * Cambia el status de un Service (trabajo en ejecución).
-     * Actualiza la lista local sin recargar todo.
-     * @param {string} id      - _id del Service
-     * @param {string} status  - nuevo estado (ej. "COMPLETED", "CANCELLED")
-     */
     changeServiceStatus: async (id, status) => {
         try {
             set({ loading: true, error: null });
             const res = await api.updateServiceStatus(id, status);
-
             const updated = res.data?.service ?? res.data?.data ?? null;
-
             set((state) => {
                 const services = updated
                     ? state.services.map((s) => (s._id === id ? updated : s))
-                    : state.services.map((s) =>
-                          s._id === id ? { ...s, status } : s
-                      );
-
+                    : state.services.map((s) => s._id === id ? { ...s, status } : s);
                 const enrichedRequests = state._buildEnriched(state.serviceRequests, services);
                 return { services, enrichedRequests, loading: false };
             });
-
             return { success: true };
         } catch (error) {
             set({
@@ -583,6 +503,46 @@ export const useServiceRequestStore = create((set, get) => ({
         }
     },
 
-    // ── Utilidades ────────────────────────────────────────────────
     clearError: () => set({ error: null }),
+}));
+
+// ================= CONVERSATIONS STORE =================
+
+export const useConversationStore = create((set, get) => ({
+    conversations: [],
+    selectedConversation: null,
+    loading: false,
+    error: null,
+
+    getConversations: async () => {
+        try {
+            set({ loading: true, error: null });
+            const res = await api.getConversations();
+            const data = res.data?.data || res.data?.conversations || [];
+            set({ conversations: data, loading: false });
+        } catch (error) {
+            set({ error: error.response?.data?.message || "Error obteniendo conversaciones", loading: false });
+        }
+    },
+
+    createConversation: async (user1Id, user2Id) => {
+        try {
+            set({ loading: true, error: null });
+            const res = await api.createConversation({ user1Id, user2Id });
+            const conversation = res.data?.data;
+            const exists = get().conversations.some((c) => c._id === conversation._id);
+            set({
+                conversations: exists ? get().conversations : [conversation, ...get().conversations],
+                selectedConversation: conversation,
+                loading: false
+            });
+            return conversation;
+        } catch (error) {
+            set({ error: error.response?.data?.message || "Error creando conversación", loading: false });
+            throw error;
+        }
+    },
+
+    setSelectedConversation: (conversation) =>
+        set({ selectedConversation: conversation })
 }));

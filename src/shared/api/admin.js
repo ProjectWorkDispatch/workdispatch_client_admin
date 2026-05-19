@@ -101,6 +101,30 @@ export const createCategory = async (data) => {
         throw err;
     }
 };
+export const updateCategory = async (id, data) => {
+  try {
+    return await axiosAdmin.put(`/categories/${id}`, data);
+  } catch (err) {
+    if (err.response?.status === 404) {
+      return await axiosAdmin.put(`/category/${id}`, data);
+    }
+    throw err;
+  }
+};
+export const changeCategoryStatus = async (id, status) => {
+  try {
+    return await axiosAdmin.patch(`/categories/${id}/status`, {
+      status
+    });
+  } catch (err) {
+    if (err.response?.status === 404) {
+      return await axiosAdmin.patch(`/category/${id}/status`, {
+        status
+      });
+    }
+    throw err;
+  }
+};
 
 // ================= USER SKILLS (Entidad 3) =================
 export const getUserSkills = async () => {
@@ -121,16 +145,11 @@ export const assignSkillToUser = async (data) => {
     }
 };
 
-// ================= VERIFICATIONS (tus entidades) =================
+// ================= VERIFICATIONS =================
 
-// GET /verifications — listar todas
 export const getVerifications = async () =>
     await axiosAdmin.get('/verifications');
 
-// PUT /verifications/:id — actualización general
-// Acepta FormData porque puede incluir documentImageFront y/o documentImageBack
-// Si no hay imágenes, igual se puede enviar FormData con solo campos de texto,
-// o pasar un objeto plano — la función detecta cuál es y ajusta el Content-Type.
 export const updateVerification = async (id, data) => {
     const isFormData = data instanceof FormData;
     return await axiosAdmin.put(`/verifications/${id}`, data, {
@@ -140,52 +159,69 @@ export const updateVerification = async (id, data) => {
     });
 };
 
-// PATCH /verifications/:id/status — aprobar o rechazar (JSON puro)
-// Body esperado: { status, reviewedBy, rejectionReason? }
 export const updateVerificationStatus = async (id, statusData) =>
     await axiosAdmin.patch(`/verifications/${id}/status`, statusData);
 
-// ================= WORKER PORTFOLIO (tus entidades) =================
+// ================= WORKER PORTFOLIO =================
 
-// GET /PortFolio — listar todos
 export const getAllPortfolios = async () =>
     await axiosAdmin.get('/PortFolio');
 
-// PATCH /PortFolio/moderate/:id — toggle ACTIVE/INACTIVE (JSON puro, sin body)
 export const moderatePortfolio = async (id) =>
     await axiosAdmin.patch(`/PortFolio/moderate/${id}`);
 
-// PATCH /PortFolio/:id/image — reemplazar imagen (FormData con campo portfolioImage)
 export const updatePortfolioImage = async (id, formData) =>
     await axiosAdmin.patch(`/PortFolio/${id}/image`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
     });
 
+// ================= SERVICE REQUESTS =================
 
-// ================= SERVICE REQUESTS (Solicitudes / Trabajos - vista admin) =================
-// GET /service-requests  — lista todas las solicitudes
 export const getServiceRequests = async (params) =>
     await axiosAdmin.get('/service-requests', { params });
 
-// GET /service-requests/:id — detalle de una solicitud
 export const getServiceRequestById = async (id) =>
     await axiosAdmin.get(`/service-requests/${id}`);
 
-// PATCH /service-requests/:id/status — cambiar estado de la solicitud
-// Body esperado: { status }  (ej. "CANCELLED", "CLOSED")
 export const updateServiceRequestStatus = async (id, status) =>
     await axiosAdmin.patch(`/service-requests/${id}/status`, { status });
 
-// ================= SERVICES (Trabajos en ejecución) =================
-// GET /services  — lista todos los trabajos en ejecución
+// ================= SERVICES =================
+
 export const getServices = async (params) =>
     await axiosAdmin.get('/services', { params });
 
-// GET /services/:id — detalle de un trabajo en ejecución
 export const getServiceById = async (id) =>
     await axiosAdmin.get(`/services/${id}`);
 
-// PATCH /services/:id/status — cambiar estado del trabajo
-// Body esperado: { status }  (ej. "COMPLETED", "CANCELLED")
 export const updateServiceStatus = async (id, status) =>
     await axiosAdmin.patch(`/services/${id}/status`, { status });
+
+// ================= CONVERSATIONS =================
+
+export const getConversations = async () => {
+    try {
+        return await axiosAdmin.get("/conversations");
+    } catch (err) {
+        if (err.response?.status === 404) return await axiosAdmin.get("/conversation");
+        throw err;
+    }
+};
+
+export const createConversation = async (data) => {
+    try {
+        return await axiosAdmin.post("/conversations", data);
+    } catch (err) {
+        if (err.response?.status === 404) return await axiosAdmin.post("/conversation", data);
+        throw err;
+    }
+};
+
+export const changeConversationStatus = async (id) => {
+    try {
+        return await axiosAdmin.patch(`/conversations/${id}/status`);
+    } catch (err) {
+        if (err.response?.status === 404) return await axiosAdmin.patch(`/conversation/${id}/status`);
+        throw err;
+    }
+};
