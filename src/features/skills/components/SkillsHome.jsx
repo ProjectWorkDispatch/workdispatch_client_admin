@@ -7,7 +7,7 @@ export const SkillsHome = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
-        
+        getSkills();
     }, []);
 
     // Si 'skills' no es array, usamos uno vacío para evitar el error de .map

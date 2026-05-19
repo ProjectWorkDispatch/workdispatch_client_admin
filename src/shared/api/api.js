@@ -3,8 +3,19 @@ import axios from 'axios';
 import { useAuthStore } from '../../features/auth/store/authStore.js';
 
 // Instacia de axios
+const DEFAULT_API_URL = "http://localhost:3001/workDispatch/v1";
+const authBaseURL = import.meta.env.VITE_AUTH_URL || DEFAULT_API_URL;
+const adminBaseURL = import.meta.env.VITE_ADMIN_URL || DEFAULT_API_URL;
+
+if (!import.meta.env.VITE_AUTH_URL || !import.meta.env.VITE_ADMIN_URL) {
+  console.warn(
+    "Vite env variables VITE_AUTH_URL or VITE_ADMIN_URL are not defined. Using fallback:",
+    { authBaseURL, adminBaseURL }
+  );
+}
+
 const axiosAuth = axios.create({
-  baseURL: `${import.meta.env.VITE_AUTH_URL}/api/v1`,
+  baseURL: authBaseURL,
   timeout: 8000,
   headers:{
       "Content-Type": "application/json",
@@ -12,7 +23,7 @@ const axiosAuth = axios.create({
 });
 
 const axiosAdmin = axios.create({
-  baseURL: import.meta.env.VITE_ADMIN_URL,
+  baseURL: adminBaseURL,
   timeout: 80000,
   headers:{
       "Content-Type": "application/json",
@@ -36,14 +47,14 @@ axiosAdmin.interceptors.response.use(
 );
 
 // Configuración de interceptores
-axiosAuth.interceptors.request.use( (config)=>{
+axiosAuth.interceptors.request.use((config) => {
     config._axiosClient = "auth";
     const token = useAuthStore.getState().token;
-    if(token){
-        config.headers.Authorization = `Bearer.${token}`;
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
-} );
+});
 
 axiosAdmin.interceptors.request.use((config) => {
   config._axiosClient = "admin";
@@ -74,7 +85,7 @@ const handleRefreshToken = async function (_error) {
   const status = _error.response?.status;
   const errorCode = _error.response?.data?.error;
   const requestUrl = _original.url || "";
-  const isRefreshEndpoint = requestUrl.includes("/auth/refresh");
+  const isRefreshEndpoint = requestUrl.includes("/Auth/refresh") || requestUrl.includes("/auth/refresh");
   const shouldAttemptRefresh =
     !isRefreshEndpoint &&
     // La mayoría de casos es 401 (TokenExpiredError)
@@ -108,7 +119,16 @@ const handleRefreshToken = async function (_error) {
       return Promise.reject(_error);
     }
     try {
-      const response = await axiosAuth.post("/auth/refresh", { refreshToken });
+      let response;
+      try {
+        response = await axiosAuth.post("/Auth/refresh", { refreshToken });
+      } catch (refreshError) {
+        if (refreshError.response?.status === 404) {
+          response = await axiosAuth.post("/auth/refresh", { refreshToken });
+        } else {
+          throw refreshError;
+        }
+      }
       const {
         accessToken,
         refreshToken: newRefreshToken,

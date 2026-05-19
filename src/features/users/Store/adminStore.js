@@ -1,38 +1,6 @@
 import { create } from "zustand";
 import * as api from "../../../shared/api/admin.js";
 
-// ================= USUARIOS TEMPORALES (para desarrollo local) =================
-const MOCK_CATEGORIES = [
-    { _id: "646f83a7e527e4d9f8a4b111", name: "Electricidad", description: "Trabajos eléctricos", isActive: true },
-    { _id: "646f83a7e527e4d9f8a4b112", name: "Diseño Gráfico", description: "Diseño y arte", isActive: true },
-    { _id: "646f83a7e527e4d9f8a4b113", name: "Programación", description: "Desarrollo de software", isActive: true },
-    { _id: "646f83a7e527e4d9f8a4b114", name: "Carpintería", description: "Trabajos en madera", isActive: true },
-];
-
-const MOCK_USERS = [
-    { _id: "user_001", name: "Juan Pérez", email: "juan@example.com", role: "TRABAJADOR", verified: true, isActive: true, createdAt: new Date().toISOString() },
-    { _id: "user_002", name: "María González", email: "maria@example.com", role: "TRABAJADOR", verified: true, isActive: true, createdAt: new Date().toISOString() },
-    { _id: "user_003", name: "Carlos López", email: "carlos@example.com", role: "CLIENTE", verified: true, isActive: true, createdAt: new Date().toISOString() },
-    { _id: "user_004", name: "Ana Martínez", email: "ana@example.com", role: "TRABAJADOR", verified: false, isActive: true, createdAt: new Date().toISOString() },
-];
-
-const MOCK_SKILLS = [
-    { _id: "646f83a7e527e4d9f8a4b121", name: "Instalación de circuitos", categoryId: "646f83a7e527e4d9f8a4b111", isActive: true, createdAt: new Date().toISOString() },
-    { _id: "646f83a7e527e4d9f8a4b122", name: "Reparación de luminarias", categoryId: "646f83a7e527e4d9f8a4b111", isActive: true, createdAt: new Date().toISOString() },
-    { _id: "646f83a7e527e4d9f8a4b123", name: "Diseño web", categoryId: "646f83a7e527e4d9f8a4b113", isActive: true, createdAt: new Date().toISOString() },
-    { _id: "646f83a7e527e4d9f8a4b124", name: "Edición de imágenes", categoryId: "646f83a7e527e4d9f8a4b112", isActive: true, createdAt: new Date().toISOString() },
-    { _id: "646f83a7e527e4d9f8a4b125", name: "Puertas y ventanas", categoryId: "646f83a7e527e4d9f8a4b114", isActive: true, createdAt: new Date().toISOString() },
-    { _id: "646f83a7e527e4d9f8a4b126", name: "Backend con Node.js", categoryId: "646f83a7e527e4d9f8a4b113", isActive: true, createdAt: new Date().toISOString() },
-];
-
-const MOCK_USER_SKILLS = [
-    { _id: "us_001", userId: "user_001", skillId: "skill_001", experience: 5, isVerified: true },
-    { _id: "us_002", userId: "user_001", skillId: "skill_002", experience: 3, isVerified: true },
-    { _id: "us_003", userId: "user_002", skillId: "skill_003", experience: 7, isVerified: true },
-    { _id: "us_004", userId: "user_002", skillId: "skill_006", experience: 4, isVerified: false },
-    { _id: "us_005", userId: "user_004", skillId: "skill_004", experience: 2, isVerified: false },
-];
-
 // ================= NOTIFICATIONS STORE =================
 export const useNotificationStore = create((set, get) => ({
     notifications: [],
@@ -147,7 +115,7 @@ export const useReportStore = create((set, get) => ({
 
 // ================= USERS STORE (Entidad: Usuarios) =================
 export const useUserStore = create((set, get) => ({
-    users: MOCK_USERS,
+    users: [],
     loading: false,
     error: null,
 
@@ -158,9 +126,14 @@ export const useUserStore = create((set, get) => ({
             const data = res.data?.users || res.data?.data || (Array.isArray(res.data) ? res.data : []);
             set({ users: data, loading: false });
         } catch (error) {
+<<<<<<< HEAD
             // Si falla API, usa mock data
             set({ users: MOCK_USERS, loading: false, error: null });
             console.warn("Usando usuarios mock (API no disponible)");
+=======
+            set({ loading: false, error: error.response?.data?.message || "Error al obtener usuarios" });
+            console.error("Error al obtener usuarios:", error);
+>>>>>>> ft/BradleyOliva
         }
     },
 
@@ -181,7 +154,13 @@ export const useUserStore = create((set, get) => ({
             await api.changeUserStatus(id, newStatus);
             set((state) => ({
                 users: state.users.map((u) =>
+<<<<<<< HEAD
                     u._id === id ? { ...u, active: newStatus } : u
+=======
+                    u._id === id
+                        ? { ...u, active: newStatus, isActive: newStatus }
+                        : u
+>>>>>>> ft/BradleyOliva
                 )
             }));
         } catch (error) {
@@ -192,7 +171,7 @@ export const useUserStore = create((set, get) => ({
 
 // ================= SKILLS STORE (Entidad: Catálogo de Habilidades) =================
 export const useSkillStore = create((set, get) => ({
-    skills: MOCK_SKILLS,
+    skills: [],
     loading: false,
 
     getSkills: async () => {
@@ -202,9 +181,8 @@ export const useSkillStore = create((set, get) => ({
             const skillsArray = res.data?.skills || res.data?.data || (Array.isArray(res.data) ? res.data : []);
             set({ skills: skillsArray, loading: false });
         } catch (error) {
-            // Si falla API, usa mock data
-            set({ skills: MOCK_SKILLS, loading: false });
-            console.warn("Usando habilidades mock (API no disponible)");
+set({ loading: false });
+            console.error("Error al obtener habilidades:", error);
         }
     },
 
@@ -212,23 +190,18 @@ export const useSkillStore = create((set, get) => ({
         try {
             const res = await api.createSkill(data);
             await get().getSkills();
+            return res;
         } catch (error) {
-            // Si falla API, agrega localmente con ID válido tipo MongoDB
-            const idSuffix = Date.now().toString(16).slice(-12).padStart(12, "0");
-            const newSkill = {
-                _id: `646f83a7e527e4d9f8a4b${idSuffix}`,
-                ...data,
-                createdAt: new Date().toISOString()
-            };
-            set({ skills: [...get().skills, newSkill] });
-            console.warn("Habilidad agregada localmente (API no disponible)");
+            set({ loading: false });
+            console.error("Error al crear habilidad:", error);
+            throw error;
         }
     }
 }));
 
 // ================= USER SKILLS STORE (Entidad: Relación Usuario-Habilidad) =================
 export const useUserSkillStore = create((set, get) => ({
-    userSkills: MOCK_USER_SKILLS,
+    userSkills: [],
     loading: false,
 
     getUserSkills: async () => {
@@ -238,9 +211,8 @@ export const useUserSkillStore = create((set, get) => ({
             const data = res.data?.userSkills || res.data?.data || (Array.isArray(res.data) ? res.data : []);
             set({ userSkills: data, loading: false });
         } catch (error) {
-            // Si falla API, usa mock data
-            set({ userSkills: MOCK_USER_SKILLS, loading: false });
-            console.warn("Usando relaciones usuario-habilidad mock (API no disponible)");
+            set({ loading: false });
+            console.error("Error al obtener relaciones usuario-habilidad:", error);
         }
     },
 
@@ -257,7 +229,7 @@ export const useUserSkillStore = create((set, get) => ({
 
 // ================= CATEGORIES STORE (Requerido para Skills) =================
 export const useCategoryStore = create((set, get) => ({
-    categories: MOCK_CATEGORIES,
+    categories: [],
     loading: false,
     error: null,
 
@@ -268,9 +240,8 @@ export const useCategoryStore = create((set, get) => ({
             const data = res.data?.categories || res.data?.data || (Array.isArray(res.data) ? res.data : []);
             set({ categories: data, loading: false });
         } catch (error) {
-            // Si falla, usa mock data
-            set({ categories: MOCK_CATEGORIES, loading: false, error: null });
-            console.warn("Usando categorías mock (API no disponible)");
+            set({ categories: [], loading: false, error: error.response?.data?.message || "Error al obtener categorías" });
+            console.error("Error al obtener categorías:", error);
         }
     },
 
@@ -282,11 +253,9 @@ export const useCategoryStore = create((set, get) => ({
             set({ categories: [...get().categories, newCategory], loading: false });
             return res.data;
         } catch (error) {
-            // Si falla, agrega a mock data local
-            const newCategory = { _id: `cat_${Date.now()}`, ...data, isActive: true };
-            set({ categories: [...get().categories, newCategory], loading: false, error: null });
-            console.warn("Categoría agregada localmente (API no disponible)");
-            return { category: newCategory };
+            set({ loading: false, error: error.response?.data?.message || "Error al crear categoría" });
+            console.error("Error al crear categoría:", error);
+            throw error;
         }
 }
 }));

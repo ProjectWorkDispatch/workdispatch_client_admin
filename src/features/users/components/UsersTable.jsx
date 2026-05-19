@@ -17,6 +17,10 @@ export const UsersTable = ({
     onToggleStatus,
     onViewSkills
 }) => {
+    const getStatusValue = (user) => user.active ?? user.isActive ?? false;
+    const getVerificationValue = (user) => user.verificationStatus ?? user.verified ?? false;
+    const getRoleValue = (user) => (user.role || "").toString().toUpperCase();
+
     return (
         <div className="overflow-x-auto">
             <table className="w-full min-w-225 text-sm">
@@ -85,7 +89,7 @@ export const UsersTable = ({
 
                                         <div className="min-w-0">
                                             <p className="font-semibold text-[#0F172A] truncate">
-                                                {user.firstName} {user.lastName}
+                                                {user.name || `${user.firstName || ""} ${user.lastName || ""}`}
                                             </p>
 
                                             <p className="text-xs text-gray-400 truncate">
@@ -96,17 +100,17 @@ export const UsersTable = ({
                                 </td>
 
                                 <td className="px-5 py-4">
-                                    <RoleBadge value={user.role} />
+                                    <RoleBadge value={getRoleValue(user)} />
                                 </td>
 
                                 <td className="px-5 py-4">
                                     <VerificationBadge
-                                        value={user.verificationStatus}
+                                        value={getVerificationValue(user)}
                                     />
                                 </td>
 
                                 <td className="px-5 py-4">
-                                    <StatusBadge value={user.active} />
+                                    <StatusBadge value={getStatusValue(user)} />
                                 </td>
 
                                 <td className="px-5 py-4 text-slate-700">
@@ -132,12 +136,12 @@ export const UsersTable = ({
 
                                         {/* Botón Estado (Activar/Suspender) */}
                                         <button
-                                            onClick={() => onToggleStatus(user._id, user.active)}
-                                            className={`w-8 h-8 rounded-full flex items-center justify-center ${user.active
+                                            onClick={() => onToggleStatus(user._id, getStatusValue(user))}
+                                            className={`w-8 h-8 rounded-full flex items-center justify-center ${getStatusValue(user)
                                                 ? "bg-red-50 hover:bg-red-100"
                                                 : "bg-green-50 hover:bg-green-100"
                                                 }`}
-                                            title={user.active ? "Suspender usuario" : "Activar usuario"}
+                                            title={getStatusValue(user) ? "Suspender usuario" : "Activar usuario"}
                                         >
                                             {user.active ? (
                                                 <img src={PersonD} alt="Suspender" className="w-4.5 h-4.5" />
@@ -201,7 +205,7 @@ export const UsersTable = ({
 };
 
 const RoleBadge = ({ value }) => {
-    if (value === "CLIENT") {
+    if (["CLIENT", "CLIENTE"].includes(value)) {
         return (
             <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-600 text-xs font-semibold">
                 Cliente
@@ -216,6 +220,20 @@ const RoleBadge = ({ value }) => {
             </span>
         );
     }
+
+    if (["WORKER", "TRABAJADOR"].includes(value)) {
+        return (
+            <span className="px-3 py-1 rounded-full bg-purple-100 text-purple-600 text-xs font-semibold">
+                Trabajador
+            </span>
+        );
+    }
+
+    return (
+        <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-semibold">
+            {value || "Desconocido"}
+        </span>
+    );
 
     return (
         <span className="px-3 py-1 rounded-full bg-purple-100 text-purple-600 text-xs font-semibold">
