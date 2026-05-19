@@ -5,7 +5,7 @@ import { useProposalActions } from "../hook/useSaveProposalActions.js";
 
 export const ProposalModal = ({ proposal, onClose }) => {
     const { handleDeactivate } = useProposalActions();
-    const { loading } = useProposalStore_loading();
+    const { loading } = useProposalStore((state) => ({ loading: state.loading }));
 
     const canDeactivate = proposal.status !== "CANCELLED";
 
@@ -43,7 +43,7 @@ export const ProposalModal = ({ proposal, onClose }) => {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <InfoBox label="Trabajador" value={proposal.workerName} />
-                        <InfoBox label="Solicitud"  value={proposal.requestId} />
+                        <InfoBox label="Solicitud" value={proposal.requestId} />
                     </div>
 
                     <div className="bg-gray-50 rounded-2xl p-4">
@@ -103,8 +103,8 @@ const DetailItem = ({ icon, label, value, color }) => (
 );
 
 const StatusBadge = ({ value }) => {
-    if (value === "PENDING")   return <span className="px-3 py-1 rounded-full bg-yellow-100 border border-yellow-200 text-yellow-600 text-xs font-semibold">● Pendiente</span>;
-    if (value === "ACCEPTED")  return <span className="px-3 py-1 rounded-full bg-green-100 border border-green-200 text-green-600 text-xs font-semibold">● Aceptada</span>;
-    if (value === "REJECTED")  return <span className="px-3 py-1 rounded-full bg-red-100 border border-red-200 text-red-600 text-xs font-semibold">● Rechazada</span>;
+    if (value === "PENDING") return <span className="px-3 py-1 rounded-full bg-yellow-100 border border-yellow-200 text-yellow-600 text-xs font-semibold">● Pendiente</span>;
+    if (value === "ACCEPTED") return <span className="px-3 py-1 rounded-full bg-green-100 border border-green-200 text-green-600 text-xs font-semibold">● Aceptada</span>;
+    if (value === "REJECTED") return <span className="px-3 py-1 rounded-full bg-red-100 border border-red-200 text-red-600 text-xs font-semibold">● Rechazada</span>;
     return <span className="px-3 py-1 rounded-full bg-gray-100 border border-gray-200 text-gray-600 text-xs font-semibold">● Cancelada</span>;
 };
