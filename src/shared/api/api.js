@@ -19,6 +19,22 @@ const axiosAdmin = axios.create({
   }
 });
 
+axiosAdmin.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        const status = error.response?.status;
+        const code   = error.response?.data?.error;
+
+        if (status === 401 && (code === 'TOKEN_EXPIRED' || code === 'MISSING_TOKEN' || code === 'INVALID_TOKEN')) {
+            // Limpia el store y redirige al login sin recargar la app
+            useAuthStore.getState().logout();
+            window.location.href = '/';
+        }
+
+        return Promise.reject(error);
+    }
+);
+
 // Configuración de interceptores
 axiosAuth.interceptors.request.use( (config)=>{
     config._axiosClient = "auth";

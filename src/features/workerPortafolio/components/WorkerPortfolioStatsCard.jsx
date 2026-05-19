@@ -1,5 +1,5 @@
-// src/features/verifications/components/VerificationStatsCard.jsx
-export const VerificationStatsCard = ({ value, label, color }) => {
+// src/features/workerPortafolio/components/WorkerPortfolioStatsCard.jsx
+export const WorkerPortfolioStatsCard = ({ value, label, color }) => {
     return (
         <article className="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-4">
             <h2 className={`text-2xl font-bold ${color}`}>

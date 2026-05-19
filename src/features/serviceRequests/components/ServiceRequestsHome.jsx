@@ -1,290 +1,241 @@
-import { useMemo, useState } from "react";
-import { ServiceRequestsTable } from "./ServiceRequestsTable";
-import { ServiceRequestStatsCard } from "./ServiceRequestStatsCard";
-import { ServiceRequestModal } from "./ServiceRequestModal";
+// src/features/serviceRequests/components/ServiceRequestsHome.jsx
+import { useEffect, useMemo, useState } from 'react';
+import { useServiceRequestStore }    from '../../users/Store/adminStore.js';
+import { useServiceRequestActions }  from '../hook/useServiceRequestActions.js';
+import { ServiceRequestHeader }      from './ServiceRequestHeader.jsx';
+import { ServiceRequestStatsCard }   from './ServiceRequestStatsCard.jsx';
+import { ServiceRequestTable }       from './ServiceRequestTable.jsx';
+import { ServiceRequestCards }       from './ServiceRequestCards.jsx';
+import { ServiceRequestModal }       from './ServiceRequestModal.jsx';
 
-const requestsData = [
-    {
-        _id: "665REQ001",
-        clientId: {
-            name: "Carlos Mendoza",
-            email: "carlos@gmail.com"
-        },
-        categoryId: {
-            name: "Plomería"
-        },
-        title: "Reparación de tubería",
-        description:
-            "Se necesita reparar una fuga de agua en la cocina.",
-        address: "Mixco, Guatemala",
-        latitude: 14.6349,
-        longitude: -90.5069,
-        budgetMin: 500,
-        budgetMax: 1200,
-        status: "OPEN",
-        isActive: true,
-        createdAt: "2026-04-10T10:00:00.000Z"
-    },
-    {
-        _id: "665REQ002",
-        clientId: {
-            name: "Ana García",
-            email: "ana@gmail.com"
-        },
-        categoryId: {
-            name: "Electricidad"
-        },
-        title: "Instalación eléctrica",
-        description:
-            "Instalación completa de cableado en habitación.",
-        address: "Villa Nueva",
-        latitude: 14.52,
-        longitude: -90.58,
-        budgetMin: 1500,
-        budgetMax: 3000,
-        status: "IN_PROGRESS",
-        isActive: true,
-        createdAt: "2026-04-11T09:00:00.000Z"
-    },
-    {
-        _id: "665REQ003",
-        clientId: {
-            name: "José Ramírez"
-        },
-        categoryId: {
-            name: "Albañilería"
-        },
-        title: "Construcción de muro",
-        description:
-            "Construcción de muro perimetral de block.",
-        address: "Zona 18",
-        latitude: 14.65,
-        longitude: -90.45,
-        budgetMin: 4000,
-        budgetMax: 7000,
-        status: "CANCELLED",
-        isActive: false,
-        createdAt: "2026-04-09T08:00:00.000Z"
-    }
+const ITEMS_PER_PAGE = 10;
+
+const STATUS_FILTERS = [
+    { value: 'ALL',         label: 'Todos' },
+    { value: 'OPEN',        label: 'Abiertas' },
+    { value: 'IN_PROGRESS', label: 'En progreso' },
+    { value: 'COMPLETED',   label: 'Completadas' },
+    { value: 'CANCELLED',   label: 'Canceladas' },
+    { value: 'CLOSED',      label: 'Cerradas' },
 ];
 
 export const ServiceRequestsHome = () => {
-    const [search, setSearch] = useState("");
-    const [statusFilter, setStatusFilter] = useState("ALL");
+    // ── Store ────────────────────────────────────────────────────
+    const enrichedRequests = useServiceRequestStore((s) => s.enrichedRequests);
+    const loading          = useServiceRequestStore((s) => s.loading);
+    const error            = useServiceRequestStore((s) => s.error);
+
+    // ── Acciones ─────────────────────────────────────────────────
+    const { handleFetchAll, handleClearError } = useServiceRequestActions();
+
+    // ── Estado local de UI ───────────────────────────────────────
+    const [search, setSearch]           = useState('');
+    const [statusFilter, setStatusFilter] = useState('ALL');
     const [currentPage, setCurrentPage] = useState(1);
-    const [selectedRequest, setSelectedRequest] = useState(null);
+    const [selected, setSelected]       = useState(null);
 
-    const itemsPerPage = 8;
-
-    const normalizedRequests = useMemo(() => {
-        return requestsData.map((request) => ({
-            ...request,
-
-            id: request._id,
-
-            clientName:
-                request.clientId?.name || "Sin cliente",
-
-            categoryName:
-                request.categoryId?.name || "Sin categoría",
-
-            budgetRange: `Q ${request.budgetMin} - Q ${request.budgetMax}`,
-
-            date: new Date(request.createdAt).toLocaleDateString("es-GT", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric"
-            })
-        }));
+    // ── Carga inicial ─────────────────────────────────────────────
+    useEffect(() => {
+        handleFetchAll();
     }, []);
 
-    const filteredRequests = normalizedRequests.filter((request) => {
-        const searchText = search.toLowerCase();
+    // ── Normalización del array enriquecido ───────────────────────
+    // Añadimos campos _computados con prefijo _ para que los componentes
+    // no necesiten conocer la forma raw del objeto.
+    const normalizedRequests = useMemo(() => {
+        return enrichedRequests.map((req) => ({
+            ...req,
+            _clientName:   req.clientId?.name ?? req.clientId?.firstName
+                ? `${req.clientId.firstName} ${req.clientId.lastName ?? ''}`.trim()
+                : 'Sin cliente',
+            _categoryName: req.categoryId?.name ?? 'Sin categoría',
+            _budgetRange:  `Q ${req.budgetMin ?? 0} – Q ${req.budgetMax ?? 0}`,
+            _date: req.createdAt
+                ? new Date(req.createdAt).toLocaleDateString('es-GT', {
+                      day: '2-digit', month: 'short', year: 'numeric',
+                  })
+                : '—',
+        }));
+    }, [enrichedRequests]);
 
-        const matchSearch =
-            request.title.toLowerCase().includes(searchText) ||
-            request.clientName.toLowerCase().includes(searchText) ||
-            request.categoryName.toLowerCase().includes(searchText) ||
-            request.id.toLowerCase().includes(searchText);
+    // ── Conteos para stats y filtros ─────────────────────────────
+    const counts = useMemo(() => ({
+        ALL:         normalizedRequests.length,
+        OPEN:        normalizedRequests.filter((r) => r.status === 'OPEN').length,
+        IN_PROGRESS: normalizedRequests.filter((r) => r.status === 'IN_PROGRESS').length,
+        COMPLETED:   normalizedRequests.filter((r) => r.status === 'COMPLETED').length,
+        CANCELLED:   normalizedRequests.filter((r) => r.status === 'CANCELLED').length,
+        CLOSED:      normalizedRequests.filter((r) => r.status === 'CLOSED').length,
+    }), [normalizedRequests]);
 
-        const matchStatus =
-            statusFilter === "ALL"
-                ? true
-                : request.status === statusFilter;
+    // ── Filtrado ─────────────────────────────────────────────────
+    const filtered = useMemo(() => {
+        const text = search.toLowerCase().trim();
+        return normalizedRequests.filter((req) => {
+            const matchSearch =
+                !text ||
+                req.title?.toLowerCase().includes(text) ||
+                req._clientName.toLowerCase().includes(text) ||
+                req._categoryName.toLowerCase().includes(text) ||
+                req._id.toLowerCase().includes(text);
 
-        return matchSearch && matchStatus;
-    });
+            const matchStatus =
+                statusFilter === 'ALL' || req.status === statusFilter;
 
-    const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
+            return matchSearch && matchStatus;
+        });
+    }, [normalizedRequests, search, statusFilter]);
 
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
+    // ── Paginación ───────────────────────────────────────────────
+    const totalPages   = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+    const startIndex   = (currentPage - 1) * ITEMS_PER_PAGE;
+    const paginated    = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-    const currentRequests = filteredRequests.slice(startIndex, endIndex);
+    const handleSearch = (e) => {
+        setSearch(e.target.value);
+        setCurrentPage(1);
+    };
 
-    const totalRequests = normalizedRequests.length;
-
-    const openRequests = normalizedRequests.filter(
-        (request) => request.status === "OPEN"
-    ).length;
-
-    const progressRequests = normalizedRequests.filter(
-        (request) => request.status === "IN_PROGRESS"
-    ).length;
-
-    const completedRequests = normalizedRequests.filter(
-        (request) => request.status === "COMPLETED"
-    ).length;
-
-    const canceledRequests = normalizedRequests.filter(
-        (request) => request.status === "CANCELLED"
-    ).length;
+    const handleFilterChange = (value) => {
+        setStatusFilter(value);
+        setCurrentPage(1);
+    };
 
     return (
         <section className="space-y-6">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold text-[#0F172A]">
-                        Solicitudes de Servicio
-                    </h1>
 
-                    <p className="text-sm text-gray-500">
-                        Administración de solicitudes publicadas por clientes
-                    </p>
-                </div>
+            {/* ── Cabecera ── */}
+            <ServiceRequestHeader
+                openCount={counts.OPEN}
+                loading={loading}
+                onRefresh={handleFetchAll}
+            />
 
-                <div className="w-fit px-4 py-2 rounded-full bg-blue-50 border border-blue-200 text-blue-600 text-sm font-medium flex items-center gap-2">
-                    <span className="text-blue-500">●</span>
-                    <span>{openRequests} abiertas</span>
+            {/* ── Error banner ── */}
+            {error && (
+                <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl flex items-center justify-between">
+                    <span>{error}</span>
+                    <button
+                        onClick={handleClearError}
+                        className="text-red-400 hover:text-red-600 text-lg leading-none ml-4"
+                    >
+                        ×
+                    </button>
                 </div>
+            )}
+
+            {/* ── Stats cards ── */}
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+                <ServiceRequestStatsCard value={counts.ALL}         label="Total"        color="text-[#0F172A]" />
+                <ServiceRequestStatsCard value={counts.OPEN}        label="Abiertas"     color="text-blue-500"   bg="bg-blue-50" />
+                <ServiceRequestStatsCard value={counts.IN_PROGRESS} label="En progreso"  color="text-yellow-500" bg="bg-yellow-50" />
+                <ServiceRequestStatsCard value={counts.COMPLETED}   label="Completadas"  color="text-green-500"  bg="bg-green-50" />
+                <ServiceRequestStatsCard value={counts.CANCELLED}   label="Canceladas"   color="text-red-500"    bg="bg-red-50" />
+                <ServiceRequestStatsCard value={counts.CLOSED}      label="Cerradas"     color="text-gray-500"   bg="bg-gray-50" />
             </div>
 
+            {/* ── Panel principal ── */}
             <article className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+
+                {/* Buscador */}
                 <div className="p-5 border-b border-gray-100">
                     <input
                         type="text"
                         value={search}
-                        onChange={(e) => {
-                            setSearch(e.target.value);
-                            setCurrentPage(1);
-                        }}
-                        placeholder="Buscar por título, cliente, categoría o ID..."
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm text-gray-600 placeholder:text-gray-400 focus:border-green-400 focus:ring-2 focus:ring-green-100"
+                        onChange={handleSearch}
+                        placeholder="Buscar por título, cliente, categoría o ID…"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none text-sm
+                                   text-gray-600 placeholder:text-gray-400
+                                   focus:border-green-400 focus:ring-2 focus:ring-green-100 transition"
                     />
                 </div>
 
-                <div className="px-5 py-4 border-b border-gray-100">
-                    <div className="flex flex-wrap gap-4">
-                        <StatusButton
-                            text="Todos"
-                            value="ALL"
-                            count={totalRequests}
-                            current={statusFilter}
-                            onClick={setStatusFilter}
-                        />
-
-                        <StatusButton
-                            text="Abiertas"
-                            value="OPEN"
-                            count={openRequests}
-                            current={statusFilter}
-                            onClick={setStatusFilter}
-                        />
-
-                        <StatusButton
-                            text="En progreso"
-                            value="IN_PROGRESS"
-                            count={progressRequests}
-                            current={statusFilter}
-                            onClick={setStatusFilter}
-                        />
-
-                        <StatusButton
-                            text="Completadas"
-                            value="COMPLETED"
-                            count={completedRequests}
-                            current={statusFilter}
-                            onClick={setStatusFilter}
-                        />
-
-                        <StatusButton
-                            text="Canceladas"
-                            value="CANCELLED"
-                            count={canceledRequests}
-                            current={statusFilter}
-                            onClick={setStatusFilter}
-                        />
+                {/* Filtros de estado */}
+                <div className="px-5 py-4 border-b border-gray-100 overflow-x-auto">
+                    <div className="flex gap-2 min-w-max">
+                        {STATUS_FILTERS.map(({ value, label }) => (
+                            <StatusFilterButton
+                                key={value}
+                                label={label}
+                                value={value}
+                                count={counts[value]}
+                                active={statusFilter === value}
+                                onClick={handleFilterChange}
+                            />
+                        ))}
                     </div>
                 </div>
 
-                <ServiceRequestsTable
-                    requests={currentRequests}
-                    onViewRequest={setSelectedRequest}
-                />
+                {/* Tabla (md+) / Tarjetas (< md) */}
+                {loading && enrichedRequests.length === 0 ? (
+                    <div className="py-16 text-center text-gray-400 text-sm">
+                        Cargando trabajos…
+                    </div>
+                ) : (
+                    <>
+                        <ServiceRequestTable requests={paginated} onView={setSelected} />
+                        <div className="p-4 md:hidden">
+                            <ServiceRequestCards requests={paginated} onView={setSelected} />
+                        </div>
+                    </>
+                )}
+
+                {/* Paginación */}
+                {totalPages > 1 && (
+                    <div className="px-5 py-4 border-t border-gray-100 flex items-center justify-between text-sm">
+                        <span className="text-gray-400">
+                            {startIndex + 1}–{Math.min(startIndex + ITEMS_PER_PAGE, filtered.length)} de {filtered.length}
+                        </span>
+                        <div className="flex gap-2">
+                            <button
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage((p) => p - 1)}
+                                className="px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600
+                                           hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                            >
+                                ← Anterior
+                            </button>
+                            <button
+                                disabled={currentPage === totalPages}
+                                onClick={() => setCurrentPage((p) => p + 1)}
+                                className="px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600
+                                           hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                            >
+                                Siguiente →
+                            </button>
+                        </div>
+                    </div>
+                )}
             </article>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                <ServiceRequestStatsCard
-                    value={totalRequests}
-                    label="Total solicitudes"
-                    color="text-[#0F172A]"
-                />
-
-                <ServiceRequestStatsCard
-                    value={openRequests}
-                    label="Abiertas"
-                    color="text-blue-500"
-                    bg="bg-blue-50"
-                />
-
-                <ServiceRequestStatsCard
-                    value={progressRequests}
-                    label="En progreso"
-                    color="text-yellow-500"
-                    bg="bg-yellow-50"
-                />
-
-                <ServiceRequestStatsCard
-                    value={completedRequests}
-                    label="Completadas"
-                    color="text-green-500"
-                    bg="bg-green-50"
-                />
-            </div>
-
-            {selectedRequest && (
+            {/* ── Modal de detalle ── */}
+            {selected && (
                 <ServiceRequestModal
-                    request={selectedRequest}
-                    onClose={() => setSelectedRequest(null)}
+                    request={selected}
+                    onClose={() => setSelected(null)}
                 />
             )}
         </section>
     );
 };
 
-const StatusButton = ({ text, value, count, current, onClick }) => {
-    const active = current === value;
-
-    return (
-        <button
-            onClick={() => onClick(value)}
-            className={`px-4 py-2 rounded-2xl text-sm font-semibold transition flex items-center gap-2 ${
-                active
-                    ? "bg-[#0F172A] text-white"
-                    : "text-gray-500 hover:bg-gray-100"
+/* ── Sub-componente: botón de filtro de estado ─────────────── */
+const StatusFilterButton = ({ label, value, count, active, onClick }) => (
+    <button
+        onClick={() => onClick(value)}
+        className={`px-4 py-2 rounded-2xl text-sm font-semibold transition flex items-center gap-2 whitespace-nowrap ${
+            active
+                ? 'bg-[#0F172A] text-white'
+                : 'text-gray-500 hover:bg-gray-100'
+        }`}
+    >
+        <span>{label}</span>
+        <span
+            className={`px-2 py-0.5 rounded-full text-xs ${
+                active ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'
             }`}
         >
-            <span>{text}</span>
-
-            <span
-                className={`px-2 py-0.5 rounded-full text-xs ${
-                    active
-                        ? "bg-white/20 text-white"
-                        : "bg-gray-100 text-gray-500"
-                }`}
-            >
-                {count}
-            </span>
-        </button>
-    );
-};
+            {count}
+        </span>
+    </button>
+);
