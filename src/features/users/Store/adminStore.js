@@ -126,14 +126,8 @@ export const useUserStore = create((set, get) => ({
             const data = res.data?.users || res.data?.data || (Array.isArray(res.data) ? res.data : []);
             set({ users: data, loading: false });
         } catch (error) {
-<<<<<<< HEAD
-            // Si falla API, usa mock data
-            set({ users: MOCK_USERS, loading: false, error: null });
-            console.warn("Usando usuarios mock (API no disponible)");
-=======
             set({ loading: false, error: error.response?.data?.message || "Error al obtener usuarios" });
             console.error("Error al obtener usuarios:", error);
->>>>>>> ft/BradleyOliva
         }
     },
 
@@ -154,13 +148,9 @@ export const useUserStore = create((set, get) => ({
             await api.changeUserStatus(id, newStatus);
             set((state) => ({
                 users: state.users.map((u) =>
-<<<<<<< HEAD
-                    u._id === id ? { ...u, active: newStatus } : u
-=======
                     u._id === id
                         ? { ...u, active: newStatus, isActive: newStatus }
                         : u
->>>>>>> ft/BradleyOliva
                 )
             }));
         } catch (error) {
@@ -181,7 +171,7 @@ export const useSkillStore = create((set, get) => ({
             const skillsArray = res.data?.skills || res.data?.data || (Array.isArray(res.data) ? res.data : []);
             set({ skills: skillsArray, loading: false });
         } catch (error) {
-set({ loading: false });
+            set({ loading: false });
             console.error("Error al obtener habilidades:", error);
         }
     },
@@ -257,7 +247,7 @@ export const useCategoryStore = create((set, get) => ({
             console.error("Error al crear categoría:", error);
             throw error;
         }
-}
+    }
 }));
 
 export const useVerificationStore = create((set, get) => ({
@@ -387,11 +377,11 @@ export const useWorkerPortfolioStore = create((set, get) => ({
 // SERVICE REQUEST STORE
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 export const useServiceRequestStore = create((set, get) => ({
-    serviceRequests:  [],
-    services:         [],
+    serviceRequests: [],
+    services: [],
     enrichedRequests: [],
-    loading:          false,
-    error:            null,
+    loading: false,
+    error: null,
 
     _buildEnriched: (serviceRequests, services) => {
         const serviceMap = services.reduce((acc, svc) => {
