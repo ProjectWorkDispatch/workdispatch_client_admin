@@ -1,14 +1,15 @@
 // src/features/serviceRequests/components/ServiceRequestModal.jsx
 import { useState } from 'react';
-import JobIconG  from '../../../assets/icons/JobIconG.svg';
-import money     from '../../../assets/icons/money.svg';
-import location  from '../../../assets/icons/location.svg';
-import dateIcon  from '../../../assets/icons/date.svg';
-import duration  from '../../../assets/icons/duration.svg';
-import personC   from '../../../assets/icons/personC.svg';
-import personD   from '../../../assets/icons/personD.svg';
+import JobIconG from '../../../assets/icons/JobIconG.svg';
+import money from '../../../assets/icons/money.svg';
+import location from '../../../assets/icons/location.svg';
+import dateIcon from '../../../assets/icons/date.svg';
+import duration from '../../../assets/icons/duration.svg';
+import personC from '../../../assets/icons/personC.svg';
+import personD from '../../../assets/icons/personD.svg';
 import { ServiceRequestStatusBadge } from './ServiceRequestStatusBadge.jsx';
-import { useServiceRequestActions }  from '../hook/useServiceRequestActions.js';
+import { useServiceRequestActions } from '../hook/useServiceRequestActions.js';
+import { MapView } from '../../../shared/components/ui/MapView.jsx';
 
 export const ServiceRequestModal = ({ request, onClose }) => {
     const { handleChangeRequestStatus, handleChangeServiceStatus } =
@@ -117,6 +118,17 @@ export const ServiceRequestModal = ({ request, onClose }) => {
                         </div>
                     </section>
 
+                    <section>
+                        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                            Ubicación
+                        </h3>
+
+                        <MapView
+                            latitude={request.latitude}
+                            longitude={request.longitude}
+                        />
+                    </section>
+
                     {/* ── Datos del trabajo en ejecución (Service) ── */}
                     {request.service && (
                         <section>
@@ -129,7 +141,7 @@ export const ServiceRequestModal = ({ request, onClose }) => {
                                     label="Trabajador"
                                     value={
                                         request.service.workerId?.name ??
-                                        request.service.workerId?.firstName
+                                            request.service.workerId?.firstName
                                             ? `${request.service.workerId.firstName} ${request.service.workerId.lastName ?? ''}`.trim()
                                             : '—'
                                     }

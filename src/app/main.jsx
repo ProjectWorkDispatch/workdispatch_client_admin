@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { ThemeProvider } from '@material-tailwind/react';
 import { BrowserRouter } from 'react-router-dom'  
 
+import "leaflet/dist/leaflet.css";
 import '../styles/index.css'
 import App from './App.jsx'
 
