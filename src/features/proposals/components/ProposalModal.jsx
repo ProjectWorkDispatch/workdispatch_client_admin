@@ -2,10 +2,11 @@ import JobIconG from "../../../assets/icons/JobIconG.svg";
 import money from "../../../assets/icons/money.svg";
 import date from "../../../assets/icons/date.svg";
 import { useProposalActions } from "../hook/useSaveProposalActions.js";
+import { useProposalStore } from "../../users/Store/adminStore.js";
 
 export const ProposalModal = ({ proposal, onClose }) => {
     const { handleDeactivate } = useProposalActions();
-    const { loading } = useProposalStore((state) => ({ loading: state.loading }));
+    const loading = useProposalStore((state) => state.loading);
 
     const canDeactivate = proposal.status !== "CANCELLED";
 

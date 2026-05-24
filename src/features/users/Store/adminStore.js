@@ -71,15 +71,16 @@ export const useProposalStore = create((set, get) => ({
         try {
             set({ loading: true, error: null });
             const res = await api.deactivateProposal(id);
-
             set({
                 proposals: get().proposals.map((p) =>
                     p._id === id ? res.data.proposal : p
                 ),
                 loading: false,
             });
+            return true;
         } catch (error) {
             set({ error: error.response?.data?.message || "Error al desactivar propuesta", loading: false });
+            return false;
         }
     },
 }));
@@ -144,6 +145,7 @@ export const useUserStore = create((set, get) => ({
 
     toggleUserStatus: async (id, currentStatus) => {
         try {
+            set({ loading: true, error: null });
             const newStatus = !currentStatus;
             await api.changeUserStatus(id, newStatus);
             set((state) => ({
@@ -151,12 +153,16 @@ export const useUserStore = create((set, get) => ({
                     u._id === id
                         ? { ...u, active: newStatus, isActive: newStatus }
                         : u
-                )
+                ),
+                loading: false,
             }));
+            return true;
         } catch (error) {
-            console.error("Error al cambiar estado:", error);
+            set({ loading: false, error: error.response?.data?.message || "Error al cambiar estado" });
+            console.error("Error al cambiar estado:", error.response?.data || error);
+            return false;
         }
-    }
+    },
 }));
 
 // ================= SKILLS STORE (Entidad: Catálogo de Habilidades) =================
