@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 
-import imgLogo from "../../../assets/img/logo_WorkDispatch.png";
+import imgLogo from "../../../assets/img/logo_Workdispatch.png";
 import { AvatarUser } from "../ui/AvatarUser";
 import { useAuthStore } from "../../../features/auth/store/authStore.js";
 

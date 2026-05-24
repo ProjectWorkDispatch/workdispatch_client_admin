@@ -1,6 +1,6 @@
 import { UsersActionsMenu } from "./UsersActionsMenu";
 import personC from "../../../assets/icons/personC.svg";
-import PersonD from "../../../assets/icons/PersonD.svg";
+import PersonD from "../../../assets/icons/personD.svg";
 import cancel from "../../../assets/icons/cancel.svg";
 import check from "../../../assets/icons/check.svg";
 

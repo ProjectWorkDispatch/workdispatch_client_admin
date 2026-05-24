@@ -1,4 +1,4 @@
-import reports from "../../../assets/icons/reports.svg";
+import reports from "../../../assets/icons/Reports.svg";
 import aproveG from "../../../assets/icons/aproveG.svg";
 import banW from "../../../assets/icons/banW.svg";
 import chatBubble from "../../../assets/icons/chatBubble.svg";

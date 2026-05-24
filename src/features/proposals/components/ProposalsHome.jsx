@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect } from "react";
 import { ProposalsTable } from "./ProposalsTable";
 import { ProposalStatsCard } from "./ProposalStatsCard";
 import { ProposalModal } from "./ProposalModal";
-import { useProposalStore } from "../../users/store/adminStore.js";
+import { useProposalStore } from "../../users/Store/adminStore.js";
 
 export const ProposalsHome = () => {
     const [search, setSearch] = useState("");
