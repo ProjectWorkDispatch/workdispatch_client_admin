@@ -7,6 +7,7 @@ export const CreateUserModal = ({ open, onClose }) => {
     firstName: "",
     lastName: "",
     email: "",
+    password: "",
     phone: "",
     address: "",
     description: "",
@@ -21,6 +22,7 @@ export const CreateUserModal = ({ open, onClose }) => {
         firstName: "",
         lastName: "",
         email: "",
+        password: "",
         phone: "",
         address: "",
         description: "",
@@ -38,9 +40,18 @@ export const CreateUserModal = ({ open, onClose }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    // Validaciones básicas en frontend
+    if (!formState.firstName.trim()) return toast.error("El nombre es obligatorio");
+    if (!formState.lastName.trim()) return toast.error("El apellido es obligatorio");
+    if (!formState.email.trim()) return toast.error("El correo es obligatorio");
+    if (!formState.password.trim()) return toast.error("La contraseña es obligatoria");
+    if (!formState.phone.trim()) return toast.error("El teléfono es obligatorio");
+
     setSubmitting(true);
 
     try {
+      // El backend usa multipart/form-data (uploadUserProfileImage middleware)
       const payload = new FormData();
       Object.entries(formState).forEach(([key, value]) => {
         payload.append(key, value ?? "");
@@ -67,7 +78,7 @@ export const CreateUserModal = ({ open, onClose }) => {
         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200">
           <div>
             <h2 className="text-xl font-bold text-slate-900">Crear usuario</h2>
-            <p className="text-sm text-slate-500">Registra un usuario nuevo para revisar la integración.</p>
+            <p className="text-sm text-slate-500">Completa todos los campos requeridos.</p>
           </div>
           <button
             onClick={onClose}
@@ -80,11 +91,44 @@ export const CreateUserModal = ({ open, onClose }) => {
 
         <form onSubmit={handleSubmit} className="space-y-5 px-6 py-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <InputField label="Nombre" name="firstName" value={formState.firstName} onChange={handleChange} />
-            <InputField label="Apellido" name="lastName" value={formState.lastName} onChange={handleChange} />
-            <InputField label="Correo electrónico" name="email" value={formState.email} onChange={handleChange} type="email" />
-            <InputField label="Teléfono" name="phone" value={formState.phone} onChange={handleChange} />
-            <InputField label="Dirección" name="address" value={formState.address} onChange={handleChange} />
+            <InputField
+              label="Nombre *"
+              name="firstName"
+              value={formState.firstName}
+              onChange={handleChange}
+            />
+            <InputField
+              label="Apellido *"
+              name="lastName"
+              value={formState.lastName}
+              onChange={handleChange}
+            />
+            <InputField
+              label="Correo electrónico *"
+              name="email"
+              value={formState.email}
+              onChange={handleChange}
+              type="email"
+            />
+            <InputField
+              label="Contraseña *"
+              name="password"
+              value={formState.password}
+              onChange={handleChange}
+              type="password"
+            />
+            <InputField
+              label="Teléfono *"
+              name="phone"
+              value={formState.phone}
+              onChange={handleChange}
+            />
+            <InputField
+              label="Dirección"
+              name="address"
+              value={formState.address}
+              onChange={handleChange}
+            />
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">Rol</label>
               <select

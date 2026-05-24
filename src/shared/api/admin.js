@@ -24,6 +24,7 @@ export const getSkills = async () => {
     }
 };
 
+
 export const createSkill = async (data) => {
     try {
         return await axiosAdmin.post('/skill', data);
@@ -61,6 +62,15 @@ export const getUsers = async () => {
     }
 };
 
+export const getUserById = async (id) => {
+    try {
+        return await axiosAdmin.get(`/users/${id}`);
+    } catch (err) {
+        if (err.response?.status === 404) return await axiosAdmin.get(`/user/${id}`);
+        throw err;
+    }
+};
+
 export const createUser = async (formData) => {
     try {
         return await axiosAdmin.post('/users', formData, {
@@ -79,6 +89,21 @@ export const changeUserStatus = async (id, active) => {
         return await axiosAdmin.patch(`/users/${id}/status`, { active });
     } catch (err) {
         if (err.response?.status === 404) return await axiosAdmin.patch(`/user/${id}/status`, { active });
+        throw err;
+    }
+};
+
+export const updateUser = async (id, data) => {
+    try {
+        return await axiosAdmin.put(`/users/${id}`, data, {
+            headers: { 'Content-Type': 'application/json' }
+        });
+    } catch (err) {
+        if (err.response?.status === 404) {
+            return await axiosAdmin.put(`/user/${id}`, data, {
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
         throw err;
     }
 };
@@ -141,6 +166,15 @@ export const assignSkillToUser = async (data) => {
         return await axiosAdmin.post('/userSkill', data);
     } catch (err) {
         if (err.response?.status === 404) return await axiosAdmin.post('/userSkills', data);
+        throw err;
+    }
+};
+
+export const removeUserSkill = async (id) => {
+    try {
+        return await axiosAdmin.delete(`/userSkill/${id}`);
+    } catch (err) {
+        if (err.response?.status === 404) return await axiosAdmin.delete(`/userSkills/${id}`);
         throw err;
     }
 };
