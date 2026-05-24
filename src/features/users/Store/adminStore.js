@@ -119,7 +119,7 @@ export const useUserStore = create((set, get) => ({
     users: [],
     loading: false,
     error: null,
-
+ 
     getUsers: async () => {
         set({ loading: true, error: null });
         try {
@@ -131,7 +131,7 @@ export const useUserStore = create((set, get) => ({
             console.error("Error al obtener usuarios:", error);
         }
     },
-
+ 
     addUser: async (formData) => {
         try {
             set({ loading: true });
@@ -142,16 +142,28 @@ export const useUserStore = create((set, get) => ({
             throw error;
         }
     },
-
+ 
+    // ← NUEVO: actualiza un usuario por ID
+    updateUser: async (id, data) => {
+        try {
+            set({ loading: true });
+            await api.updateUser(id, data);
+            await get().getUsers(); // recarga la lista para reflejar cambios
+        } catch (error) {
+            set({ loading: false });
+            throw error;
+        }
+    },
+ 
     toggleUserStatus: async (id, currentStatus) => {
         try {
             set({ loading: true, error: null });
-            const newStatus = !currentStatus;
-            await api.changeUserStatus(id, newStatus);
+            // El backend hace toggle solo (ignora el body), así que solo mandamos el PATCH
+            await api.changeUserStatus(id, !currentStatus);
             set((state) => ({
                 users: state.users.map((u) =>
                     u._id === id
-                        ? { ...u, active: newStatus, isActive: newStatus }
+                        ? { ...u, active: !currentStatus, isActive: !currentStatus }
                         : u
                 ),
                 loading: false,
