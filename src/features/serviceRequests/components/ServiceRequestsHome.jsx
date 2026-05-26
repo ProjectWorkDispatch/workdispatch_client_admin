@@ -1,4 +1,3 @@
-// src/features/serviceRequests/components/ServiceRequestsHome.jsx
 import { useEffect, useMemo, useState } from 'react';
 import { useServiceRequestStore }    from '../../users/Store/adminStore.js';
 import { useServiceRequestActions }  from '../hook/useServiceRequestActions.js';
@@ -20,34 +19,28 @@ const STATUS_FILTERS = [
 ];
 
 export const ServiceRequestsHome = () => {
-    // ── Store ────────────────────────────────────────────────────
-    const enrichedRequests = useServiceRequestStore((s) => s.enrichedRequests);
-    const loading          = useServiceRequestStore((s) => s.loading);
-    const error            = useServiceRequestStore((s) => s.error);
+    const serviceRequests = useServiceRequestStore((s) => s.serviceRequests);
+    const loading         = useServiceRequestStore((s) => s.loading);
+    const error           = useServiceRequestStore((s) => s.error);
 
-    // ── Acciones ─────────────────────────────────────────────────
     const { handleFetchAll, handleClearError } = useServiceRequestActions();
 
-    // ── Estado local de UI ───────────────────────────────────────
-    const [search, setSearch]           = useState('');
+    const [search, setSearch]             = useState('');
     const [statusFilter, setStatusFilter] = useState('ALL');
-    const [currentPage, setCurrentPage] = useState(1);
-    const [selected, setSelected]       = useState(null);
+    const [currentPage, setCurrentPage]   = useState(1);
+    const [selected, setSelected]         = useState(null);
 
-    // ── Carga inicial ─────────────────────────────────────────────
     useEffect(() => {
         handleFetchAll();
     }, []);
 
-    // ── Normalización del array enriquecido ───────────────────────
-    // Añadimos campos _computados con prefijo _ para que los componentes
-    // no necesiten conocer la forma raw del objeto.
     const normalizedRequests = useMemo(() => {
-        return enrichedRequests.map((req) => ({
+        return serviceRequests.map((req) => ({
             ...req,
-            _clientName:   req.clientId?.name ?? req.clientId?.firstName
-                ? `${req.clientId.firstName} ${req.clientId.lastName ?? ''}`.trim()
-                : 'Sin cliente',
+            _clientName:
+                req.clientId?.firstName
+                    ? `${req.clientId.firstName} ${req.clientId.lastName ?? ''}`.trim()
+                    : req.clientId?.name ?? 'Sin cliente',
             _categoryName: req.categoryId?.name ?? 'Sin categoría',
             _budgetRange:  `Q ${req.budgetMin ?? 0} – Q ${req.budgetMax ?? 0}`,
             _date: req.createdAt
@@ -56,9 +49,8 @@ export const ServiceRequestsHome = () => {
                   })
                 : '—',
         }));
-    }, [enrichedRequests]);
+    }, [serviceRequests]);
 
-    // ── Conteos para stats y filtros ─────────────────────────────
     const counts = useMemo(() => ({
         ALL:         normalizedRequests.length,
         OPEN:        normalizedRequests.filter((r) => r.status === 'OPEN').length,
@@ -68,7 +60,6 @@ export const ServiceRequestsHome = () => {
         CLOSED:      normalizedRequests.filter((r) => r.status === 'CLOSED').length,
     }), [normalizedRequests]);
 
-    // ── Filtrado ─────────────────────────────────────────────────
     const filtered = useMemo(() => {
         const text = search.toLowerCase().trim();
         return normalizedRequests.filter((req) => {
@@ -78,18 +69,14 @@ export const ServiceRequestsHome = () => {
                 req._clientName.toLowerCase().includes(text) ||
                 req._categoryName.toLowerCase().includes(text) ||
                 req._id.toLowerCase().includes(text);
-
-            const matchStatus =
-                statusFilter === 'ALL' || req.status === statusFilter;
-
+            const matchStatus = statusFilter === 'ALL' || req.status === statusFilter;
             return matchSearch && matchStatus;
         });
     }, [normalizedRequests, search, statusFilter]);
 
-    // ── Paginación ───────────────────────────────────────────────
-    const totalPages   = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
-    const startIndex   = (currentPage - 1) * ITEMS_PER_PAGE;
-    const paginated    = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const paginated  = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
     const handleSearch = (e) => {
         setSearch(e.target.value);
@@ -104,14 +91,12 @@ export const ServiceRequestsHome = () => {
     return (
         <section className="space-y-6">
 
-            {/* ── Cabecera ── */}
             <ServiceRequestHeader
                 openCount={counts.OPEN}
                 loading={loading}
                 onRefresh={handleFetchAll}
             />
 
-            {/* ── Error banner ── */}
             {error && (
                 <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl flex items-center justify-between">
                     <span>{error}</span>
@@ -124,20 +109,17 @@ export const ServiceRequestsHome = () => {
                 </div>
             )}
 
-            {/* ── Stats cards ── */}
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
-                <ServiceRequestStatsCard value={counts.ALL}         label="Total"        color="text-[#0F172A]" />
-                <ServiceRequestStatsCard value={counts.OPEN}        label="Abiertas"     color="text-blue-500"   bg="bg-blue-50" />
-                <ServiceRequestStatsCard value={counts.IN_PROGRESS} label="En progreso"  color="text-yellow-500" bg="bg-yellow-50" />
-                <ServiceRequestStatsCard value={counts.COMPLETED}   label="Completadas"  color="text-green-500"  bg="bg-green-50" />
-                <ServiceRequestStatsCard value={counts.CANCELLED}   label="Canceladas"   color="text-red-500"    bg="bg-red-50" />
-                <ServiceRequestStatsCard value={counts.CLOSED}      label="Cerradas"     color="text-gray-500"   bg="bg-gray-50" />
+                <ServiceRequestStatsCard value={counts.ALL}         label="Total"       color="text-[#0F172A]" />
+                <ServiceRequestStatsCard value={counts.OPEN}        label="Abiertas"    color="text-blue-500"   bg="bg-blue-50" />
+                <ServiceRequestStatsCard value={counts.IN_PROGRESS} label="En progreso" color="text-yellow-500" bg="bg-yellow-50" />
+                <ServiceRequestStatsCard value={counts.COMPLETED}   label="Completadas" color="text-green-500"  bg="bg-green-50" />
+                <ServiceRequestStatsCard value={counts.CANCELLED}   label="Canceladas"  color="text-red-500"    bg="bg-red-50" />
+                <ServiceRequestStatsCard value={counts.CLOSED}      label="Cerradas"    color="text-gray-500"   bg="bg-gray-50" />
             </div>
 
-            {/* ── Panel principal ── */}
             <article className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
 
-                {/* Buscador */}
                 <div className="p-5 border-b border-gray-100">
                     <input
                         type="text"
@@ -150,7 +132,6 @@ export const ServiceRequestsHome = () => {
                     />
                 </div>
 
-                {/* Filtros de estado */}
                 <div className="px-5 py-4 border-b border-gray-100 overflow-x-auto">
                     <div className="flex gap-2 min-w-max">
                         {STATUS_FILTERS.map(({ value, label }) => (
@@ -166,10 +147,9 @@ export const ServiceRequestsHome = () => {
                     </div>
                 </div>
 
-                {/* Tabla (md+) / Tarjetas (< md) */}
-                {loading && enrichedRequests.length === 0 ? (
+                {loading && serviceRequests.length === 0 ? (
                     <div className="py-16 text-center text-gray-400 text-sm">
-                        Cargando trabajos…
+                        Cargando solicitudes…
                     </div>
                 ) : (
                     <>
@@ -180,7 +160,6 @@ export const ServiceRequestsHome = () => {
                     </>
                 )}
 
-                {/* Paginación */}
                 {totalPages > 1 && (
                     <div className="px-5 py-4 border-t border-gray-100 flex items-center justify-between text-sm">
                         <span className="text-gray-400">
@@ -208,7 +187,6 @@ export const ServiceRequestsHome = () => {
                 )}
             </article>
 
-            {/* ── Modal de detalle ── */}
             {selected && (
                 <ServiceRequestModal
                     request={selected}
@@ -219,22 +197,17 @@ export const ServiceRequestsHome = () => {
     );
 };
 
-/* ── Sub-componente: botón de filtro de estado ─────────────── */
 const StatusFilterButton = ({ label, value, count, active, onClick }) => (
     <button
         onClick={() => onClick(value)}
         className={`px-4 py-2 rounded-2xl text-sm font-semibold transition flex items-center gap-2 whitespace-nowrap ${
-            active
-                ? 'bg-[#0F172A] text-white'
-                : 'text-gray-500 hover:bg-gray-100'
+            active ? 'bg-[#0F172A] text-white' : 'text-gray-500 hover:bg-gray-100'
         }`}
     >
         <span>{label}</span>
-        <span
-            className={`px-2 py-0.5 rounded-full text-xs ${
-                active ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'
-            }`}
-        >
+        <span className={`px-2 py-0.5 rounded-full text-xs ${
+            active ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'
+        }`}>
             {count}
         </span>
     </button>

@@ -1,4 +1,3 @@
-// src/features/serviceRequests/components/ServiceRequestHeader.jsx
 import JobIconG from '../../../assets/icons/JobIconG.svg';
 
 export const ServiceRequestHeader = ({ openCount, loading, onRefresh }) => {
@@ -6,12 +5,12 @@ export const ServiceRequestHeader = ({ openCount, loading, onRefresh }) => {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex items-center gap-3">
                 <div className="w-11 h-11 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
-                    <img src={JobIconG} alt="Trabajos" className="w-5 h-5" />
+                    <img src={JobIconG} alt="Solicitudes" className="w-5 h-5" />
                 </div>
                 <div>
-                    <h1 className="text-2xl font-bold text-[#0F172A]">Trabajos</h1>
+                    <h1 className="text-2xl font-bold text-[#0F172A]">Service Requests</h1>
                     <p className="text-sm text-gray-500">
-                        Administración de solicitudes y trabajos en ejecución
+                        Administración de solicitudes de servicio
                     </p>
                 </div>
             </div>

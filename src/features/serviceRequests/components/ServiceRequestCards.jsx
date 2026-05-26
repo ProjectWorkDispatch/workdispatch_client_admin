@@ -1,4 +1,3 @@
-// src/features/serviceRequests/components/ServiceRequestCards.jsx
 import view     from '../../../assets/icons/view.svg';
 import JobIconG from '../../../assets/icons/JobIconG.svg';
 import dateIcon from '../../../assets/icons/date.svg';
@@ -9,23 +8,21 @@ export const ServiceRequestCards = ({ requests, onView }) => {
     if (requests.length === 0) {
         return (
             <div className="py-12 text-center text-gray-400 text-sm md:hidden">
-                No se encontraron trabajos.
+                No se encontraron solicitudes.
             </div>
         );
     }
 
     return (
-        /* Visible solo en < md */
         <div className="grid md:hidden gap-3">
             {requests.map((req) => (
                 <article
                     key={req._id}
                     className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 space-y-3"
                 >
-                    {/* Cabecera */}
                     <div className="flex items-start gap-3">
                         <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
-                            <img src={JobIconG} alt="Trabajo" className="w-5 h-5" />
+                            <img src={JobIconG} alt="Solicitud" className="w-5 h-5" />
                         </div>
                         <div className="flex-1 min-w-0">
                             <p className="font-semibold text-[#0F172A] truncate">{req.title}</p>
@@ -40,18 +37,13 @@ export const ServiceRequestCards = ({ requests, onView }) => {
                         </button>
                     </div>
 
-                    {/* Badges de estado */}
                     <div className="flex flex-wrap gap-2">
                         <ServiceRequestStatusBadge value={req.status} />
-                        {req.service && (
-                            <ServiceRequestStatusBadge value={req.service.status} />
-                        )}
                         <span className="px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-xs font-semibold">
                             {req._categoryName}
                         </span>
                     </div>
 
-                    {/* Datos clave */}
                     <div className="grid grid-cols-2 gap-2 text-xs">
                         <div className="flex items-center gap-1.5 text-gray-500">
                             <img src={money} alt="Presupuesto" className="w-3.5 h-3.5" />
@@ -63,7 +55,6 @@ export const ServiceRequestCards = ({ requests, onView }) => {
                         </div>
                     </div>
 
-                    {/* Cliente */}
                     <p className="text-xs text-gray-500">
                         Cliente:{' '}
                         <span className="font-semibold text-[#0F172A]">{req._clientName}</span>

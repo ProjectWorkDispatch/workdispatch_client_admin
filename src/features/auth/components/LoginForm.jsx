@@ -24,6 +24,9 @@ export const LoginForm = ({ onForgot }) => {
       return;
     }
 
+    const { token } = useAuthStore.getState();
+    console.log("Admin token para Postman:\n", token);
+
     navigate("/dashboard/dashboard");
     toast.success("!Bienvenido de nuevo!");
 
