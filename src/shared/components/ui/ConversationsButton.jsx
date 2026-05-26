@@ -1,12 +1,18 @@
 import { Link, useLocation } from "react-router-dom";
+import { useEffect } from "react";
+import { useConversationStore } from "../../../features/users/Store/adminStore";
 
 export const ConversationsButton = () => {
-
     const location = useLocation();
+    const { unreadCount, fetchUnreadCount } = useConversationStore();
 
-    const isActive =
-        location.pathname ===
-        "/dashboard/conversaciones";
+    useEffect(() => {
+        fetchUnreadCount();
+        const interval = setInterval(fetchUnreadCount, 30000); // refresca cada 30s
+        return () => clearInterval(interval);
+    }, []);
+
+    const isActive = location.pathname === "/dashboard/conversaciones";
 
     return (
         <Link
@@ -18,8 +24,12 @@ export const ConversationsButton = () => {
             }`}
         >
             💬
-
-            <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border border-white" />
+            {unreadCount > 0 && (
+                <>
+                    <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border border-white animate-ping" />
+                    <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border border-white" />
+                </>
+            )}
         </Link>
     );
 };

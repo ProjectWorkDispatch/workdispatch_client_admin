@@ -549,47 +549,6 @@ export const useServiceRequestStore = create((set) => ({
     clearError: () => set({ error: null }),
 }));
 
-// ================= CONVERSATIONS STORE =================
-
-export const useConversationStore = create((set, get) => ({
-    conversations: [],
-    selectedConversation: null,
-    loading: false,
-    error: null,
-
-    getConversations: async () => {
-        try {
-            set({ loading: true, error: null });
-            const res = await api.getConversations();
-            const data = res.data?.data || res.data?.conversations || [];
-            set({ conversations: data, loading: false });
-        } catch (error) {
-            set({ error: error.response?.data?.message || "Error obteniendo conversaciones", loading: false });
-        }
-    },
-
-    createConversation: async (user1Id, user2Id) => {
-        try {
-            set({ loading: true, error: null });
-            const res = await api.createConversation({ user1Id, user2Id });
-            const conversation = res.data?.data;
-            const exists = get().conversations.some((c) => c._id === conversation._id);
-            set({
-                conversations: exists ? get().conversations : [conversation, ...get().conversations],
-                selectedConversation: conversation,
-                loading: false
-            });
-            return conversation;
-        } catch (error) {
-            set({ error: error.response?.data?.message || "Error creando conversación", loading: false });
-            throw error;
-        }
-    },
-
-    setSelectedConversation: (conversation) =>
-        set({ selectedConversation: conversation })
-}));
-
 // ================= REVIEWS STORE =================
 export const useReviewStore = create((set, get) => ({
     reviews: [],
@@ -632,4 +591,84 @@ export const useReviewStore = create((set, get) => ({
     },
 
     clearError: () => set({ error: null }),
+}));
+
+// ================= CONVERSATIONS STORE =================
+export const useConversationStore = create((set, get) => ({
+    conversations: [],
+    selectedConversation: null,
+    messages: [],
+    unreadCount: 0,
+    loading: false,
+    error: null,
+
+    getConversations: async () => {
+        try {
+            set({ loading: true, error: null });
+            const res = await api.getConversations();
+            const data = res.data?.data || res.data?.conversations || [];
+            set({ conversations: data, loading: false });
+        } catch (error) {
+            set({ error: error.response?.data?.message || "Error obteniendo conversaciones", loading: false });
+        }
+    },
+
+    createConversation: async (user1Id, user2Id) => {
+        try {
+            set({ loading: true, error: null });
+            const res = await api.createConversation({ user1Id, user2Id });
+            const conversation = res.data?.data;
+            const exists = get().conversations.some((c) => c._id === conversation._id);
+            set({
+                conversations: exists ? get().conversations : [conversation, ...get().conversations],
+                selectedConversation: conversation,
+                loading: false
+            });
+            return conversation;
+        } catch (error) {
+            set({ error: error.response?.data?.message || "Error creando conversación", loading: false });
+            throw error;
+        }
+    },
+
+    selectConversation: async (conversation) => {
+        set({ selectedConversation: conversation, messages: [] });
+        try {
+            const res = await api.getMessagesByConversation(conversation._id);
+            set({ messages: res.data?.messages || [] });
+            // Refrescar unread después de leer
+            get().fetchUnreadCount();
+        } catch {
+            set({ messages: [] });
+        }
+    },
+
+    sendMessage: async (conversationId, senderId, content) => {
+        try {
+            const res = await api.sendMessage({ conversationId, senderId, content });
+            const newMsg = res.data?.message;
+            set({ messages: [...get().messages, newMsg] });
+            // Actualizar lastMessage en la lista
+            set({
+                conversations: get().conversations.map(c =>
+                    c._id === conversationId
+                        ? { ...c, lastMessage: content, lastMessageAt: new Date() }
+                        : c
+                )
+            });
+        } catch (error) {
+            console.error('Error enviando mensaje:', error);
+        }
+    },
+
+    fetchUnreadCount: async () => {
+        try {
+            const res = await api.getUnreadCount();
+            set({ unreadCount: res.data?.unread || 0 });
+        } catch {
+            set({ unreadCount: 0 });
+        }
+    },
+
+    setSelectedConversation: (conversation) => set({ selectedConversation: conversation })
 }));

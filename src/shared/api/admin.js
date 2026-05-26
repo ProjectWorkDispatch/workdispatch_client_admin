@@ -54,11 +54,11 @@ export const deleteSkill = async (id) => {
 };
 
 // ================= USERS (Entidad 2) =================
-export const getUsers = async () => {
+export const getUsers = async (params) => {
     try {
-        return await axiosAdmin.get('/users');
+        return await axiosAdmin.get('/users', { params });
     } catch (err) {
-        if (err.response?.status === 404) return await axiosAdmin.get('/user');
+        if (err.response?.status === 404) return await axiosAdmin.get('/user', { params });
         throw err;
     }
 };
@@ -260,6 +260,15 @@ export const changeConversationStatus = async (id) => {
         throw err;
     }
 };
+// ================= MESSAGES =================
+export const getMessagesByConversation = async (conversationId) =>
+    await axiosAdmin.get(`/messages/${conversationId}`);
+
+export const sendMessage = async (data) =>
+    await axiosAdmin.post('/messages', data);
+
+export const getUnreadCount = async () =>
+    await axiosAdmin.get('/messages/unread');
 // ================= REVIEWS =================
 
 export const getReviews = async () =>
