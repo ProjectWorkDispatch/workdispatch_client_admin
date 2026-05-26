@@ -245,9 +245,9 @@ export const getConversations = async () => {
 
 export const createConversation = async (data) => {
     try {
-        return await axiosAdmin.post("/conversations", data);
+        return await axiosAdmin.post("/conversations", { user2Id: data.user2Id });
     } catch (err) {
-        if (err.response?.status === 404) return await axiosAdmin.post("/conversation", data);
+        if (err.response?.status === 404) return await axiosAdmin.post("/conversation", { user2Id: data.user2Id });
         throw err;
     }
 };

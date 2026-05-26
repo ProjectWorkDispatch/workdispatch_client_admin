@@ -616,14 +616,34 @@ export const useConversationStore = create((set, get) => ({
     createConversation: async (user1Id, user2Id) => {
         try {
             set({ loading: true, error: null });
-            const res = await api.createConversation({ user1Id, user2Id });
+
+            const res = await api.createConversation({ user2Id });
+
             const conversation = res.data?.data;
+
+            if (!conversation) {
+                set({ loading: false });
+                return null;
+            }
+
             const exists = get().conversations.some((c) => c._id === conversation._id);
             set({
-                conversations: exists ? get().conversations : [conversation, ...get().conversations],
+                conversations: exists
+                    ? get().conversations
+                    : [conversation, ...get().conversations],
                 selectedConversation: conversation,
+                messages: [],
                 loading: false
             });
+
+            // Cargar mensajes de la conversación recién creada/encontrada
+            try {
+                const msgRes = await api.getMessagesByConversation(conversation._id);
+                set({ messages: msgRes.data?.messages || [] });
+            } catch {
+                set({ messages: [] });
+            }
+
             return conversation;
         } catch (error) {
             set({ error: error.response?.data?.message || "Error creando conversación", loading: false });
@@ -646,9 +666,15 @@ export const useConversationStore = create((set, get) => ({
     sendMessage: async (conversationId, senderId, content) => {
         try {
             const res = await api.sendMessage({ conversationId, senderId, content });
+
+            // El backend devuelve { success: true, message: <populated> }
             const newMsg = res.data?.message;
-            set({ messages: [...get().messages, newMsg] });
-            // Actualizar lastMessage en la lista
+
+            if (newMsg) {
+                set({ messages: [...get().messages, newMsg] });
+            }
+
+            // Actualizar lastMessage en la lista de conversaciones
             set({
                 conversations: get().conversations.map(c =>
                     c._id === conversationId
@@ -657,7 +683,7 @@ export const useConversationStore = create((set, get) => ({
                 )
             });
         } catch (error) {
-            console.error('Error enviando mensaje:', error);
+            console.error('Error enviando mensaje:', error.response?.data || error.message);
         }
     },
 

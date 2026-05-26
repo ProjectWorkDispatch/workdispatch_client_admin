@@ -20,7 +20,7 @@ export const ConversationsSidebar = ({
         const text = search.toLowerCase().trim();
         if (!text) return conversations;
         return conversations.filter((c) => {
-            const other = c.user1Id?.role === 'ADMIN' ? c.user2Id : c.user1Id;
+            const other = c.user1Id?.role === "ADMIN" ? c.user2Id : c.user1Id;
             return (
                 `${other?.firstName} ${other?.lastName}`.toLowerCase().includes(text) ||
                 other?.email?.toLowerCase().includes(text) ||
@@ -36,7 +36,7 @@ export const ConversationsSidebar = ({
             setLoadingUsers(true);
             const res = await api.getUsers({ search: value });
             const all = res.data?.users || res.data?.data || [];
-            setUsers(all.filter(u => u.role !== 'ADMIN'));
+            setUsers(all.filter((u) => u.role !== "ADMIN"));
         } catch {
             setUsers([]);
         } finally {
@@ -53,16 +53,16 @@ export const ConversationsSidebar = ({
 
     return (
         <>
-            <aside className="w-full max-w-sm bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden flex flex-col">
-                <div className="p-5 border-b border-gray-100">
+            <aside className="w-full bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden flex flex-col h-full">
+                <div className="p-4 md:p-5 border-b border-gray-100">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-2xl font-bold text-[#0F172A]">Conversaciones</h1>
-                            <p className="text-sm text-gray-500 mt-1">Gestión de mensajes y chats</p>
+                            <h1 className="text-xl md:text-2xl font-bold text-[#0F172A]">Conversaciones</h1>
+                            <p className="text-xs md:text-sm text-gray-500 mt-1">Gestión de mensajes y chats</p>
                         </div>
                         <button
                             onClick={() => setShowModal(true)}
-                            className="w-9 h-9 rounded-xl bg-[#0F172A] text-white flex items-center justify-center hover:bg-gray-800 transition text-xl font-light"
+                            className="w-9 h-9 rounded-xl bg-[#0F172A] text-white flex items-center justify-center hover:bg-gray-800 transition text-xl font-light shrink-0"
                             title="Nueva conversación"
                         >
                             +
@@ -98,12 +98,16 @@ export const ConversationsSidebar = ({
 
             {/* Modal nueva conversación */}
             {showModal && (
-                <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+                <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center px-4">
                     <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-lg font-bold text-[#0F172A]">Nueva conversación</h2>
-                            <button onClick={() => { setShowModal(false); setUserSearch(""); setUsers([]); }}
-                                className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+                            <button
+                                onClick={() => { setShowModal(false); setUserSearch(""); setUsers([]); }}
+                                className="text-gray-400 hover:text-gray-600 text-xl"
+                            >
+                                ✕
+                            </button>
                         </div>
 
                         <input
