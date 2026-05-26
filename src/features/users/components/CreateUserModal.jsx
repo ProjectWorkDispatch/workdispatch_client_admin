@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useUserStore } from "../Store/adminStore";
+import { MapPickerView } from "../../../shared/components/ui/MapPickerView";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ONLY_LETTERS_REGEX = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙäëïöüÄËÏÖÜñÑçÇ\s]+$/;
@@ -51,6 +52,8 @@ export const CreateUserModal = ({ open, onClose }) => {
     address: "",
     description: "",
     role: "CLIENT",
+    latitude: null,
+    longitude: null,
   });
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -67,6 +70,8 @@ export const CreateUserModal = ({ open, onClose }) => {
         address: "",
         description: "",
         role: "CLIENT",
+        latitude: null,
+        longitude: null,
       });
       setErrors({});
     }
@@ -170,7 +175,7 @@ export const CreateUserModal = ({ open, onClose }) => {
               error={errors.password}
             />
             <InputField
-              label="Teléfono * (8 dígitos)"
+              label="Teléfono"
               name="phone"
               value={formState.phone}
               onChange={handleChange}
@@ -210,6 +215,18 @@ export const CreateUserModal = ({ open, onClose }) => {
             />
           </div>
 
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">Ubicación</label>
+            <MapPickerView
+              latitude={formState.latitude}
+              longitude={formState.longitude}
+              editable={true}
+              onPick={(lat, lng) =>
+                setFormState((prev) => ({ ...prev, latitude: lat, longitude: lng }))
+              }
+            />
+          </div>
+
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3 pt-2 border-t border-gray-200">
             <button
               type="button"
@@ -241,11 +258,10 @@ const InputField = ({ label, name, value, onChange, type = "text", inputMode, er
       value={value}
       onChange={onChange}
       inputMode={inputMode}
-      className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none focus:ring-2 transition ${
-        error
+      className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none focus:ring-2 transition ${error
           ? "border-red-400 focus:border-red-400 focus:ring-red-100"
           : "border-gray-200 focus:border-green-400 focus:ring-green-100"
-      }`}
+        }`}
     />
     {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
   </div>

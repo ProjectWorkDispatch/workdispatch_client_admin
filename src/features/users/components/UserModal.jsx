@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useUserStore } from "../Store/adminStore";
+import { MapPickerView } from "../../../shared/components/ui/MapPickerView";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ONLY_LETTERS_REGEX = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙäëïöüÄËÏÖÜñÑçÇ\s]+$/;
@@ -51,6 +52,8 @@ export const UserModal = ({ open, onClose, user }) => {
         address: "",
         description: "",
         role: "CLIENT",
+        latitude: null,
+        longitude: null,
     });
 
     useEffect(() => {
@@ -71,6 +74,8 @@ export const UserModal = ({ open, onClose, user }) => {
                 address: user.address || "",
                 description: user.description || "",
                 role: user.role || "CLIENT",
+                latitude: user.latitude ?? null,
+                longitude: user.longitude ?? null,
             });
             setIsEditing(false);
             setErrors({});
@@ -148,6 +153,8 @@ export const UserModal = ({ open, onClose, user }) => {
             address: user.address || "",
             description: user.description || "",
             role: user.role || "CLIENT",
+            latitude: user.latitude ?? null,
+            longitude: user.longitude ?? null,
         });
         setErrors({});
         setIsEditing(false);
@@ -186,8 +193,8 @@ export const UserModal = ({ open, onClose, user }) => {
                                 <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-3">
                                     <h2 className="text-xl sm:text-2xl font-bold wrap-break-words">{fullName}</h2>
                                     <span className={`w-fit mx-auto sm:mx-0 px-3 py-1 rounded-full text-xs font-semibold ${user.active
-                                            ? "bg-green-500/20 text-green-200 border border-green-400/30"
-                                            : "bg-red-500/20 text-red-200 border border-red-400/30"
+                                        ? "bg-green-500/20 text-green-200 border border-green-400/30"
+                                        : "bg-red-500/20 text-red-200 border border-red-400/30"
                                         }`}>
                                         ● {user.active ? "Activo" : "Suspendido"}
                                     </span>
@@ -280,10 +287,22 @@ export const UserModal = ({ open, onClose, user }) => {
                         {/* UBICACIÓN */}
                         <div className="bg-gray-50 rounded-2xl border border-gray-100 p-4 sm:p-5">
                             <h3 className="text-base sm:text-lg font-bold text-[#0F172A] mb-4">Ubicación</h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                                <InputField label="Dirección" name="address" value={formData.address} onChange={handleChange} editing={isEditing} />
-                                <InfoItem label="Latitud" value={user.latitude !== null ? user.latitude : "No disponible"} />
-                                <InfoItem label="Longitud" value={user.longitude !== null ? user.longitude : "No disponible"} />
+                            <div className="space-y-4">
+                                <InputField
+                                    label="Dirección"
+                                    name="address"
+                                    value={formData.address}
+                                    onChange={handleChange}
+                                    editing={isEditing}
+                                />
+                                <MapPickerView
+                                    latitude={formData.latitude}
+                                    longitude={formData.longitude}
+                                    editable={isEditing}
+                                    onPick={(lat, lng) => {
+                                        setFormData((prev) => ({ ...prev, latitude: lat, longitude: lng }));
+                                    }}
+                                />
                             </div>
                         </div>
 
@@ -362,8 +381,8 @@ const InputField = ({ label, name, value, onChange, editing, inputMode, error })
                     onChange={onChange}
                     inputMode={inputMode}
                     className={`w-full px-4 py-3 rounded-xl border text-sm outline-none focus:ring-2 transition ${error
-                            ? "border-red-400 focus:border-red-400 focus:ring-red-100"
-                            : "border-gray-200 focus:border-green-400 focus:ring-green-100"
+                        ? "border-red-400 focus:border-red-400 focus:ring-red-100"
+                        : "border-gray-200 focus:border-green-400 focus:ring-green-100"
                         }`}
                 />
                 {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
