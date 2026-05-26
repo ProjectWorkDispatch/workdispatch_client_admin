@@ -2,6 +2,45 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useUserStore } from "../Store/adminStore";
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const ONLY_LETTERS_REGEX = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙäëïöüÄËÏÖÜñÑçÇ\s]+$/;
+
+const validate = (formState) => {
+  const errors = {};
+
+  if (!formState.firstName.trim()) {
+    errors.firstName = "Debe llenar este campo.";
+  } else if (!ONLY_LETTERS_REGEX.test(formState.firstName.trim())) {
+    errors.firstName = "El nombre solo puede contener letras.";
+  }
+
+  if (!formState.lastName.trim()) {
+    errors.lastName = "Debe llenar este campo.";
+  } else if (!ONLY_LETTERS_REGEX.test(formState.lastName.trim())) {
+    errors.lastName = "El apellido solo puede contener letras.";
+  }
+
+  if (!formState.email.trim()) {
+    errors.email = "Debe llenar este campo.";
+  } else if (!EMAIL_REGEX.test(formState.email.trim())) {
+    errors.email = "Ingrese un correo electrónico válido.";
+  }
+
+  if (!formState.password.trim()) {
+    errors.password = "Debe llenar este campo.";
+  } else if (formState.password.length < 8) {
+    errors.password = "La contraseña debe tener al menos 8 caracteres.";
+  }
+
+  if (!formState.phone.trim()) {
+    errors.phone = "Debe llenar este campo.";
+  } else if (formState.phone.length !== 8) {
+    errors.phone = "El teléfono debe tener exactamente 8 dígitos.";
+  }
+
+  return errors;
+};
+
 export const CreateUserModal = ({ open, onClose }) => {
   const [formState, setFormState] = useState({
     firstName: "",
@@ -13,6 +52,7 @@ export const CreateUserModal = ({ open, onClose }) => {
     description: "",
     role: "CLIENT",
   });
+  const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const addUser = useUserStore((state) => state.addUser);
 
@@ -28,6 +68,7 @@ export const CreateUserModal = ({ open, onClose }) => {
         description: "",
         role: "CLIENT",
       });
+      setErrors({});
     }
   }, [open]);
 
@@ -35,28 +76,35 @@ export const CreateUserModal = ({ open, onClose }) => {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
+
+    // Teléfono: solo dígitos y máximo 8
+    if (name === "phone") {
+      if (!/^\d*$/.test(value)) return;
+      if (value.length > 8) return;
+    }
+
     setFormState((prev) => ({ ...prev, [name]: value }));
+
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Validaciones básicas en frontend
-    if (!formState.firstName.trim()) return toast.error("El nombre es obligatorio");
-    if (!formState.lastName.trim()) return toast.error("El apellido es obligatorio");
-    if (!formState.email.trim()) return toast.error("El correo es obligatorio");
-    if (!formState.password.trim()) return toast.error("La contraseña es obligatoria");
-    if (!formState.phone.trim()) return toast.error("El teléfono es obligatorio");
+    const validationErrors = validate(formState);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
 
     setSubmitting(true);
-
     try {
-      // El backend usa multipart/form-data (uploadUserProfileImage middleware)
       const payload = new FormData();
       Object.entries(formState).forEach(([key, value]) => {
         payload.append(key, value ?? "");
       });
-
       await addUser(payload);
       toast.success("Usuario creado correctamente");
       onClose();
@@ -96,12 +144,14 @@ export const CreateUserModal = ({ open, onClose }) => {
               name="firstName"
               value={formState.firstName}
               onChange={handleChange}
+              error={errors.firstName}
             />
             <InputField
               label="Apellido *"
               name="lastName"
               value={formState.lastName}
               onChange={handleChange}
+              error={errors.lastName}
             />
             <InputField
               label="Correo electrónico *"
@@ -109,6 +159,7 @@ export const CreateUserModal = ({ open, onClose }) => {
               value={formState.email}
               onChange={handleChange}
               type="email"
+              error={errors.email}
             />
             <InputField
               label="Contraseña *"
@@ -116,12 +167,15 @@ export const CreateUserModal = ({ open, onClose }) => {
               value={formState.password}
               onChange={handleChange}
               type="password"
+              error={errors.password}
             />
             <InputField
-              label="Teléfono *"
+              label="Teléfono * (8 dígitos)"
               name="phone"
               value={formState.phone}
               onChange={handleChange}
+              inputMode="numeric"
+              error={errors.phone}
             />
             <InputField
               label="Dirección"
@@ -178,7 +232,7 @@ export const CreateUserModal = ({ open, onClose }) => {
   );
 };
 
-const InputField = ({ label, name, value, onChange, type = "text" }) => (
+const InputField = ({ label, name, value, onChange, type = "text", inputMode, error }) => (
   <div>
     <label className="block text-sm font-semibold text-slate-700 mb-2">{label}</label>
     <input
@@ -186,7 +240,13 @@ const InputField = ({ label, name, value, onChange, type = "text" }) => (
       name={name}
       value={value}
       onChange={onChange}
-      className="w-full px-4 py-3 rounded-2xl border border-gray-200 text-sm outline-none focus:border-green-400 focus:ring-2 focus:ring-green-100"
+      inputMode={inputMode}
+      className={`w-full px-4 py-3 rounded-2xl border text-sm outline-none focus:ring-2 transition ${
+        error
+          ? "border-red-400 focus:border-red-400 focus:ring-red-100"
+          : "border-gray-200 focus:border-green-400 focus:ring-green-100"
+      }`}
     />
+    {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
   </div>
 );

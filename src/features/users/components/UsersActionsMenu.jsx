@@ -65,13 +65,7 @@ export const UsersActionsMenu = ({ user }) => {
                         <button className="block w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-gray-50">
                             Enviar mensaje
                         </button>
-                        <button className="block w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-gray-50">
-                            Ver historial
-                        </button>
                         <div className="my-1 border-t border-gray-100" />
-                        <button className="block w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50">
-                            Eliminar cuenta
-                        </button>
                     </div>
                 )}
             </div>

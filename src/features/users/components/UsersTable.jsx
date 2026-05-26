@@ -3,6 +3,7 @@ import personC from "../../../assets/icons/personC.svg";
 import PersonD from "../../../assets/icons/personD.svg";
 import cancel from "../../../assets/icons/cancel.svg";
 import check from "../../../assets/icons/check.svg";
+import EyeB from "../../../assets/icons/EyeB.svg";
 
 export const UsersTable = ({
     users,
@@ -131,7 +132,7 @@ export const UsersTable = ({
                                             className="w-8 h-8 rounded-full bg-blue-50 hover:bg-blue-100 flex items-center justify-center transition-colors"
                                             title="Ver Habilidades"
                                         >
-                                            <span className="text-sm">🛠️</span>
+                                            <span className="text-sm"><img src={EyeB} alt="Ver Habilidades" className="w-4 h-4" /></span>
                                         </button>
 
                                         {/* Botón Estado (Activar/Suspender) */}

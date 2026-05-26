@@ -235,7 +235,7 @@ export const useUserSkillStore = create((set, get) => ({
     }
 }));
 
-// ================= CATEGORIES STORE (Requerido para Skills) =================
+// ================= CATEGORIES STORE =================
 export const useCategoryStore = create((set, get) => ({
     categories: [],
     loading: false,
@@ -245,27 +245,73 @@ export const useCategoryStore = create((set, get) => ({
         try {
             set({ loading: true, error: null });
             const res = await api.getCategories();
+            
+            // Extraer la data según la estructura de la respuesta
             const data = res.data?.categories || res.data?.data || (Array.isArray(res.data) ? res.data : []);
+            
             set({ categories: data, loading: false });
         } catch (error) {
-            set({ categories: [], loading: false, error: error.response?.data?.message || "Error al obtener categorías" });
-            console.error("Error al obtener categorías:", error);
+            const errorMsg = error.response?.data?.message || "Error al obtener las categorías del servidor";
+            set({ categories: [], loading: false, error: errorMsg });
+            console.error("Error de conexión:", errorMsg);
         }
     },
 
-    createCategory: async (data) => {
+    createCategory: async (categoryData) => {
         try {
             set({ loading: true, error: null });
-            const res = await api.createCategory(data);
+            const res = await api.createCategory(categoryData);
+            
             const newCategory = res.data?.category || res.data?.data || res.data;
-            set({ categories: [...get().categories, newCategory], loading: false });
+            
+            set((state) => ({ 
+                categories: [...state.categories, newCategory], 
+                loading: false 
+            }));
+            
             return res.data;
         } catch (error) {
-            set({ loading: false, error: error.response?.data?.message || "Error al crear categoría" });
-            console.error("Error al crear categoría:", error);
+            const errorMsg = error.response?.data?.message || "No se pudo crear la categoría";
+            set({ loading: false, error: errorMsg });
+            throw error; 
+        }
+    },
+
+    updateCategory: async (id, categoryData) => {
+        try {
+            set({ loading: true, error: null });
+            const res = await api.updateCategory(id, categoryData);
+            
+            const updatedCategory = res.data?.category || res.data?.data || res.data;
+            
+            set((state) => ({
+                categories: state.categories.map((cat) => (cat._id === id ? updatedCategory : cat)),
+                loading: false
+            }));
+            
+            return updatedCategory;
+        } catch (error) {
+            const errorMsg = error.response?.data?.message || "Error al actualizar la categoría";
+            set({ error: errorMsg, loading: false });
             throw error;
         }
-    }
+    },
+
+    toggleCategoryStatus: async (id, currentStatus) => {
+        try {
+            const newStatus = currentStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+            const res = await api.changeCategoryStatus(id, newStatus);
+            
+            const updatedCategory = res.data?.category || res.data?.data || res.data;
+            
+            set((state) => ({
+                categories: state.categories.map((cat) => (cat._id === id ? updatedCategory : cat))
+            }));
+        } catch (error) {
+            console.error("Error al intentar cambiar el estado de la categoría:", error);
+            set({ error: "No se pudo cambiar el estado en el servidor" });
+        }
+    },
 }));
 
 export const useVerificationStore = create((set, get) => ({

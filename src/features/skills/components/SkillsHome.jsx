@@ -57,7 +57,7 @@ export const SkillsHome = () => {
                                             onClick={() => setEditingSkill(skill)}
                                             className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold transition"
                                         >
-                                            ✏️ Editar
+                                            Editar
                                         </button>
                                     </td>
                                 </tr>

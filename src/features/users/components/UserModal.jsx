@@ -2,11 +2,44 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useUserStore } from "../Store/adminStore";
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const ONLY_LETTERS_REGEX = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙäëïöüÄËÏÖÜñÑçÇ\s]+$/;
+
+const validate = (formData) => {
+    const errors = {};
+
+    if (!formData.firstName.trim()) {
+        errors.firstName = "Debe llenar este campo.";
+    } else if (!ONLY_LETTERS_REGEX.test(formData.firstName.trim())) {
+        errors.firstName = "El nombre solo puede contener letras.";
+    }
+
+    if (!formData.lastName.trim()) {
+        errors.lastName = "Debe llenar este campo.";
+    } else if (!ONLY_LETTERS_REGEX.test(formData.lastName.trim())) {
+        errors.lastName = "El apellido solo puede contener letras.";
+    }
+
+    if (!formData.email.trim()) {
+        errors.email = "Debe llenar este campo.";
+    } else if (!EMAIL_REGEX.test(formData.email.trim())) {
+        errors.email = "Ingrese un correo electrónico válido.";
+    }
+
+    if (!formData.phone.trim()) {
+        errors.phone = "Debe llenar este campo.";
+    } else if (formData.phone.length !== 8) {
+        errors.phone = "El teléfono debe tener exactamente 8 dígitos.";
+    }
+
+    return errors;
+};
+
 export const UserModal = ({ open, onClose, user }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+    const [errors, setErrors] = useState({});
 
-    // Importamos updateUser y toggleUserStatus del store
     const updateUser = useUserStore((state) => state.updateUser);
     const toggleUserStatus = useUserStore((state) => state.toggleUserStatus);
 
@@ -40,6 +73,7 @@ export const UserModal = ({ open, onClose, user }) => {
                 role: user.role || "CLIENT",
             });
             setIsEditing(false);
+            setErrors({});
         }
     }, [user]);
 
@@ -54,18 +88,36 @@ export const UserModal = ({ open, onClose, user }) => {
     };
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+
+        // Teléfono: solo dígitos y máximo 8
+        if (name === "phone") {
+            if (!/^\d*$/.test(value)) return;
+            if (value.length > 8) return;
+        }
+
+        setFormData({ ...formData, [name]: value });
+
+        if (errors[name]) {
+            setErrors((prev) => ({ ...prev, [name]: undefined }));
+        }
     };
 
-    // Guarda cambios llamando al store
     const handleSave = async () => {
         if (submitting) return;
+
+        const validationErrors = validate(formData);
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
+
         setSubmitting(true);
         try {
-            // updateUser manda PUT /users/:id con los datos en JSON
             await updateUser(user._id, formData);
             toast.success("Usuario actualizado correctamente");
             setIsEditing(false);
+            setErrors({});
         } catch (error) {
             const message =
                 error?.response?.data?.message ||
@@ -77,23 +129,35 @@ export const UserModal = ({ open, onClose, user }) => {
         }
     };
 
-    // Suspender / activar llamando al store
     const handleToggleStatus = async () => {
         try {
             await toggleUserStatus(user._id, user.active);
-            toast.success(
-                user.active ? "Usuario suspendido" : "Usuario activado"
-            );
-            onClose(); // cerramos para que la tabla se refresque
+            toast.success(user.active ? "Usuario suspendido" : "Usuario activado");
+            onClose();
         } catch {
             toast.error("Error al cambiar estado del usuario");
         }
+    };
+
+    const handleCancelEdit = () => {
+        setFormData({
+            firstName: user.firstName || "",
+            lastName: user.lastName || "",
+            email: user.email || "",
+            phone: user.phone || "",
+            address: user.address || "",
+            description: user.description || "",
+            role: user.role || "CLIENT",
+        });
+        setErrors({});
+        setIsEditing(false);
     };
 
     return (
         <div className="fixed inset-0 z-100 bg-black/50 backdrop-blur-sm p-2 sm:p-4 overflow-y-auto">
             <div className="min-h-full flex items-center justify-center">
                 <div className="w-full max-w-5xl bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+
                     {/* HEADER */}
                     <div className="relative bg-linear-to-r from-[#0F172A] to-[#1E293B] px-4 sm:px-6 py-6 sm:py-8">
                         <button
@@ -120,35 +184,19 @@ export const UserModal = ({ open, onClose, user }) => {
 
                             <div className="flex-1 text-white text-center sm:text-left">
                                 <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-3">
-                                    <h2 className="text-xl sm:text-2xl font-bold wrap-break-words">
-                                        {fullName}
-                                    </h2>
-                                    <span
-                                        className={`w-fit mx-auto sm:mx-0 px-3 py-1 rounded-full text-xs font-semibold ${
-                                            user.active
-                                                ? "bg-green-500/20 text-green-200 border border-green-400/30"
-                                                : "bg-red-500/20 text-red-200 border border-red-400/30"
-                                        }`}
-                                    >
+                                    <h2 className="text-xl sm:text-2xl font-bold wrap-break-words">{fullName}</h2>
+                                    <span className={`w-fit mx-auto sm:mx-0 px-3 py-1 rounded-full text-xs font-semibold ${user.active
+                                            ? "bg-green-500/20 text-green-200 border border-green-400/30"
+                                            : "bg-red-500/20 text-red-200 border border-red-400/30"
+                                        }`}>
                                         ● {user.active ? "Activo" : "Suspendido"}
                                     </span>
                                 </div>
-
-                                <p className="text-sm text-slate-300 mt-2 break-all">
-                                    {user.email}
-                                </p>
-
+                                <p className="text-sm text-slate-300 mt-2 break-all">{user.email}</p>
                                 <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-4">
-                                    <span className="px-3 py-1 rounded-full bg-white/10 text-xs font-semibold">
-                                        {roleMap[user.role]}
-                                    </span>
-                                    <span
-                                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                                            user.verificationStatus
-                                                ? "bg-green-500/20 text-green-200"
-                                                : "bg-yellow-500/20 text-yellow-200"
-                                        }`}
-                                    >
+                                    <span className="px-3 py-1 rounded-full bg-white/10 text-xs font-semibold">{roleMap[user.role]}</span>
+                                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${user.verificationStatus ? "bg-green-500/20 text-green-200" : "bg-yellow-500/20 text-yellow-200"
+                                        }`}>
                                         {user.verificationStatus ? "Verificado" : "Pendiente"}
                                     </span>
                                     <span className="px-3 py-1 rounded-full bg-white/10 text-xs font-semibold">
@@ -162,29 +210,24 @@ export const UserModal = ({ open, onClose, user }) => {
                     {/* BODY */}
                     <div className="p-4 sm:p-6 space-y-5 sm:space-y-6 max-h-[80vh] overflow-y-auto">
                         <div className="grid grid-cols-1 xl:grid-cols-3 gap-5 sm:gap-6">
+
                             {/* INFO PERSONAL */}
                             <div className="xl:col-span-2 bg-gray-50 rounded-2xl border border-gray-100 p-4 sm:p-5">
                                 <div className="flex items-center justify-between mb-5">
-                                    <h3 className="text-base sm:text-lg font-bold text-[#0F172A]">
-                                        Información personal
-                                    </h3>
+                                    <h3 className="text-base sm:text-lg font-bold text-[#0F172A]">Información personal</h3>
                                     {isEditing && (
-                                        <span className="text-xs font-semibold text-green-600">
-                                            Modo edición
-                                        </span>
+                                        <span className="text-xs font-semibold text-green-600">Modo edición</span>
                                     )}
                                 </div>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-                                    <InputField label="Nombre" name="firstName" value={formData.firstName} onChange={handleChange} editing={isEditing} />
-                                    <InputField label="Apellido" name="lastName" value={formData.lastName} onChange={handleChange} editing={isEditing} />
-                                    <InputField label="Correo" name="email" value={formData.email} onChange={handleChange} editing={isEditing} />
-                                    <InputField label="Teléfono" name="phone" value={formData.phone} onChange={handleChange} editing={isEditing} />
+                                    <InputField label="Nombre" name="firstName" value={formData.firstName} onChange={handleChange} editing={isEditing} error={errors.firstName} />
+                                    <InputField label="Apellido" name="lastName" value={formData.lastName} onChange={handleChange} editing={isEditing} error={errors.lastName} />
+                                    <InputField label="Correo" name="email" value={formData.email} onChange={handleChange} editing={isEditing} error={errors.email} />
+                                    <InputField label="Teléfono" name="phone" value={formData.phone} onChange={handleChange} editing={isEditing} inputMode="numeric" error={errors.phone} />
 
                                     <div>
-                                        <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">
-                                            Rol
-                                        </p>
+                                        <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">Rol</p>
                                         {isEditing ? (
                                             <select
                                                 name="role"
@@ -271,7 +314,7 @@ export const UserModal = ({ open, onClose, user }) => {
                         {isEditing ? (
                             <>
                                 <button
-                                    onClick={() => setIsEditing(false)}
+                                    onClick={handleCancelEdit}
                                     className="w-full sm:w-auto px-5 py-2 rounded-xl text-sm font-semibold bg-gray-200 hover:bg-gray-300 text-slate-700 transition"
                                 >
                                     Cancelar edición
@@ -295,11 +338,8 @@ export const UserModal = ({ open, onClose, user }) => {
 
                         <button
                             onClick={handleToggleStatus}
-                            className={`w-full sm:w-auto px-5 py-2 rounded-xl text-sm font-semibold text-white transition ${
-                                user.active
-                                    ? "bg-red-500 hover:bg-red-600"
-                                    : "bg-green-500 hover:bg-green-600"
-                            }`}
+                            className={`w-full sm:w-auto px-5 py-2 rounded-xl text-sm font-semibold text-white transition ${user.active ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"
+                                }`}
                         >
                             {user.active ? "Suspender usuario" : "Activar usuario"}
                         </button>
@@ -310,17 +350,24 @@ export const UserModal = ({ open, onClose, user }) => {
     );
 };
 
-const InputField = ({ label, name, value, onChange, editing }) => (
+const InputField = ({ label, name, value, onChange, editing, inputMode, error }) => (
     <div>
         <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">{label}</p>
         {editing ? (
-            <input
-                type="text"
-                name={name}
-                value={value}
-                onChange={onChange}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-green-400 focus:ring-2 focus:ring-green-100"
-            />
+            <>
+                <input
+                    type="text"
+                    name={name}
+                    value={value}
+                    onChange={onChange}
+                    inputMode={inputMode}
+                    className={`w-full px-4 py-3 rounded-xl border text-sm outline-none focus:ring-2 transition ${error
+                            ? "border-red-400 focus:border-red-400 focus:ring-red-100"
+                            : "border-gray-200 focus:border-green-400 focus:ring-green-100"
+                        }`}
+                />
+                {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+            </>
         ) : (
             <p className="text-sm text-slate-700 wrap-break-words">{value || "No disponible"}</p>
         )}
