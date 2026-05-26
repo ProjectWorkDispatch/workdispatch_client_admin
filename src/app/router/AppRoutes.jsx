@@ -3,7 +3,7 @@ import { AuthPage } from "../../features/auth/pages/AuthPage.jsx";
 import { DashboardPage } from "../layouts/DashboardPage.jsx";
 import { DashboardHome } from "../../features/dashboard/components/DashbboardHome.jsx";
 import { UsersHome } from "../../features/users/components/UsersHome.jsx";
-import { JobsHome } from "../../features/jobs/components/JobsHome.jsx";
+import { ServicesHome } from "../../features/services/components/ServicesHome.jsx";
 import { VerificationsHome } from "../../features/verifications/components/VerificationsHome.jsx";
 import { ReportsHome } from "../../features/reports/components/ReportsHome.jsx";
 import { ReviewsHome } from "../../features/reviews/components/ReviewsHomes.jsx";
@@ -26,7 +26,7 @@ export const AppRoutes = () => {
             <Route path="/dashboard/" element={<DashboardPage />}>
                 <Route path="dashboard" element={<DashboardHome />} />
                 <Route path="usuarios" element={<UsersHome />} />
-                <Route path="trabajos" element={<JobsHome />} />
+                <Route path="trabajos" element={<ServicesHome />} />
                 <Route path="verificaciones" element={<VerificationsHome />} />
                 <Route path="reportes" element={<ReportsHome />} />
                 <Route path="reviews" element={<ReviewsHome />} />

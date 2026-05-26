@@ -3,15 +3,25 @@ import money from "../../../assets/icons/money.svg";
 import date from "../../../assets/icons/date.svg";
 import { useProposalActions } from "../hook/useSaveProposalActions.js";
 import { useProposalStore } from "../../users/Store/adminStore.js";
+import { useState } from "react";
+import toast from "react-hot-toast";
 
 export const ProposalModal = ({ proposal, onClose }) => {
+    const [loading, setLoading] = useState(false);
     const { handleDeactivate } = useProposalActions();
-    const loading = useProposalStore((state) => state.loading);
 
     const canDeactivate = proposal.status !== "CANCELLED";
 
-    const onDeactivate = () => {
-        handleDeactivate(proposal.id, () => onClose());
+    const onDeactivate = async () => {
+        setLoading(true);
+        try {
+            await handleDeactivate(proposal.id, () => onClose());
+            toast.success("Propuesta cancelada correctamente");
+        } catch {
+            toast.error("Error al cancelar la propuesta");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -68,7 +78,7 @@ export const ProposalModal = ({ proposal, onClose }) => {
                             disabled={loading}
                             className="w-full py-3 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm font-semibold hover:bg-red-100 transition disabled:opacity-50"
                         >
-                            Desactivar propuesta
+                            {loading ? "Cancelando..." : "Cancelar propuesta"}
                         </button>
                     </div>
                 )}

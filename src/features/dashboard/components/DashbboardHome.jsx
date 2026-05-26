@@ -7,7 +7,7 @@ import { DashboardSummary } from "./DashboardSummary.jsx";
 
 //Iconos :D
 import TotalUsers from "../../../assets/icons/TotalUsers.svg";
-import JobsActive from "../../../assets/icons/ActiveJobs.svg";
+import ServicesActive from "../../../assets/icons/ActiveJobs.svg";
 import Verifications from "../../../assets/icons/Verifications.svg";
 import Reports from "../../../assets/icons/Reports.svg";
 
@@ -55,7 +55,7 @@ export const DashboardHome = () => {
                     value="614"
                     subtitle="+43 esta semana"
                     color="blue"
-                    img={JobsActive}
+                    img={ServicesActive}
                     orientation="up"
                 />
 

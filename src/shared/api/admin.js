@@ -229,7 +229,7 @@ export const getServiceById = async (id) =>
     await axiosAdmin.get(`/Service/${id}`);
 
 export const updateServiceStatus = async (id, status) =>
-    await axiosAdmin.patch(`/Service/${id}`, { status });
+    await axiosAdmin.patch(`/Service/${id}/status`, { status });
 
 // ================= CONVERSATIONS =================
 

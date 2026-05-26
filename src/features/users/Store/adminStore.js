@@ -437,46 +437,69 @@ export const useWorkerPortfolioStore = create((set, get) => ({
     clearError: () => set({ error: null })
 }));
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// SERVICE REQUEST STORE
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-export const useServiceRequestStore = create((set, get) => ({
-    serviceRequests: [],
+// ================= SERVICE STORE =================
+export const useServiceStore = create((set) => ({
     services: [],
-    enrichedRequests: [],
     loading: false,
     error: null,
 
-    _buildEnriched: (serviceRequests, services) => {
-        const serviceMap = services.reduce((acc, svc) => {
-            const key = svc.serviceRequestId?._id ?? svc.serviceRequestId;
-            if (key) acc[key] = svc;
-            return acc;
-        }, {});
-        return serviceRequests.map((req) => ({
-            ...req,
-            service: serviceMap[req._id] ?? null,
-        }));
-    },
-
-    fetchAll: async () => {
+    fetchServices: async () => {
         try {
             set({ loading: true, error: null });
-            const [srRes, svcRes] = await Promise.all([
-                api.getServiceRequests(),
-                api.getServices(),
-            ]);
-            const serviceRequests =
-                srRes.data?.serviceRequests ?? srRes.data?.data ??
-                (Array.isArray(srRes.data) ? srRes.data : []);
+            const res = await api.getServices();
             const services =
-                svcRes.data?.services ?? svcRes.data?.data ??
-                (Array.isArray(svcRes.data) ? svcRes.data : []);
-            const enrichedRequests = get()._buildEnriched(serviceRequests, services);
-            set({ serviceRequests, services, enrichedRequests, loading: false });
+                res.data?.services ?? res.data?.data ??
+                (Array.isArray(res.data) ? res.data : []);
+            set({ services, loading: false });
         } catch (error) {
             set({
-                error: error.response?.data?.message ?? 'Error al obtener los trabajos',
+                error: error.response?.data?.message ?? 'Error al obtener los servicios',
+                loading: false,
+            });
+        }
+    },
+
+    changeServiceStatus: async (id, status) => {
+        try {
+            set({ loading: true, error: null });
+            const res = await api.updateServiceStatus(id, status);
+            const updated = res.data?.service ?? res.data?.data ?? null;
+            set((state) => ({
+                services: updated
+                    ? state.services.map((s) => (s._id === id ? updated : s))
+                    : state.services.map((s) => (s._id === id ? { ...s, status } : s)),
+                loading: false,
+            }));
+            return { success: true };
+        } catch (error) {
+            set({
+                error: error.response?.data?.message ?? 'Error al cambiar estado del servicio',
+                loading: false,
+            });
+            throw error;
+        }
+    },
+
+    clearError: () => set({ error: null }),
+}));
+
+// ================= SERVICE REQUEST STORE =================
+export const useServiceRequestStore = create((set) => ({
+    serviceRequests: [],
+    loading: false,
+    error: null,
+
+    fetchServiceRequests: async () => {
+        try {
+            set({ loading: true, error: null });
+            const res = await api.getServiceRequests();
+            const serviceRequests =
+                res.data?.serviceRequests ?? res.data?.data ??
+                (Array.isArray(res.data) ? res.data : []);
+            set({ serviceRequests, loading: false });
+        } catch (error) {
+            set({
+                error: error.response?.data?.message ?? 'Error al obtener las solicitudes',
                 loading: false,
             });
         }
@@ -487,39 +510,16 @@ export const useServiceRequestStore = create((set, get) => ({
             set({ loading: true, error: null });
             const res = await api.updateServiceRequestStatus(id, status);
             const updated = res.data?.serviceRequest ?? res.data?.data ?? null;
-            set((state) => {
-                const serviceRequests = updated
+            set((state) => ({
+                serviceRequests: updated
                     ? state.serviceRequests.map((r) => (r._id === id ? updated : r))
-                    : state.serviceRequests.map((r) => r._id === id ? { ...r, status } : r);
-                const enrichedRequests = state._buildEnriched(serviceRequests, state.services);
-                return { serviceRequests, enrichedRequests, loading: false };
-            });
+                    : state.serviceRequests.map((r) => (r._id === id ? { ...r, status } : r)),
+                loading: false,
+            }));
             return { success: true };
         } catch (error) {
             set({
                 error: error.response?.data?.message ?? 'Error al cambiar estado de la solicitud',
-                loading: false,
-            });
-            throw error;
-        }
-    },
-
-    changeServiceStatus: async (id, status) => {
-        try {
-            set({ loading: true, error: null });
-            const res = await api.updateServiceStatus(id, status);
-            const updated = res.data?.service ?? res.data?.data ?? null;
-            set((state) => {
-                const services = updated
-                    ? state.services.map((s) => (s._id === id ? updated : s))
-                    : state.services.map((s) => s._id === id ? { ...s, status } : s);
-                const enrichedRequests = state._buildEnriched(state.serviceRequests, services);
-                return { services, enrichedRequests, loading: false };
-            });
-            return { success: true };
-        } catch (error) {
-            set({
-                error: error.response?.data?.message ?? 'Error al cambiar estado del trabajo',
                 loading: false,
             });
             throw error;
