@@ -1,25 +1,25 @@
 // src/features/workerPortafolio/components/WorkerPortfolioHome.jsx
 import { useState, useEffect } from 'react';
-import { useWorkerPortfolioStore }    from '../../users/Store/adminStore.js';
-import { useWorkerPortfolioActions }  from '../hooks/useWorkerPortfolioActions.js';
-import { WorkerPortfolioHeader }      from './WorkerPortfolioHeader.jsx';
-import { WorkerPortfolioStatsCard }   from './WorkerPortfolioStatsCard.jsx';
-import { WorkerPortfolioFilters }     from './WorkerPortfolioFilters.jsx';
-import { WorkerPortfolioGrid }        from './WorkerPortfolioGrid.jsx';
-import { WorkerPortfolioModal }       from './WorkerPortfolioModal.jsx';
+import { useWorkerPortfolioStore } from '../../users/Store/adminStore.js';
+import { useWorkerPortfolioActions } from '../hooks/useWorkerPortfolioActions.js';
+import { WorkerPortfolioHeader } from './WorkerPortfolioHeader.jsx';
+import { WorkerPortfolioStatsCard } from './WorkerPortfolioStatsCard.jsx';
+import { WorkerPortfolioFilters } from './WorkerPortfolioFilters.jsx';
+import { WorkerPortfolioGrid } from './WorkerPortfolioGrid.jsx';
+import { WorkerPortfolioModal } from './WorkerPortfolioModal.jsx';
 
 export const WorkerPortfolioHome = () => {
     // ── Store ────────────────────────────────────────────────────
     const portfolios = useWorkerPortfolioStore((state) => state.portfolios);
-    const loading    = useWorkerPortfolioStore((state) => state.loading);
-    const error      = useWorkerPortfolioStore((state) => state.error);
+    const loading = useWorkerPortfolioStore((state) => state.loading);
+    const error = useWorkerPortfolioStore((state) => state.error);
 
     // ── Acciones ─────────────────────────────────────────────────
     const { handleFetch, handleModerate, handleUpdateImage, handleClearError } =
         useWorkerPortfolioActions();
 
     // ── Estado local de UI ───────────────────────────────────────
-    const [search, setSearch]             = useState('');
+    const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('Todos');
     const [selectedPortfolio, setSelectedPortfolio] = useState(null);
 
@@ -30,7 +30,7 @@ export const WorkerPortfolioHome = () => {
 
     // ── Filtrado cliente ──────────────────────────────────────────
     const filteredPortfolios = portfolios.filter((p) => {
-        const text     = search.toLowerCase();
+        const text = search.toLowerCase();
         const fullName = `${p.workerId?.firstName || ''} ${p.workerId?.lastName || ''}`.toLowerCase();
 
         const matchSearch =
@@ -44,14 +44,13 @@ export const WorkerPortfolioHome = () => {
     });
 
     // ── Estadísticas ──────────────────────────────────────────────
-    const totalPortfolios    = portfolios.length;
-    const activePortfolios   = portfolios.filter((p) => p.status === 'ACTIVE').length;
+    const totalPortfolios = portfolios.length;
+    const activePortfolios = portfolios.filter((p) => p.status === 'ACTIVE').length;
     const inactivePortfolios = portfolios.filter((p) => p.status === 'INACTIVE').length;
 
     // ── Handlers ──────────────────────────────────────────────────
     const onModerate = (portfolio) => {
         handleModerate(portfolio, (updated) => {
-            // Si el modal estaba abierto con este registro, sincroniza su estado
             if (selectedPortfolio?._id === portfolio._id) {
                 setSelectedPortfolio((prev) => ({ ...prev, ...updated }));
             }
