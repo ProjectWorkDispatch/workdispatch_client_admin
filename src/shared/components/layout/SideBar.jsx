@@ -162,10 +162,10 @@ export const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
                         <div className="flex-1 min-w-0">
                             <p className="font-semibold text-sm truncate">
-                                {user ? `${user.firstName} ${user.lastName}` : "No logueado"}
+                                {user?.email || "No logueado"}
                             </p>
                             <p className="text-xs text-gray-400 truncate">
-                                {user?.email || "No logueado"}
+                                {user?.role || ""}
                             </p>
                         </div>
                     </div>
