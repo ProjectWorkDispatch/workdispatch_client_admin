@@ -13,6 +13,7 @@ export const deactivateProposal = async (id) => await axiosAdmin.patch(`/Proposa
 // ================= REPORTS (REPORTES) =================
 export const getReports = async (params) => await axiosAdmin.get('/reports', { params });
 export const resolveReport = async (id) => await axiosAdmin.patch(`/reports/resolve/${id}`);
+export const sanctionReport = async (id) => await axiosAdmin.patch(`/reports/sanction/${id}`);
 
 // ================= SKILLS (Entidad 1) =================
 export const getSkills = async () => {
@@ -127,28 +128,28 @@ export const createCategory = async (data) => {
     }
 };
 export const updateCategory = async (id, data) => {
-  try {
-    return await axiosAdmin.put(`/categories/${id}`, data);
-  } catch (err) {
-    if (err.response?.status === 404) {
-      return await axiosAdmin.put(`/category/${id}`, data);
+    try {
+        return await axiosAdmin.put(`/categories/${id}`, data);
+    } catch (err) {
+        if (err.response?.status === 404) {
+            return await axiosAdmin.put(`/category/${id}`, data);
+        }
+        throw err;
     }
-    throw err;
-  }
 };
 export const changeCategoryStatus = async (id, status) => {
-  try {
-    return await axiosAdmin.patch(`/categories/${id}/status`, {
-      status
-    });
-  } catch (err) {
-    if (err.response?.status === 404) {
-      return await axiosAdmin.patch(`/category/${id}/status`, {
-        status
-      });
+    try {
+        return await axiosAdmin.patch(`/categories/${id}/status`, {
+            status
+        });
+    } catch (err) {
+        if (err.response?.status === 404) {
+            return await axiosAdmin.patch(`/category/${id}/status`, {
+                status
+            });
+        }
+        throw err;
     }
-    throw err;
-  }
 };
 
 // ================= USER SKILLS (Entidad 3) =================
@@ -259,3 +260,10 @@ export const changeConversationStatus = async (id) => {
         throw err;
     }
 };
+// ================= REVIEWS =================
+
+export const getReviews = async () =>
+    await axiosAdmin.get('/reviews');
+
+export const deleteReview = async (id) =>
+    await axiosAdmin.patch(`/reviews/${id}`);

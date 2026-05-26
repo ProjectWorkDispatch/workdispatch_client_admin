@@ -112,6 +112,26 @@ export const useReportStore = create((set, get) => ({
             set({ error: error.response?.data?.message || "Error al resolver reporte", loading: false });
         }
     },
+
+    sanctionReport: async (id) => {
+        try {
+            set({ loading: true, error: null });
+            await api.sanctionReport(id);
+            set((state) => ({
+                reports: state.reports.map((r) =>
+                    r._id === id ? { ...r, Status: false } : r
+                ),
+                loading: false,
+            }));
+            return { success: true };
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || 'Error al sancionar al usuario',
+                loading: false,
+            });
+            throw error;
+        }
+    },
 }));
 
 // ================= USERS STORE (Entidad: Usuarios) =================
@@ -119,7 +139,7 @@ export const useUserStore = create((set, get) => ({
     users: [],
     loading: false,
     error: null,
- 
+
     getUsers: async () => {
         set({ loading: true, error: null });
         try {
@@ -131,7 +151,7 @@ export const useUserStore = create((set, get) => ({
             console.error("Error al obtener usuarios:", error);
         }
     },
- 
+
     addUser: async (formData) => {
         try {
             set({ loading: true });
@@ -142,7 +162,7 @@ export const useUserStore = create((set, get) => ({
             throw error;
         }
     },
- 
+
     // ← NUEVO: actualiza un usuario por ID
     updateUser: async (id, data) => {
         try {
@@ -154,7 +174,7 @@ export const useUserStore = create((set, get) => ({
             throw error;
         }
     },
- 
+
     toggleUserStatus: async (id, currentStatus) => {
         try {
             set({ loading: true, error: null });
@@ -245,10 +265,10 @@ export const useCategoryStore = create((set, get) => ({
         try {
             set({ loading: true, error: null });
             const res = await api.getCategories();
-            
+
             // Extraer la data según la estructura de la respuesta
             const data = res.data?.categories || res.data?.data || (Array.isArray(res.data) ? res.data : []);
-            
+
             set({ categories: data, loading: false });
         } catch (error) {
             const errorMsg = error.response?.data?.message || "Error al obtener las categorías del servidor";
@@ -261,19 +281,19 @@ export const useCategoryStore = create((set, get) => ({
         try {
             set({ loading: true, error: null });
             const res = await api.createCategory(categoryData);
-            
+
             const newCategory = res.data?.category || res.data?.data || res.data;
-            
-            set((state) => ({ 
-                categories: [...state.categories, newCategory], 
-                loading: false 
+
+            set((state) => ({
+                categories: [...state.categories, newCategory],
+                loading: false
             }));
-            
+
             return res.data;
         } catch (error) {
             const errorMsg = error.response?.data?.message || "No se pudo crear la categoría";
             set({ loading: false, error: errorMsg });
-            throw error; 
+            throw error;
         }
     },
 
@@ -281,14 +301,14 @@ export const useCategoryStore = create((set, get) => ({
         try {
             set({ loading: true, error: null });
             const res = await api.updateCategory(id, categoryData);
-            
+
             const updatedCategory = res.data?.category || res.data?.data || res.data;
-            
+
             set((state) => ({
                 categories: state.categories.map((cat) => (cat._id === id ? updatedCategory : cat)),
                 loading: false
             }));
-            
+
             return updatedCategory;
         } catch (error) {
             const errorMsg = error.response?.data?.message || "Error al actualizar la categoría";
@@ -301,9 +321,9 @@ export const useCategoryStore = create((set, get) => ({
         try {
             const newStatus = currentStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE";
             const res = await api.changeCategoryStatus(id, newStatus);
-            
+
             const updatedCategory = res.data?.category || res.data?.data || res.data;
-            
+
             set((state) => ({
                 categories: state.categories.map((cat) => (cat._id === id ? updatedCategory : cat))
             }));
@@ -568,4 +588,48 @@ export const useConversationStore = create((set, get) => ({
 
     setSelectedConversation: (conversation) =>
         set({ selectedConversation: conversation })
+}));
+
+// ================= REVIEWS STORE =================
+export const useReviewStore = create((set, get) => ({
+    reviews: [],
+    loading: false,
+    error: null,
+
+    getReviews: async () => {
+        try {
+            set({ loading: true, error: null });
+            const res = await api.getReviews();
+            const reviews = res.data?.reviews ?? res.data?.data ??
+                (Array.isArray(res.data) ? res.data : []);
+            set({ reviews, loading: false });
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || 'Error al obtener reviews',
+                loading: false,
+            });
+        }
+    },
+
+    deleteReview: async (id) => {
+        try {
+            set({ loading: true, error: null });
+            await api.deleteReview(id);
+            set((state) => ({
+                reviews: state.reviews.map((r) =>
+                    r._id === id ? { ...r, Status: false } : r
+                ),
+                loading: false,
+            }));
+            return { success: true };
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || 'Error al eliminar review',
+                loading: false,
+            });
+            throw error;
+        }
+    },
+
+    clearError: () => set({ error: null }),
 }));

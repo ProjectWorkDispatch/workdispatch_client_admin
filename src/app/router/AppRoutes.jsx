@@ -6,7 +6,7 @@ import { UsersHome } from "../../features/users/components/UsersHome.jsx";
 import { ServicesHome } from "../../features/services/components/ServicesHome.jsx";
 import { VerificationsHome } from "../../features/verifications/components/VerificationsHome.jsx";
 import { ReportsHome } from "../../features/reports/components/ReportsHome.jsx";
-import { ReviewsHome } from "../../features/reviews/components/ReviewsHomes.jsx";
+import { ReviewsHome } from "../../features/reviews/components/ReviewsHome.jsx";
 import { CategoriesHome } from "../../features/categories/components/CategoriesHome.jsx";
 import { ServiceRequestsHome } from "../../features/serviceRequests/components/ServiceRequestsHome.jsx";
 import { ProposalsHome } from "../../features/proposals/components/ProposalsHome.jsx";

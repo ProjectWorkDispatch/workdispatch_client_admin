@@ -22,8 +22,8 @@ export const ReportsHome = () => {
     const [statusFilter, setStatusFilter] = useState("Todos");
     const [severityFilter, setSeverityFilter] = useState("Todas");
     const [selectedReport, setSelectedReport] = useState(null);
-
-    const { reports, loading, getReports, resolveReport } = useReportStore();
+    
+    const { reports, loading, getReports, resolveReport, sanctionReport } = useReportStore();
 
     useEffect(() => {
         getReports();
@@ -83,14 +83,13 @@ export const ReportsHome = () => {
         );
     };
 
-    // Ambas acciones (sancionar e ignorar) resuelven el reporte en el backend
     const onSanction = async (id) => {
-        await resolveReport(id);  // ← actualiza el store
+        await sanctionReport(id);
         syncModal(id);
     };
 
     const onIgnore = async (id) => {
-        await resolveReport(id);  // ← actualiza el store
+        await resolveReport(id);
         syncModal(id);
     };
 
