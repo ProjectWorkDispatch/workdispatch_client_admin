@@ -6,102 +6,52 @@ import date from "../../../assets/icons/date.svg";
 export const JobModal = ({ job, onClose }) => {
     return (
         <div className="fixed inset-0 z-100 flex items-center justify-center">
-            <div
-                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-                onClick={onClose}
-            />
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
             <div className="relative bg-white w-[95%] sm:w-full max-w-xl rounded-2xl shadow-xl overflow-hidden max-h-[90vh] overflow-y-auto">
-                <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <div className="w-11 h-11 rounded-xl bg-green-50 text-green-500 flex items-center justify-center font-bold">
-                            <img
-                                src={JobIconG}
-                                alt="Servicio"
-                                className="w-5 h-5"
-                            />
-                        </div>
 
-                        <div>
-                            <p className="text-xs text-gray-400">
-                                #{job.id}
-                            </p>
-
-                            <h2 className="font-bold text-[#0F172A]">
-                                Servicio #{job.requestCode}
-                            </h2>
-                        </div>
-                    </div>
-
+                {/* HEADER */}
+                <div className="relative bg-linear-to-r from-[#0F172A] to-[#1E293B] px-6 py-6">
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600 text-xl"
+                        className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white text-sm transition"
                     >
-                        ×
+                        ✕
                     </button>
+                    <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 rounded-2xl bg-green-500/20 border border-green-400/30 flex items-center justify-center">
+                            <img src={JobIconG} alt="Servicio" className="w-7 h-7" />
+                        </div>
+                        <div className="text-white">
+                            <p className="text-xs text-slate-400">#{job.id}</p>
+                            <h2 className="text-xl font-bold">Servicio #{job.requestCode}</h2>
+                            <div className="mt-2">
+                                <StatusBadge value={job.status} />
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
+                {/* BODY */}
                 <div className="p-6 space-y-5">
-                    <div className="flex gap-3 flex-wrap">
-                        <StatusBadge value={job.status} />
-                    </div>
-
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <InfoBox
-                            label="Cliente"
-                            value={job.clientName}
-                        />
-
-                        <InfoBox
-                            label="Trabajador"
-                            value={job.workerName}
-                        />
+                        <InfoBox label="Cliente" value={job.clientName} />
+                        <InfoBox label="Trabajador" value={job.workerName} />
                     </div>
 
                     {job.status === "CANCELLED" && (
                         <div className="bg-red-50 border border-red-100 rounded-2xl p-4">
-                            <p className="text-xs text-red-400 mb-2">
-                                Motivo de cancelación
-                            </p>
-
-                            <p className="text-sm font-medium text-red-600">
-                                {job.cancelReason || "Sin motivo"}
-                            </p>
-
-                            <p className="text-xs text-red-400 mt-2">
-                                Cancelado por: {job.cancelledBy || "Desconocido"}
-                            </p>
+                            <p className="text-xs text-red-400 mb-2">Motivo de cancelación</p>
+                            <p className="text-sm font-medium text-red-600">{job.cancelReason || "Sin motivo"}</p>
+                            <p className="text-xs text-red-400 mt-2">Cancelado por: {job.cancelledBy || "Desconocido"}</p>
                         </div>
                     )}
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <DetailItem
-                            icon={<img src={money} alt="Precio" className="w-4 h-4" />}
-                            label="Precio final"
-                            value={`Q ${job.budget}`}
-                            color="text-green-500 bg-green-50"
-                        />
-
-                        <DetailItem
-                            icon={<img src={date} alt="Fecha" className="w-4 h-4" />}
-                            label="Fecha de creación"
-                            value={job.createdDate}
-                            color="text-blue-500 bg-blue-50"
-                        />
-
-                        <DetailItem
-                            icon={<img src={location} alt="Inicio" className="w-4 h-4" />}
-                            label="Inicio del servicio"
-                            value={job.startDateFormatted}
-                            color="text-purple-500 bg-purple-50"
-                        />
-
-                        <DetailItem
-                            icon={<img src={date} alt="Fin" className="w-4 h-4" />}
-                            label="Fin del servicio"
-                            value={job.endDateFormatted}
-                            color="text-gray-500 bg-gray-100"
-                        />
+                        <DetailItem icon={<img src={money} alt="Precio" className="w-4 h-4" />} label="Precio final" value={`Q ${job.budget}`} color="text-green-500 bg-green-50" />
+                        <DetailItem icon={<img src={date} alt="Fecha" className="w-4 h-4" />} label="Fecha de creación" value={job.createdDate} color="text-blue-500 bg-blue-50" />
+                        <DetailItem icon={<img src={location} alt="Inicio" className="w-4 h-4" />} label="Inicio del servicio" value={job.startDateFormatted} color="text-purple-500 bg-purple-50" />
+                        <DetailItem icon={<img src={date} alt="Fin" className="w-4 h-4" />} label="Fin del servicio" value={job.endDateFormatted} color="text-gray-500 bg-gray-100" />
                     </div>
                 </div>
             </div>

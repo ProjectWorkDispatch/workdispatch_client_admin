@@ -23,7 +23,7 @@ export const SkillsHome = () => {
                 </div>
                 <button
                     onClick={() => setIsModalOpen(true)}
-                    className="px-6 py-3 bg-[#0F172A] text-white rounded-xl font-semibold hover:bg-slate-800 transition"
+                    className="inline-flex items-center justify-center rounded-2xl bg-green-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-green-700"
                 >
                     + Nueva Habilidad
                 </button>

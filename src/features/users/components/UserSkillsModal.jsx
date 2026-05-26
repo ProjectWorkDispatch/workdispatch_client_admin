@@ -91,16 +91,27 @@ export const UserSkillsModal = ({ user, onClose, onRefresh }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-            <div className="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl">
-                <div className="flex justify-between items-center mb-6">
-                    <div>
-                        <h2 className="font-bold text-xl text-slate-800">Habilidades Profesionales</h2>
-                        <p className="text-sm text-slate-400">{user.firstName} {user.lastName}</p>
-                    </div>
-                    <button onClick={onClose} className="text-slate-300 hover:text-slate-500 text-2xl">×</button>
-                </div>
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
 
+            {/* HEADER */}
+            <div className="relative bg-linear-to-r from-[#0F172A] to-[#1E293B] px-6 py-6">
+                <button
+                    onClick={onClose}
+                    className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white text-sm transition"
+                >
+                    ✕
+                </button>
+                <div className="flex items-center gap-4">
+                    <div className="text-white">
+                        <h2 className="text-xl font-bold">Habilidades Profesionales</h2>
+                        <p className="text-sm text-slate-300 mt-1">{user.firstName} {user.lastName}</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* BODY */}
+            <div className="p-6">
                 <div className="space-y-3 max-h-[280px] overflow-y-auto pr-1 mb-4">
                     {loadingSkills ? (
                         <p className="text-center text-slate-400 italic py-8 text-sm">Cargando habilidades...</p>
@@ -131,7 +142,7 @@ export const UserSkillsModal = ({ user, onClose, onRefresh }) => {
 
                 {showForm ? (
                     <form onSubmit={handleAssign} className="space-y-3 border-t border-slate-100 pt-4">
-                        <p className="text-sm font-semibold text-slate-700">Asignar nueva habilidad</p>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Asignar nueva habilidad</p>
                         <select
                             value={form.skillId}
                             onChange={e => setForm(f => ({ ...f, skillId: e.target.value }))}
@@ -192,5 +203,6 @@ export const UserSkillsModal = ({ user, onClose, onRefresh }) => {
                 )}
             </div>
         </div>
-    );
+    </div>
+);
 };

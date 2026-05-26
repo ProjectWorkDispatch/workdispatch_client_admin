@@ -40,14 +40,31 @@ export const SkillModal = ({ onClose }) => {
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm">
-            <div className="bg-white w-full max-w-md rounded-2xl p-6 shadow-xl">
-                <h2 className="text-xl font-bold mb-4 text-[#0F172A]">Nueva Habilidad</h2>
-                <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden">
+
+                {/* HEADER */}
+                <div className="relative bg-linear-to-r from-[#0F172A] to-[#1E293B] px-6 py-6">
+                    <button
+                        onClick={onClose}
+                        className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white text-sm transition"
+                    >
+                        ✕
+                    </button>
+                    <div className="flex items-center gap-4">
+                        <div className="text-white">
+                            <h2 className="text-xl font-bold">Nueva Habilidad</h2>
+                            <p className="text-sm text-slate-300 mt-1">Completa los campos para crearla</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* BODY */}
+                <form onSubmit={handleSubmit} className="p-6 space-y-4">
                     <div>
-                        <label className="block text-sm font-semibold text-slate-700 mb-1">Nombre</label>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">Nombre</label>
                         <input
                             autoFocus
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-green-400 transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-green-400 transition-all text-sm"
                             placeholder="Ej: Carpintería"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
@@ -56,14 +73,14 @@ export const SkillModal = ({ onClose }) => {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-semibold text-slate-700 mb-1">Categoría</label>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">Categoría</label>
                         {loadingCats ? (
                             <p className="text-sm text-slate-400 italic px-1">Cargando categorías...</p>
                         ) : catList.length === 0 ? (
                             <p className="text-sm text-red-400 italic px-1">No hay categorías disponibles. Crea una primero.</p>
                         ) : (
                             <select
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-green-400 transition-all"
+                                className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-green-400 transition-all text-sm"
                                 value={categoryId}
                                 onChange={(e) => setCategoryId(e.target.value)}
                                 disabled={loading}
@@ -76,19 +93,20 @@ export const SkillModal = ({ onClose }) => {
                         )}
                     </div>
 
-                    <div className="flex gap-2 pt-2">
+                    {/* FOOTER */}
+                    <div className="flex gap-2 pt-2 border-t border-gray-100">
                         <button
                             type="button"
                             onClick={onClose}
                             disabled={loading}
-                            className="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-semibold hover:bg-gray-200 disabled:opacity-50"
+                            className="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-semibold hover:bg-gray-200 disabled:opacity-50 text-sm"
                         >
                             Cancelar
                         </button>
                         <button
                             type="submit"
                             disabled={loading || catList.length === 0}
-                            className="flex-1 py-3 bg-[#0F172A] text-white rounded-xl font-semibold hover:bg-slate-800 transition-all disabled:opacity-50"
+                            className="flex-1 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition disabled:opacity-50 text-sm"
                         >
                             {loading ? "Guardando..." : "Guardar"}
                         </button>

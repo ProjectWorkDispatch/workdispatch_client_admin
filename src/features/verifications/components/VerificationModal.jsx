@@ -1,8 +1,7 @@
 // src/features/verifications/components/VerificationModal.jsx
 import { useState } from 'react';
-import check      from '../../../assets/icons/check.svg';
-import deny       from '../../../assets/icons/deny.svg';
-import detail     from '../../../assets/icons/detail.svg';
+import check from '../../../assets/icons/check.svg';
+import deny from '../../../assets/icons/deny.svg';
 import noAvailable from '../../../assets/icons/noAvailable.svg';
 import { RoleBadge, StatusBadge, UrgencyBadge } from './VerificationBadges.jsx';
 
@@ -17,7 +16,7 @@ const getAvatar = (firstName = '', lastName = '') => {
     const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
     const colors = [
         'bg-orange-500', 'bg-teal-500', 'bg-pink-500',
-        'bg-blue-500',   'bg-purple-500', 'bg-green-600'
+        'bg-blue-500', 'bg-purple-500', 'bg-green-600'
     ];
     const index = (firstName.charCodeAt(0) + lastName.charCodeAt(0)) % colors.length;
     return { initials, color: colors[index] };
@@ -57,14 +56,13 @@ export const VerificationModal = ({
     onApprove,
     onReject
 }) => {
-    // ── Estado local del flujo de rechazo dentro del modal ───────
     const [showRejectInput, setShowRejectInput] = useState(false);
-    const [rejectReason, setRejectReason]       = useState('');
+    const [rejectReason, setRejectReason] = useState('');
 
     const firstName = verification.userId?.firstName || '';
-    const lastName  = verification.userId?.lastName  || '';
+    const lastName = verification.userId?.lastName || '';
     const { initials, color } = getAvatar(firstName, lastName);
-    const urgency   = getUrgency(verification.createdAt);
+    const urgency = getUrgency(verification.createdAt);
     const isPending = verification.status === 'PENDING';
 
     const handleRejectClick = () => {
@@ -73,7 +71,6 @@ export const VerificationModal = ({
     };
 
     const handleRejectConfirm = () => {
-        // Delega al handler del Home que ya sabe hablar con el store
         onReject(verification._id, rejectReason, () => {
             setShowRejectInput(false);
             setRejectReason('');
@@ -98,43 +95,38 @@ export const VerificationModal = ({
             />
 
             <div className="relative bg-white w-[95%] sm:w-full max-w-md rounded-2xl shadow-xl overflow-hidden max-h-[90vh] overflow-y-auto">
-                {/* Header */}
-                <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
-                    <h2 className="flex items-center gap-2 text-lg font-bold text-[#0F172A]">
-                        <img src={detail} alt="Detalle" className="w-5 h-5" />
-                        Detalle de Verificación
-                    </h2>
+
+                {/* HEADER */}
+                <div className="relative bg-linear-to-r from-[#0F172A] to-[#1E293B] px-6 py-6">
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600 text-xl leading-none"
+                        className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white text-sm transition leading-none"
                     >
-                        ×
+                        ✕
                     </button>
-                </div>
-
-                <div className="p-6 space-y-5">
-                    {/* Avatar + datos del usuario */}
                     <div className="flex items-center gap-4">
-                        <div className={`w-14 h-14 rounded-full ${color} text-white flex items-center justify-center font-bold text-lg shrink-0`}>
+                        <div className={`w-14 h-14 rounded-2xl ${color} border-2 border-white/20 text-white flex items-center justify-center font-bold text-xl shrink-0`}>
                             {initials}
                         </div>
-                        <div>
-                            <p className="font-bold text-[#0F172A]">
-                                {firstName} {lastName}
-                            </p>
-                            <p className="text-sm text-gray-400">
-                                {verification.userId?.email}
-                            </p>
-                            <div className="mt-1">
+                        <div className="text-white">
+                            <h2 className="text-xl font-bold">{firstName} {lastName}</h2>
+                            <p className="text-sm text-slate-300">{verification.userId?.email}</p>
+                            <div className="flex flex-wrap gap-2 mt-2">
                                 <RoleBadge value={verification.userId?.role} />
+                                <UrgencyBadge value={urgency} />
+                                <StatusBadge value={verification.status} />
                             </div>
                         </div>
                     </div>
+                </div>
+
+                {/* BODY */}
+                <div className="p-6 space-y-5">
 
                     {/* Datos del documento */}
                     <div className="bg-gray-50 rounded-2xl p-4 space-y-3">
                         <DetailRow label="Tipo de documento" value={verification.documentType} />
-                        <DetailRow label="Número"            value={verification.documentNumber} />
+                        <DetailRow label="Número" value={verification.documentNumber} />
                         <DetailRow
                             label="Enviado"
                             value={verification.createdAt
@@ -144,38 +136,29 @@ export const VerificationModal = ({
                                 })
                                 : '—'}
                         />
-                        <DetailRow label="Urgencia"      value={<UrgencyBadge value={urgency} />} />
-                        <DetailRow label="Estado actual" value={<StatusBadge value={verification.status} />} />
                         {verification.reviewedBy && (
-                            <DetailRow
-                                label="Revisado por"
-                                value={verification.reviewedBy}
-                            />
+                            <DetailRow label="Revisado por" value={verification.reviewedBy} />
                         )}
                     </div>
 
                     {/* Imágenes del documento */}
                     <div className="space-y-3">
                         <DocumentImage src={verification.documentImageFront} label="Frente del documento" />
-                        <DocumentImage src={verification.documentImageBack}  label="Reverso del documento" />
+                        <DocumentImage src={verification.documentImageBack} label="Reverso del documento" />
                     </div>
 
                     {/* Nota de rechazo existente */}
                     {verification.status === 'REJECTED' && verification.rejectionReason && (
                         <div className="rounded-2xl border border-yellow-300 bg-yellow-50 px-4 py-3">
                             <p className="text-sm font-semibold text-yellow-700">Nota del revisor</p>
-                            <p className="text-sm text-yellow-600 mt-1">
-                                {verification.rejectionReason}
-                            </p>
+                            <p className="text-sm text-yellow-600 mt-1">{verification.rejectionReason}</p>
                         </div>
                     )}
 
-                    {/* Input de razón de rechazo — aparece dentro del modal */}
+                    {/* Input de razón de rechazo */}
                     {showRejectInput && (
                         <div className="rounded-2xl border border-red-200 bg-red-50 p-4 space-y-3">
-                            <p className="text-sm font-semibold text-red-700">
-                                Razón del rechazo
-                            </p>
+                            <p className="text-sm font-semibold text-red-700">Razón del rechazo</p>
                             <textarea
                                 value={rejectReason}
                                 onChange={(e) => setRejectReason(e.target.value)}

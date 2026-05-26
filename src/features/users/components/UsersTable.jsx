@@ -114,8 +114,11 @@ export const UsersTable = ({
                                     <StatusBadge value={getStatusValue(user)} />
                                 </td>
 
-                                <td className="px-5 py-4 text-slate-700">
-                                    ⭐ {user.ratingAverage || 1}
+                                <td className="px-5 py-4">
+                                    <span className="inline-flex items-center text-yellow-400 text-base">
+                                        {"★".repeat(Math.round(user.ratingAverage || 1))}
+                                        {"☆".repeat(5 - Math.round(user.ratingAverage || 1))}
+                                    </span>
                                 </td>
 
                                 <td className="px-5 py-4 text-gray-400">

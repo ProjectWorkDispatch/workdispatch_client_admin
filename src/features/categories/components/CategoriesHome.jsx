@@ -119,14 +119,10 @@ export const CategoriesHome = () => {
                 </div>
                 <button
                     onClick={() => setOpenCreateModal(true)}
-                    className="w-fit px-4 py-2 rounded-2xl bg-white border border-gray-200 shadow-sm text-sm font-semibold text-slate-600 hover:bg-gray-50 transition flex items-center gap-2">
-                    <img
-                        src={Exp}
-                        alt="Exportar"
-                        className="w-4 h-4"
-                    />
+                    className="inline-flex items-center justify-center rounded-2xl bg-green-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-green-700"
+                    >
 
-                    Nueva categoría
+                    + Nueva categoría
                 </button>
             </div>
 

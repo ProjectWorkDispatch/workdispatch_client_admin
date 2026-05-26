@@ -40,29 +40,37 @@ export const ServiceRequestModal = ({ request, onClose }) => {
 
             {/* Panel */}
             <div
-                className="relative bg-white w-full max-w-xl rounded-2xl shadow-xl
-                            max-h-[90vh] overflow-y-auto"
+                className="relative bg-white w-full max-w-xl rounded-2xl shadow-xl max-h-[90vh] overflow-y-auto"
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Header */}
-                <div className="p-6 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
-                    <div className="flex items-center gap-4 min-w-0">
-                        <div className="w-11 h-11 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
-                            <img src={JobIconG} alt="Trabajo" className="w-5 h-5" />
-                        </div>
-                        <div className="min-w-0">
-                            <p className="text-xs text-gray-400">#{request._id.slice(-6)}</p>
-                            <h2 className="font-bold text-[#0F172A] truncate">{request.title}</h2>
-                        </div>
-                    </div>
+                {/* HEADER */}
+                <div className="relative bg-linear-to-r from-[#0F172A] to-[#1E293B] px-6 py-6 sticky top-0 z-10">
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600 text-2xl leading-none ml-4 shrink-0"
+                        className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white text-sm transition"
                         aria-label="Cerrar"
                     >
-                        ×
+                        ✕
                     </button>
+                    <div className="flex items-center gap-4 min-w-0">
+                        <div className="w-14 h-14 rounded-2xl bg-green-500/20 border border-green-400/30 flex items-center justify-center shrink-0">
+                            <img src={JobIconG} alt="Trabajo" className="w-7 h-7" />
+                        </div>
+                        <div className="text-white min-w-0">
+                            <p className="text-xs text-slate-400">#{request._id.slice(-6)}</p>
+                            <h2 className="font-bold text-xl truncate">{request.title}</h2>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                                <ServiceRequestStatusBadge value={request.status} />
+                                {request.service && <ServiceRequestStatusBadge value={request.service.status} />}
+                                <span className="px-3 py-1 rounded-full bg-white/10 text-white text-xs font-semibold">
+                                    {request._categoryName}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
+                {/* Body — sin cambios, copiar desde <div className="p-6 space-y-6"> en adelante */}
 
                 {/* Body */}
                 <div className="p-6 space-y-6">
