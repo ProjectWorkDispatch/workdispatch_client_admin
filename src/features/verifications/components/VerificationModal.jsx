@@ -136,9 +136,13 @@ export const VerificationModal = ({
                                 })
                                 : '—'}
                         />
-                        {verification.reviewedBy && (
-                            <DetailRow label="Revisado por" value={verification.reviewedBy} />
-                        )}
+                    {verification.reviewedBy && (
+                        <DetailRow label="Revisado por" value={
+                            typeof verification.reviewedBy === 'string'
+                                ? verification.reviewedBy
+                                : `${verification.reviewedBy.firstName || ''} ${verification.reviewedBy.lastName || ''}`.trim()
+                        } />
+                    )}
                     </div>
 
                     {/* Imágenes del documento */}

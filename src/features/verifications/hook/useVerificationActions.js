@@ -15,14 +15,14 @@ export const useVerificationActions = () => {
     };
 
     const handleApprove = async (verificationId, onSuccess) => {
-        if (!adminUser?.id) { // ← era adminUser?._id
+        if (!adminUser?._id) {
             console.error('useVerificationActions: no hay usuario admin en sesión');
             return;
         }
         try {
             await updateVerificationStatus(verificationId, {
                 status: 'APPROVED',
-                reviewedBy: adminUser.id // ← era adminUser._id
+                reviewedBy: adminUser._id
             });
             onSuccess?.();
         } catch {
@@ -31,7 +31,7 @@ export const useVerificationActions = () => {
     };
 
     const handleReject = async (verificationId, rejectionReason, onSuccess) => {
-        if (!adminUser?.id) { // ← era adminUser?._id
+        if (!adminUser?._id) {
             console.error('useVerificationActions: no hay usuario admin en sesión');
             return;
         }
@@ -41,7 +41,7 @@ export const useVerificationActions = () => {
         try {
             await updateVerificationStatus(verificationId, {
                 status: 'REJECTED',
-                reviewedBy: adminUser.id, // ← era adminUser._id
+                reviewedBy: adminUser._id,
                 rejectionReason: rejectionReason?.trim() || 'No especificada'
             });
             onSuccess?.();
