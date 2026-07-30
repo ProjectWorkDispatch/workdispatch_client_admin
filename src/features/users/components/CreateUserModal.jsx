@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useUserStore } from "../Store/adminStore";
-import { MapPickerView } from "../../../shared/components/ui/MapPickerView";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ONLY_LETTERS_REGEX = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙäëïöüÄËÏÖÜñÑçÇ\s]+$/;
@@ -212,18 +211,6 @@ export const CreateUserModal = ({ open, onClose }) => {
               rows={3}
               className="w-full px-4 py-3 rounded-2xl border border-gray-200 text-sm outline-none focus:border-green-400 focus:ring-2 focus:ring-green-100"
               placeholder="Descripción breve del usuario"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-2">Ubicación</label>
-            <MapPickerView
-              latitude={formState.latitude}
-              longitude={formState.longitude}
-              editable={true}
-              onPick={(lat, lng) =>
-                setFormState((prev) => ({ ...prev, latitude: lat, longitude: lng }))
-              }
             />
           </div>
 

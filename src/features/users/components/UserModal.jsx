@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useUserStore } from "../Store/adminStore";
-import { MapPickerView } from "../../../shared/components/ui/MapPickerView";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ONLY_LETTERS_REGEX = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙäëïöüÄËÏÖÜñÑçÇ\s]+$/;
@@ -288,24 +287,15 @@ export const UserModal = ({ open, onClose, user }) => {
                         <div className="bg-gray-50 rounded-2xl border border-gray-100 p-4 sm:p-5">
                             <h3 className="text-base sm:text-lg font-bold text-[#0F172A] mb-4">Ubicación</h3>
                             <div className="space-y-4">
-                                <InputField
-                                    label="Dirección"
-                                    name="address"
-                                    value={formData.address}
-                                    onChange={handleChange}
-                                    editing={isEditing}
-                                />
-                                <MapPickerView
-                                    latitude={formData.latitude}
-                                    longitude={formData.longitude}
-                                    editable={isEditing}
-                                    onPick={(lat, lng) => {
-                                        setFormData((prev) => ({ ...prev, latitude: lat, longitude: lng }));
-                                    }}
-                                />
-                            </div>
+                        <InputField
+                            label="Dirección"
+                            name="address"
+                            value={formData.address}
+                            onChange={handleChange}
+                            editing={isEditing}
+                        />
                         </div>
-
+                        
                         {/* SKILLS */}
                         {user.skills && (
                             <div className="bg-gray-50 rounded-2xl border border-gray-100 p-4 sm:p-5">
@@ -364,6 +354,7 @@ export const UserModal = ({ open, onClose, user }) => {
                         </button>
                     </div>
                 </div>
+        </div>
             </div>
         </div>
     );
