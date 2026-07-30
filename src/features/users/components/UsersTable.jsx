@@ -15,7 +15,7 @@ export const UsersTable = ({
     return (
         <div>
             {/* ── TABLA — Desktop ── */}
-            <div className="hidden lg:block overflow-x-auto">
+            <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-sm">
                     <thead className="bg-gray-50 text-gray-500 uppercase text-[11px] tracking-wider">
                         <tr>
@@ -69,7 +69,7 @@ export const UsersTable = ({
             </div>
 
             {/* ── CARDS — Mobile ── */}
-            <div className="lg:hidden flex flex-col gap-4 p-4 bg-gray-50/50">
+            <div className="md:hidden flex flex-col gap-4 p-4 bg-gray-50/50">
                 {users.length === 0 ? (
                     <p className="px-5 py-10 text-center text-sm text-gray-400">No se encontraron usuarios.</p>
                 ) : users.map((user) => (

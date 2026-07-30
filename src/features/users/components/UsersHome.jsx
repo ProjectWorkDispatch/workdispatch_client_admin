@@ -13,7 +13,7 @@ export const UsersHome = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedUserForSkills, setSelectedUserForSkills] = useState(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    
+
     const itemsPerPage = 8;
 
     useEffect(() => {
@@ -56,6 +56,18 @@ export const UsersHome = () => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const currentUsers = filteredUsers.slice(startIndex, startIndex + itemsPerPage);
 
+    const FILTERS = ["Todos", "Clientes", "Trabajadores", "Verificados", "Pendientes", "Suspendidos"];
+
+    const filterCount = (value) => {
+        if (value === "Todos") return users.length;
+        if (value === "Clientes") return users.filter((u) => ["CLIENT", "CLIENTE"].includes((u.role || "").toUpperCase())).length;
+        if (value === "Trabajadores") return users.filter((u) => ["WORKER", "TRABAJADOR"].includes((u.role || "").toUpperCase())).length;
+        if (value === "Verificados") return users.filter((u) => isUserVerified(u)).length;
+        if (value === "Pendientes") return users.filter((u) => !isUserVerified(u)).length;
+        if (value === "Suspendidos") return users.filter((u) => !isUserActive(u)).length;
+        return 0;
+    };
+
     return (
         <section className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
@@ -86,6 +98,25 @@ export const UsersHome = () => {
                         placeholder="Buscar por nombre o correo..."
                         className="w-full px-4 py-3 rounded-xl border border-gray-200 outline-none focus:border-green-400"
                     />
+                </div>
+
+                <div className="px-5 py-4 border-b border-gray-100 overflow-x-auto">
+                    <div className="flex gap-2 min-w-max">
+                        {FILTERS.map((value) => (
+                            <button
+                                key={value}
+                                onClick={() => handleFilter(value)}
+                                className={`px-4 py-2 rounded-2xl text-sm font-semibold transition flex items-center gap-2 whitespace-nowrap ${filter === value ? "bg-[#0F172A] text-white" : "text-gray-500 hover:bg-gray-100"
+                                    }`}
+                            >
+                                <span>{value}</span>
+                                <span className={`px-2 py-0.5 rounded-full text-xs ${filter === value ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"
+                                    }`}>
+                                    {filterCount(value)}
+                                </span>
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 <UsersTable
