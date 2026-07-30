@@ -21,7 +21,7 @@ export const ServicesHome = () => {
         return (Array.isArray(services) ? services : []).map((service) => ({
             ...service,
             id: service._id,
-            requestCode: service.requestId?._id ?? service.requestId ?? "Sin solicitud",
+            requestCode: service.requestId?.title ?? "Sin solicitud",
             clientName:
                 (service.clientId?.name ||
                     `${service.clientId?.firstName ?? ""} ${service.clientId?.lastName ?? ""}`.trim()) ||
