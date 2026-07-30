@@ -1,5 +1,6 @@
 import { LoginForm } from "../components/LoginForm.jsx";
 import shieldLock from "../../../assets/img/shield_lockY.svg";
+import imgLogo from "../../../assets/img/logo_Workdispatch.png";
 
 const AuthPage = () => {
   return (
@@ -14,7 +15,7 @@ const AuthPage = () => {
         <div className="text-center mb-6 sm:mb-7">
           <div className="flex justify-center mb-4 sm:mb-5">
             <img
-              src="/src/assets/img/logo_Workdispatch.png"
+              src={imgLogo}
               alt="WorkDispatch"
               className="h-14 sm:h-18 md:h-20 w-auto object-contain"
             />
