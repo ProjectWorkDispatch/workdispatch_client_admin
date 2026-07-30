@@ -35,7 +35,7 @@ export const ServiceRequestTable = ({ requests, onView }) => {
                                     {/* ... resto de celdas desktop ... */}
                                     <td className="px-5 py-4 text-gray-700">{req._clientName}</td>
                                     <td className="px-5 py-4 text-blue-600">{req._categoryName}</td>
-                                    <td className="px-5 py-4 font-semibold">Q {req._budgetRange}</td>
+                                    <td className="px-5 py-4 font-semibold">{req._budgetRange}</td>
                                     <td className="px-5 py-4"><ServiceRequestStatusBadge value={req.status} /></td>
                                     <td className="px-5 py-4">
                                         <button onClick={() => onView(req)} className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-100 transition">
