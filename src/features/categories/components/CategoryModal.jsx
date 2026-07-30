@@ -85,7 +85,9 @@ export const CategoryModal = ({
 
                     <div>
                         <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1">Fecha de creación</p>
-                        <p className="font-semibold text-[#0F172A] text-sm">{category.createdAt}</p>
+                        <p className="font-semibold text-[#0F172A] text-sm">
+                            {category.createdAt ? new Date(category.createdAt).toLocaleDateString() : "—"}
+                        </p>
                     </div>
                 </div>
 

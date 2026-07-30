@@ -45,7 +45,9 @@ export const CategoriesTable = ({
                                         <p className="truncate">{category.description}</p>
                                     </td>
                                     <td className="px-5 py-4"><StatusBadge value={category.status} /></td>
-                                    <td className="px-5 py-4 text-gray-500 whitespace-nowrap">{category.createdAt}</td>
+                                    <td className="px-5 py-4 text-gray-500 whitespace-nowrap">
+                                        {category.createdAt ? new Date(category.createdAt).toLocaleDateString() : "—"}
+                                    </td>
                                     <td className="px-5 py-4">
                                         <div className="flex items-center gap-2">
                                             <button onClick={() => onView(category)} className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-100 transition"><img src={EyeB} className="w-4 h-4" /></button>
@@ -93,7 +95,9 @@ export const CategoriesTable = ({
 
                                 <div className="flex justify-between items-center px-1">
                                     <span className="text-[10px] text-gray-400 font-bold uppercase">Creada</span>
-                                    <span className="text-[11px] font-semibold text-gray-500">{category.createdAt}</span>
+                                    <span className="text-[11px] font-semibold text-gray-500">
+                                        {category.createdAt ? new Date(category.createdAt).toLocaleDateString() : "—"}
+                                    </span>
                                 </div>
 
                                 {/* Acciones */}
