@@ -85,7 +85,10 @@ const handleRefreshToken = async function (_error) {
   const status = _error.response?.status;
   const errorCode = _error.response?.data?.error;
   const requestUrl = _original.url || "";
-  const isRefreshEndpoint = requestUrl.includes("/Auth/refresh") || requestUrl.includes("/auth/refresh");
+  const isRefreshEndpoint =
+    requestUrl.includes("/users/refresh") ||
+    requestUrl.includes("/Auth/refresh") ||
+    requestUrl.includes("/auth/refresh");
   const shouldAttemptRefresh =
     !isRefreshEndpoint &&
     // La mayoría de casos es 401 (TokenExpiredError)
@@ -121,10 +124,10 @@ const handleRefreshToken = async function (_error) {
     try {
       let response;
       try {
-        response = await axiosAuth.post("/Auth/refresh", { refreshToken });
+        response = await axiosAdmin.post("/users/refresh", { refreshToken });
       } catch (refreshError) {
         if (refreshError.response?.status === 404) {
-          response = await axiosAuth.post("/auth/refresh", { refreshToken });
+          response = await axiosAuth.post("/Auth/refresh", { refreshToken });
         } else {
           throw refreshError;
         }
@@ -138,7 +141,7 @@ const handleRefreshToken = async function (_error) {
       useAuthStore.setState({
         token: accessToken,
         refreshToken: newRefreshToken,
-        expiresAt: expiresIn,
+        expiresAt: typeof expiresIn === 'number' && expiresIn < 1e12 ? Date.now() + expiresIn * 1000 : expiresIn,
         user: userDetails || useAuthStore.getState().user,
         isAuthenticated: true,
       });

@@ -62,7 +62,10 @@ export const useAuthStore = create(
                     const role = (user?.role || user?.roleName || "").toString().toUpperCase();
                     const accessToken = data?.accessToken || data?.token;
                     const refreshToken = data?.refreshToken || data?.refresh_token;
-                    const expiresAt = data?.expiresIn || data?.expiresAt || data?.expiration;
+                    const rawExpires = data?.expiresIn || data?.expiresAt || data?.expiration;
+                    const expiresAt = typeof rawExpires === 'number' && rawExpires < 1e12
+                        ? Date.now() + rawExpires * 1000
+                        : rawExpires;
 
                     if (role !== "ADMIN") {
                         const message = "No tienes permisos para acceder como administrador";
